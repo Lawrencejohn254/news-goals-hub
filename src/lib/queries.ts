@@ -89,7 +89,3 @@ export async function fetchArticlesByCategory(categorySlug: string, limit = 30) 
   return { category: cat, articles: (data ?? []) as unknown as ArticleWithMeta[] };
 }
 
-export async function incrementViews(id: string) {
-  // Best-effort; not blocking.
-  await supabase.rpc("increment_article_views" as never, { _id: id } as never).catch(() => {});
-}
