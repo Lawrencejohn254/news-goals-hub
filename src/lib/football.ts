@@ -14,13 +14,12 @@ export type MatchWithTeams = Match & {
 
 export type PredictionWithMatch = Prediction & {
   matches: MatchWithTeams | null;
-  profiles: { display_name: string | null; avatar_url: string | null } | null;
 };
 
 const MATCH_SELECT =
   "*, home_team:teams!matches_home_team_id_fkey(id,name,short_name,crest_url), away_team:teams!matches_away_team_id_fkey(id,name,short_name,crest_url), competitions(id,name,slug,logo_url)";
 
-const PREDICTION_SELECT = `*, matches(${MATCH_SELECT.replace("*, ", "*, ")}), profiles!predictions_author_id_fkey(display_name,avatar_url)`;
+const PREDICTION_SELECT = `*, matches(${MATCH_SELECT})`;
 
 export async function fetchTeams() {
   const { data, error } = await supabase.from("teams").select("*").order("name");
