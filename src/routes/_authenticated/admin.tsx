@@ -61,6 +61,12 @@ function AdminLayout() {
             <NavItem to="/admin/categories" icon={<Tag size={16} />}>
               Categories
             </NavItem>
+            <NavItem to="/admin/predictions" icon={<Newspaper size={16} />}>
+              Predictions
+            </NavItem>
+            <NavItem to="/admin/football" icon={<Tag size={16} />}>
+              Football data
+            </NavItem>
             <div className="my-2 border-t border-border" />
             <NavItem to="/" icon={<Home size={16} />}>
               View site
