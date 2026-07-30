@@ -14,6 +14,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PredictionsIndexRouteImport } from './routes/predictions.index'
+import { Route as PredictionsSlugRouteImport } from './routes/predictions.$slug'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as ArticleSlugRouteImport } from './routes/article.$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
@@ -45,6 +46,11 @@ const IndexRoute = IndexRouteImport.update({
 const PredictionsIndexRoute = PredictionsIndexRouteImport.update({
   id: '/predictions/',
   path: '/predictions/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PredictionsSlugRoute = PredictionsSlugRouteImport.update({
+  id: '/predictions/$slug',
+  path: '/predictions/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CategorySlugRoute = CategorySlugRouteImport.update({
@@ -99,6 +105,7 @@ export interface FileRoutesByFullPath {
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/article/$slug': typeof ArticleSlugRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/predictions/$slug': typeof PredictionsSlugRoute
   '/predictions/': typeof PredictionsIndexRoute
   '/admin/articles': typeof AuthenticatedAdminArticlesRouteWithChildren
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
@@ -112,6 +119,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/predictions/$slug': typeof PredictionsSlugRoute
   '/predictions': typeof PredictionsIndexRoute
   '/admin/articles': typeof AuthenticatedAdminArticlesRouteWithChildren
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
@@ -128,6 +136,7 @@ export interface FileRoutesById {
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/article/$slug': typeof ArticleSlugRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/predictions/$slug': typeof PredictionsSlugRoute
   '/predictions/': typeof PredictionsIndexRoute
   '/_authenticated/admin/articles': typeof AuthenticatedAdminArticlesRouteWithChildren
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
@@ -144,6 +153,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/article/$slug'
     | '/category/$slug'
+    | '/predictions/$slug'
     | '/predictions/'
     | '/admin/articles'
     | '/admin/categories'
@@ -157,6 +167,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/article/$slug'
     | '/category/$slug'
+    | '/predictions/$slug'
     | '/predictions'
     | '/admin/articles'
     | '/admin/categories'
@@ -172,6 +183,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin'
     | '/article/$slug'
     | '/category/$slug'
+    | '/predictions/$slug'
     | '/predictions/'
     | '/_authenticated/admin/articles'
     | '/_authenticated/admin/categories'
@@ -187,6 +199,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ArticleSlugRoute: typeof ArticleSlugRoute
   CategorySlugRoute: typeof CategorySlugRoute
+  PredictionsSlugRoute: typeof PredictionsSlugRoute
   PredictionsIndexRoute: typeof PredictionsIndexRoute
 }
 
@@ -225,6 +238,13 @@ declare module '@tanstack/react-router' {
       path: '/predictions'
       fullPath: '/predictions/'
       preLoaderRoute: typeof PredictionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/predictions/$slug': {
+      id: '/predictions/$slug'
+      path: '/predictions/$slug'
+      fullPath: '/predictions/$slug'
+      preLoaderRoute: typeof PredictionsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/category/$slug': {
@@ -335,6 +355,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ArticleSlugRoute: ArticleSlugRoute,
   CategorySlugRoute: CategorySlugRoute,
+  PredictionsSlugRoute: PredictionsSlugRoute,
   PredictionsIndexRoute: PredictionsIndexRoute,
 }
 export const routeTree = rootRouteImport
