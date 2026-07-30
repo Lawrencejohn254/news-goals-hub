@@ -1,4 +1,5 @@
 import { Link } from "@tanstack/react-router";
+import { NewsletterForm } from "@/components/site/NewsletterForm";
 
 export function Footer() {
   return (
@@ -20,6 +21,7 @@ export function Footer() {
             <li><Link to="/category/business">Business</Link></li>
             <li><Link to="/category/technology">Technology</Link></li>
             <li><Link to="/category/sports">Sports</Link></li>
+            <li><Link to="/predictions">Football Predictions</Link></li>
           </ul>
         </div>
         <div>
@@ -33,16 +35,7 @@ export function Footer() {
         <div>
           <h4 className="mb-3 text-xs font-bold uppercase tracking-widest text-white">Newsletter</h4>
           <p className="mb-3 text-sm">Get the daily brief in your inbox.</p>
-          <form className="flex">
-            <input
-              type="email"
-              placeholder="you@email.com"
-              className="flex-1 bg-white/10 px-3 py-2 text-sm text-white placeholder:text-white/50 focus:outline-none"
-            />
-            <button className="bg-[var(--brand)] px-4 text-sm font-semibold text-white">
-              Join
-            </button>
-          </form>
+          <NewsletterForm source="footer" />
         </div>
       </div>
       <div className="border-t border-white/10">

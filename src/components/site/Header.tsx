@@ -8,6 +8,7 @@ const NAV = [
   { label: "Business", to: "/category/business" },
   { label: "Technology", to: "/category/technology" },
   { label: "Sports", to: "/category/sports" },
+  { label: "Predictions", to: "/predictions" },
   { label: "Entertainment", to: "/category/entertainment" },
   { label: "International", to: "/category/international" },
 ];
