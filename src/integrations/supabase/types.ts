@@ -14,6 +14,54 @@ export type Database = {
   }
   public: {
     Tables: {
+      ads: {
+        Row: {
+          clicks: number
+          created_at: string
+          ends_at: string | null
+          html_code: string | null
+          id: string
+          image_url: string | null
+          impressions: number
+          is_active: boolean
+          name: string
+          placement: string
+          starts_at: string | null
+          target_url: string | null
+          updated_at: string
+        }
+        Insert: {
+          clicks?: number
+          created_at?: string
+          ends_at?: string | null
+          html_code?: string | null
+          id?: string
+          image_url?: string | null
+          impressions?: number
+          is_active?: boolean
+          name: string
+          placement: string
+          starts_at?: string | null
+          target_url?: string | null
+          updated_at?: string
+        }
+        Update: {
+          clicks?: number
+          created_at?: string
+          ends_at?: string | null
+          html_code?: string | null
+          id?: string
+          image_url?: string | null
+          impressions?: number
+          is_active?: boolean
+          name?: string
+          placement?: string
+          starts_at?: string | null
+          target_url?: string | null
+          updated_at?: string
+        }
+        Relationships: []
+      }
       article_tags: {
         Row: {
           article_id: string
@@ -192,6 +240,303 @@ export type Database = {
           },
         ]
       }
+      competitions: {
+        Row: {
+          country: string | null
+          created_at: string
+          id: string
+          logo_url: string | null
+          name: string
+          season: string | null
+          slug: string
+          sort_order: number
+          updated_at: string
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name: string
+          season?: string | null
+          slug: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          id?: string
+          logo_url?: string | null
+          name?: string
+          season?: string | null
+          slug?: string
+          sort_order?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      matches: {
+        Row: {
+          away_score: number | null
+          away_team_id: string
+          competition_id: string | null
+          created_at: string
+          home_score: number | null
+          home_team_id: string
+          id: string
+          kickoff_at: string
+          status: Database["public"]["Enums"]["match_status"]
+          updated_at: string
+          venue: string | null
+        }
+        Insert: {
+          away_score?: number | null
+          away_team_id: string
+          competition_id?: string | null
+          created_at?: string
+          home_score?: number | null
+          home_team_id: string
+          id?: string
+          kickoff_at: string
+          status?: Database["public"]["Enums"]["match_status"]
+          updated_at?: string
+          venue?: string | null
+        }
+        Update: {
+          away_score?: number | null
+          away_team_id?: string
+          competition_id?: string | null
+          created_at?: string
+          home_score?: number | null
+          home_team_id?: string
+          id?: string
+          kickoff_at?: string
+          status?: Database["public"]["Enums"]["match_status"]
+          updated_at?: string
+          venue?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "matches_away_team_id_fkey"
+            columns: ["away_team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_competition_id_fkey"
+            columns: ["competition_id"]
+            isOneToOne: false
+            referencedRelation: "competitions"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "matches_home_team_id_fkey"
+            columns: ["home_team_id"]
+            isOneToOne: false
+            referencedRelation: "teams"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      media: {
+        Row: {
+          alt_text: string | null
+          created_at: string
+          file_name: string
+          height: number | null
+          id: string
+          mime_type: string | null
+          path: string
+          size_bytes: number | null
+          updated_at: string
+          uploaded_by: string | null
+          width: number | null
+        }
+        Insert: {
+          alt_text?: string | null
+          created_at?: string
+          file_name: string
+          height?: number | null
+          id?: string
+          mime_type?: string | null
+          path: string
+          size_bytes?: number | null
+          updated_at?: string
+          uploaded_by?: string | null
+          width?: number | null
+        }
+        Update: {
+          alt_text?: string | null
+          created_at?: string
+          file_name?: string
+          height?: number | null
+          id?: string
+          mime_type?: string | null
+          path?: string
+          size_bytes?: number | null
+          updated_at?: string
+          uploaded_by?: string | null
+          width?: number | null
+        }
+        Relationships: []
+      }
+      newsletter_subscribers: {
+        Row: {
+          created_at: string
+          email: string
+          id: string
+          source: string | null
+          status: string
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          id?: string
+          source?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          id?: string
+          source?: string | null
+          status?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      page_views: {
+        Row: {
+          article_id: string | null
+          created_at: string
+          id: string
+          path: string
+          prediction_id: string | null
+          referrer: string | null
+        }
+        Insert: {
+          article_id?: string | null
+          created_at?: string
+          id?: string
+          path: string
+          prediction_id?: string | null
+          referrer?: string | null
+        }
+        Update: {
+          article_id?: string | null
+          created_at?: string
+          id?: string
+          path?: string
+          prediction_id?: string | null
+          referrer?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "page_views_article_id_fkey"
+            columns: ["article_id"]
+            isOneToOne: false
+            referencedRelation: "articles"
+            referencedColumns: ["id"]
+          },
+          {
+            foreignKeyName: "page_views_prediction_id_fkey"
+            columns: ["prediction_id"]
+            isOneToOne: false
+            referencedRelation: "predictions"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      predictions: {
+        Row: {
+          analysis: string
+          author_id: string
+          away_form: string | null
+          confidence: number
+          created_at: string
+          head_to_head: string | null
+          home_form: string | null
+          id: string
+          is_featured: boolean
+          is_published: boolean
+          key_stats: string | null
+          match_id: string
+          odds: number | null
+          predicted_away_score: number | null
+          predicted_home_score: number | null
+          result: Database["public"]["Enums"]["prediction_result"]
+          seo_description: string | null
+          seo_title: string | null
+          slug: string
+          tip: string
+          title: string
+          updated_at: string
+          view_count: number
+        }
+        Insert: {
+          analysis?: string
+          author_id: string
+          away_form?: string | null
+          confidence?: number
+          created_at?: string
+          head_to_head?: string | null
+          home_form?: string | null
+          id?: string
+          is_featured?: boolean
+          is_published?: boolean
+          key_stats?: string | null
+          match_id: string
+          odds?: number | null
+          predicted_away_score?: number | null
+          predicted_home_score?: number | null
+          result?: Database["public"]["Enums"]["prediction_result"]
+          seo_description?: string | null
+          seo_title?: string | null
+          slug: string
+          tip: string
+          title: string
+          updated_at?: string
+          view_count?: number
+        }
+        Update: {
+          analysis?: string
+          author_id?: string
+          away_form?: string | null
+          confidence?: number
+          created_at?: string
+          head_to_head?: string | null
+          home_form?: string | null
+          id?: string
+          is_featured?: boolean
+          is_published?: boolean
+          key_stats?: string | null
+          match_id?: string
+          odds?: number | null
+          predicted_away_score?: number | null
+          predicted_home_score?: number | null
+          result?: Database["public"]["Enums"]["prediction_result"]
+          seo_description?: string | null
+          seo_title?: string | null
+          slug?: string
+          tip?: string
+          title?: string
+          updated_at?: string
+          view_count?: number
+        }
+        Relationships: [
+          {
+            foreignKeyName: "predictions_match_id_fkey"
+            columns: ["match_id"]
+            isOneToOne: false
+            referencedRelation: "matches"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_url: string | null
@@ -219,6 +564,54 @@ export type Database = {
         }
         Relationships: []
       }
+      site_settings: {
+        Row: {
+          default_seo_description: string | null
+          default_seo_title: string | null
+          description: string | null
+          facebook_url: string | null
+          ga_measurement_id: string | null
+          id: number
+          instagram_url: string | null
+          logo_url: string | null
+          site_name: string
+          tagline: string | null
+          twitter_url: string | null
+          updated_at: string
+          youtube_url: string | null
+        }
+        Insert: {
+          default_seo_description?: string | null
+          default_seo_title?: string | null
+          description?: string | null
+          facebook_url?: string | null
+          ga_measurement_id?: string | null
+          id?: number
+          instagram_url?: string | null
+          logo_url?: string | null
+          site_name?: string
+          tagline?: string | null
+          twitter_url?: string | null
+          updated_at?: string
+          youtube_url?: string | null
+        }
+        Update: {
+          default_seo_description?: string | null
+          default_seo_title?: string | null
+          description?: string | null
+          facebook_url?: string | null
+          ga_measurement_id?: string | null
+          id?: number
+          instagram_url?: string | null
+          logo_url?: string | null
+          site_name?: string
+          tagline?: string | null
+          twitter_url?: string | null
+          updated_at?: string
+          youtube_url?: string | null
+        }
+        Relationships: []
+      }
       tags: {
         Row: {
           created_at: string
@@ -237,6 +630,39 @@ export type Database = {
           id?: string
           name?: string
           slug?: string
+        }
+        Relationships: []
+      }
+      teams: {
+        Row: {
+          country: string | null
+          created_at: string
+          crest_url: string | null
+          id: string
+          name: string
+          short_name: string | null
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          country?: string | null
+          created_at?: string
+          crest_url?: string | null
+          id?: string
+          name: string
+          short_name?: string | null
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          country?: string | null
+          created_at?: string
+          crest_url?: string | null
+          id?: string
+          name?: string
+          short_name?: string | null
+          slug?: string
+          updated_at?: string
         }
         Relationships: []
       }
@@ -284,6 +710,13 @@ export type Database = {
         | "moderator"
         | "subscriber"
       article_status: "draft" | "published" | "scheduled" | "archived"
+      match_status:
+        | "scheduled"
+        | "live"
+        | "finished"
+        | "postponed"
+        | "cancelled"
+      prediction_result: "pending" | "won" | "lost" | "void"
     }
     CompositeTypes: {
       [_ in never]: never
@@ -420,6 +853,8 @@ export const Constants = {
         "subscriber",
       ],
       article_status: ["draft", "published", "scheduled", "archived"],
+      match_status: ["scheduled", "live", "finished", "postponed", "cancelled"],
+      prediction_result: ["pending", "won", "lost", "void"],
     },
   },
 } as const

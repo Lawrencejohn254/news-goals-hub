@@ -8,22 +8,28 @@ export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async () => {
-        const [articles, categories] = await Promise.all([
+        const [articles, categories, predictions] = await Promise.all([
           supabaseAdmin
             .from("articles")
             .select("slug,updated_at")
             .eq("status", "published"),
           supabaseAdmin.from("categories").select("slug").eq("is_enabled", true),
+          supabaseAdmin.from("predictions").select("slug,updated_at").eq("is_published", true),
         ]);
 
         type Entry = { path: string; lastmod?: string; priority?: string };
         const entries: Entry[] = [
           { path: "/", priority: "1.0" },
+          { path: "/predictions", priority: "0.9" },
           { path: "/auth" },
           ...(categories.data ?? []).map((c) => ({ path: `/category/${c.slug}` })),
           ...(articles.data ?? []).map((a) => ({
             path: `/article/${a.slug}`,
             lastmod: a.updated_at,
+          })),
+          ...(predictions.data ?? []).map((p) => ({
+            path: `/predictions/${p.slug}`,
+            lastmod: p.updated_at,
           })),
         ];
 

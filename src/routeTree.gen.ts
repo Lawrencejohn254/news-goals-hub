@@ -10,21 +10,39 @@
 
 import { Route as rootRouteImport } from './routes/__root'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
+import { Route as SearchRouteImport } from './routes/search'
+import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
+import { Route as PredictionsIndexRouteImport } from './routes/predictions.index'
+import { Route as PredictionsSlugRouteImport } from './routes/predictions.$slug'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as ArticleSlugRouteImport } from './routes/article.$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminPredictionsRouteImport } from './routes/_authenticated/admin.predictions'
+import { Route as AuthenticatedAdminFootballRouteImport } from './routes/_authenticated/admin.football'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
 import { Route as AuthenticatedAdminArticlesRouteImport } from './routes/_authenticated/admin.articles'
+import { Route as AuthenticatedAdminPredictionsNewRouteImport } from './routes/_authenticated/admin.predictions.new'
+import { Route as AuthenticatedAdminPredictionsIdRouteImport } from './routes/_authenticated/admin.predictions.$id'
 import { Route as AuthenticatedAdminArticlesNewRouteImport } from './routes/_authenticated/admin.articles.new'
 import { Route as AuthenticatedAdminArticlesIdRouteImport } from './routes/_authenticated/admin.articles.$id'
 
 const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
   id: '/sitemap.xml',
   path: '/sitemap.xml',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const SearchRoute = SearchRouteImport.update({
+  id: '/search',
+  path: '/search',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const RssDotxmlRoute = RssDotxmlRouteImport.update({
+  id: '/rss.xml',
+  path: '/rss.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const AuthRoute = AuthRouteImport.update({
@@ -39,6 +57,16 @@ const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
 const IndexRoute = IndexRouteImport.update({
   id: '/',
   path: '/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PredictionsIndexRoute = PredictionsIndexRouteImport.update({
+  id: '/predictions/',
+  path: '/predictions/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const PredictionsSlugRoute = PredictionsSlugRouteImport.update({
+  id: '/predictions/$slug',
+  path: '/predictions/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const CategorySlugRoute = CategorySlugRouteImport.update({
@@ -61,6 +89,18 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminPredictionsRoute =
+  AuthenticatedAdminPredictionsRouteImport.update({
+    id: '/predictions',
+    path: '/predictions',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminFootballRoute =
+  AuthenticatedAdminFootballRouteImport.update({
+    id: '/football',
+    path: '/football',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminCategoriesRoute =
   AuthenticatedAdminCategoriesRouteImport.update({
     id: '/categories',
@@ -72,6 +112,18 @@ const AuthenticatedAdminArticlesRoute =
     id: '/articles',
     path: '/articles',
     getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminPredictionsNewRoute =
+  AuthenticatedAdminPredictionsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedAdminPredictionsRoute,
+  } as any)
+const AuthenticatedAdminPredictionsIdRoute =
+  AuthenticatedAdminPredictionsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAdminPredictionsRoute,
   } as any)
 const AuthenticatedAdminArticlesNewRoute =
   AuthenticatedAdminArticlesNewRouteImport.update({
@@ -89,92 +141,144 @@ const AuthenticatedAdminArticlesIdRoute =
 export interface FileRoutesByFullPath {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/rss.xml': typeof RssDotxmlRoute
+  '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/article/$slug': typeof ArticleSlugRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/predictions/$slug': typeof PredictionsSlugRoute
+  '/predictions/': typeof PredictionsIndexRoute
   '/admin/articles': typeof AuthenticatedAdminArticlesRouteWithChildren
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/admin/football': typeof AuthenticatedAdminFootballRoute
+  '/admin/predictions': typeof AuthenticatedAdminPredictionsRouteWithChildren
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/articles/$id': typeof AuthenticatedAdminArticlesIdRoute
   '/admin/articles/new': typeof AuthenticatedAdminArticlesNewRoute
+  '/admin/predictions/$id': typeof AuthenticatedAdminPredictionsIdRoute
+  '/admin/predictions/new': typeof AuthenticatedAdminPredictionsNewRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
   '/auth': typeof AuthRoute
+  '/rss.xml': typeof RssDotxmlRoute
+  '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/predictions/$slug': typeof PredictionsSlugRoute
+  '/predictions': typeof PredictionsIndexRoute
   '/admin/articles': typeof AuthenticatedAdminArticlesRouteWithChildren
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/admin/football': typeof AuthenticatedAdminFootballRoute
+  '/admin/predictions': typeof AuthenticatedAdminPredictionsRouteWithChildren
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/articles/$id': typeof AuthenticatedAdminArticlesIdRoute
   '/admin/articles/new': typeof AuthenticatedAdminArticlesNewRoute
+  '/admin/predictions/$id': typeof AuthenticatedAdminPredictionsIdRoute
+  '/admin/predictions/new': typeof AuthenticatedAdminPredictionsNewRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
   '/': typeof IndexRoute
   '/_authenticated': typeof AuthenticatedRouteRouteWithChildren
   '/auth': typeof AuthRoute
+  '/rss.xml': typeof RssDotxmlRoute
+  '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/article/$slug': typeof ArticleSlugRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/predictions/$slug': typeof PredictionsSlugRoute
+  '/predictions/': typeof PredictionsIndexRoute
   '/_authenticated/admin/articles': typeof AuthenticatedAdminArticlesRouteWithChildren
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
+  '/_authenticated/admin/football': typeof AuthenticatedAdminFootballRoute
+  '/_authenticated/admin/predictions': typeof AuthenticatedAdminPredictionsRouteWithChildren
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/articles/$id': typeof AuthenticatedAdminArticlesIdRoute
   '/_authenticated/admin/articles/new': typeof AuthenticatedAdminArticlesNewRoute
+  '/_authenticated/admin/predictions/$id': typeof AuthenticatedAdminPredictionsIdRoute
+  '/_authenticated/admin/predictions/new': typeof AuthenticatedAdminPredictionsNewRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
   fullPaths:
     | '/'
     | '/auth'
+    | '/rss.xml'
+    | '/search'
     | '/sitemap.xml'
     | '/admin'
     | '/article/$slug'
     | '/category/$slug'
+    | '/predictions/$slug'
+    | '/predictions/'
     | '/admin/articles'
     | '/admin/categories'
+    | '/admin/football'
+    | '/admin/predictions'
     | '/admin/'
     | '/admin/articles/$id'
     | '/admin/articles/new'
+    | '/admin/predictions/$id'
+    | '/admin/predictions/new'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
     | '/auth'
+    | '/rss.xml'
+    | '/search'
     | '/sitemap.xml'
     | '/article/$slug'
     | '/category/$slug'
+    | '/predictions/$slug'
+    | '/predictions'
     | '/admin/articles'
     | '/admin/categories'
+    | '/admin/football'
+    | '/admin/predictions'
     | '/admin'
     | '/admin/articles/$id'
     | '/admin/articles/new'
+    | '/admin/predictions/$id'
+    | '/admin/predictions/new'
   id:
     | '__root__'
     | '/'
     | '/_authenticated'
     | '/auth'
+    | '/rss.xml'
+    | '/search'
     | '/sitemap.xml'
     | '/_authenticated/admin'
     | '/article/$slug'
     | '/category/$slug'
+    | '/predictions/$slug'
+    | '/predictions/'
     | '/_authenticated/admin/articles'
     | '/_authenticated/admin/categories'
+    | '/_authenticated/admin/football'
+    | '/_authenticated/admin/predictions'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/articles/$id'
     | '/_authenticated/admin/articles/new'
+    | '/_authenticated/admin/predictions/$id'
+    | '/_authenticated/admin/predictions/new'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
   IndexRoute: typeof IndexRoute
   AuthenticatedRouteRoute: typeof AuthenticatedRouteRouteWithChildren
   AuthRoute: typeof AuthRoute
+  RssDotxmlRoute: typeof RssDotxmlRoute
+  SearchRoute: typeof SearchRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   ArticleSlugRoute: typeof ArticleSlugRoute
   CategorySlugRoute: typeof CategorySlugRoute
+  PredictionsSlugRoute: typeof PredictionsSlugRoute
+  PredictionsIndexRoute: typeof PredictionsIndexRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -184,6 +288,20 @@ declare module '@tanstack/react-router' {
       path: '/sitemap.xml'
       fullPath: '/sitemap.xml'
       preLoaderRoute: typeof SitemapDotxmlRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/search': {
+      id: '/search'
+      path: '/search'
+      fullPath: '/search'
+      preLoaderRoute: typeof SearchRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/rss.xml': {
+      id: '/rss.xml'
+      path: '/rss.xml'
+      fullPath: '/rss.xml'
+      preLoaderRoute: typeof RssDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/auth': {
@@ -205,6 +323,20 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/'
       preLoaderRoute: typeof IndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/predictions/': {
+      id: '/predictions/'
+      path: '/predictions'
+      fullPath: '/predictions/'
+      preLoaderRoute: typeof PredictionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/predictions/$slug': {
+      id: '/predictions/$slug'
+      path: '/predictions/$slug'
+      fullPath: '/predictions/$slug'
+      preLoaderRoute: typeof PredictionsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/category/$slug': {
@@ -235,6 +367,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/predictions': {
+      id: '/_authenticated/admin/predictions'
+      path: '/predictions'
+      fullPath: '/admin/predictions'
+      preLoaderRoute: typeof AuthenticatedAdminPredictionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/football': {
+      id: '/_authenticated/admin/football'
+      path: '/football'
+      fullPath: '/admin/football'
+      preLoaderRoute: typeof AuthenticatedAdminFootballRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/categories': {
       id: '/_authenticated/admin/categories'
       path: '/categories'
@@ -248,6 +394,20 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/articles'
       preLoaderRoute: typeof AuthenticatedAdminArticlesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/predictions/new': {
+      id: '/_authenticated/admin/predictions/new'
+      path: '/new'
+      fullPath: '/admin/predictions/new'
+      preLoaderRoute: typeof AuthenticatedAdminPredictionsNewRouteImport
+      parentRoute: typeof AuthenticatedAdminPredictionsRoute
+    }
+    '/_authenticated/admin/predictions/$id': {
+      id: '/_authenticated/admin/predictions/$id'
+      path: '/$id'
+      fullPath: '/admin/predictions/$id'
+      preLoaderRoute: typeof AuthenticatedAdminPredictionsIdRouteImport
+      parentRoute: typeof AuthenticatedAdminPredictionsRoute
     }
     '/_authenticated/admin/articles/new': {
       id: '/_authenticated/admin/articles/new'
@@ -282,15 +442,37 @@ const AuthenticatedAdminArticlesRouteWithChildren =
     AuthenticatedAdminArticlesRouteChildren,
   )
 
+interface AuthenticatedAdminPredictionsRouteChildren {
+  AuthenticatedAdminPredictionsIdRoute: typeof AuthenticatedAdminPredictionsIdRoute
+  AuthenticatedAdminPredictionsNewRoute: typeof AuthenticatedAdminPredictionsNewRoute
+}
+
+const AuthenticatedAdminPredictionsRouteChildren: AuthenticatedAdminPredictionsRouteChildren =
+  {
+    AuthenticatedAdminPredictionsIdRoute: AuthenticatedAdminPredictionsIdRoute,
+    AuthenticatedAdminPredictionsNewRoute:
+      AuthenticatedAdminPredictionsNewRoute,
+  }
+
+const AuthenticatedAdminPredictionsRouteWithChildren =
+  AuthenticatedAdminPredictionsRoute._addFileChildren(
+    AuthenticatedAdminPredictionsRouteChildren,
+  )
+
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminArticlesRoute: typeof AuthenticatedAdminArticlesRouteWithChildren
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
+  AuthenticatedAdminFootballRoute: typeof AuthenticatedAdminFootballRoute
+  AuthenticatedAdminPredictionsRoute: typeof AuthenticatedAdminPredictionsRouteWithChildren
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminArticlesRoute: AuthenticatedAdminArticlesRouteWithChildren,
   AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
+  AuthenticatedAdminFootballRoute: AuthenticatedAdminFootballRoute,
+  AuthenticatedAdminPredictionsRoute:
+    AuthenticatedAdminPredictionsRouteWithChildren,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
@@ -312,9 +494,13 @@ const rootRouteChildren: RootRouteChildren = {
   IndexRoute: IndexRoute,
   AuthenticatedRouteRoute: AuthenticatedRouteRouteWithChildren,
   AuthRoute: AuthRoute,
+  RssDotxmlRoute: RssDotxmlRoute,
+  SearchRoute: SearchRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   ArticleSlugRoute: ArticleSlugRoute,
   CategorySlugRoute: CategorySlugRoute,
+  PredictionsSlugRoute: PredictionsSlugRoute,
+  PredictionsIndexRoute: PredictionsIndexRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
