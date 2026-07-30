@@ -13,9 +13,13 @@ export function AdSlot({ placement, className = "" }: { placement: string; class
   if (!ad) return null;
 
   const track = (field: "impressions" | "clicks") => {
+    const patch =
+      field === "clicks"
+        ? { clicks: (ad.clicks ?? 0) + 1 }
+        : { impressions: (ad.impressions ?? 0) + 1 };
     supabase
       .from("ads")
-      .update({ [field]: (ad[field] ?? 0) + 1 })
+      .update(patch)
       .eq("id", ad.id)
       .then(() => {});
   };
