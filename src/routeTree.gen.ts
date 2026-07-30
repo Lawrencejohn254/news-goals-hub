@@ -25,6 +25,7 @@ import { Route as AuthenticatedAdminPredictionsRouteImport } from './routes/_aut
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
 import { Route as AuthenticatedAdminArticlesRouteImport } from './routes/_authenticated/admin.articles'
 import { Route as AuthenticatedAdminPredictionsNewRouteImport } from './routes/_authenticated/admin.predictions.new'
+import { Route as AuthenticatedAdminPredictionsIdRouteImport } from './routes/_authenticated/admin.predictions.$id'
 import { Route as AuthenticatedAdminArticlesNewRouteImport } from './routes/_authenticated/admin.articles.new'
 import { Route as AuthenticatedAdminArticlesIdRouteImport } from './routes/_authenticated/admin.articles.$id'
 
@@ -111,6 +112,12 @@ const AuthenticatedAdminPredictionsNewRoute =
     path: '/new',
     getParentRoute: () => AuthenticatedAdminPredictionsRoute,
   } as any)
+const AuthenticatedAdminPredictionsIdRoute =
+  AuthenticatedAdminPredictionsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAdminPredictionsRoute,
+  } as any)
 const AuthenticatedAdminArticlesNewRoute =
   AuthenticatedAdminArticlesNewRouteImport.update({
     id: '/new',
@@ -141,6 +148,7 @@ export interface FileRoutesByFullPath {
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/articles/$id': typeof AuthenticatedAdminArticlesIdRoute
   '/admin/articles/new': typeof AuthenticatedAdminArticlesNewRoute
+  '/admin/predictions/$id': typeof AuthenticatedAdminPredictionsIdRoute
   '/admin/predictions/new': typeof AuthenticatedAdminPredictionsNewRoute
 }
 export interface FileRoutesByTo {
@@ -159,6 +167,7 @@ export interface FileRoutesByTo {
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/articles/$id': typeof AuthenticatedAdminArticlesIdRoute
   '/admin/articles/new': typeof AuthenticatedAdminArticlesNewRoute
+  '/admin/predictions/$id': typeof AuthenticatedAdminPredictionsIdRoute
   '/admin/predictions/new': typeof AuthenticatedAdminPredictionsNewRoute
 }
 export interface FileRoutesById {
@@ -180,6 +189,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/articles/$id': typeof AuthenticatedAdminArticlesIdRoute
   '/_authenticated/admin/articles/new': typeof AuthenticatedAdminArticlesNewRoute
+  '/_authenticated/admin/predictions/$id': typeof AuthenticatedAdminPredictionsIdRoute
   '/_authenticated/admin/predictions/new': typeof AuthenticatedAdminPredictionsNewRoute
 }
 export interface FileRouteTypes {
@@ -201,6 +211,7 @@ export interface FileRouteTypes {
     | '/admin/'
     | '/admin/articles/$id'
     | '/admin/articles/new'
+    | '/admin/predictions/$id'
     | '/admin/predictions/new'
   fileRoutesByTo: FileRoutesByTo
   to:
@@ -219,6 +230,7 @@ export interface FileRouteTypes {
     | '/admin'
     | '/admin/articles/$id'
     | '/admin/articles/new'
+    | '/admin/predictions/$id'
     | '/admin/predictions/new'
   id:
     | '__root__'
@@ -239,6 +251,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/'
     | '/_authenticated/admin/articles/$id'
     | '/_authenticated/admin/articles/new'
+    | '/_authenticated/admin/predictions/$id'
     | '/_authenticated/admin/predictions/new'
   fileRoutesById: FileRoutesById
 }
@@ -369,6 +382,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPredictionsNewRouteImport
       parentRoute: typeof AuthenticatedAdminPredictionsRoute
     }
+    '/_authenticated/admin/predictions/$id': {
+      id: '/_authenticated/admin/predictions/$id'
+      path: '/$id'
+      fullPath: '/admin/predictions/$id'
+      preLoaderRoute: typeof AuthenticatedAdminPredictionsIdRouteImport
+      parentRoute: typeof AuthenticatedAdminPredictionsRoute
+    }
     '/_authenticated/admin/articles/new': {
       id: '/_authenticated/admin/articles/new'
       path: '/new'
@@ -403,11 +423,13 @@ const AuthenticatedAdminArticlesRouteWithChildren =
   )
 
 interface AuthenticatedAdminPredictionsRouteChildren {
+  AuthenticatedAdminPredictionsIdRoute: typeof AuthenticatedAdminPredictionsIdRoute
   AuthenticatedAdminPredictionsNewRoute: typeof AuthenticatedAdminPredictionsNewRoute
 }
 
 const AuthenticatedAdminPredictionsRouteChildren: AuthenticatedAdminPredictionsRouteChildren =
   {
+    AuthenticatedAdminPredictionsIdRoute: AuthenticatedAdminPredictionsIdRoute,
     AuthenticatedAdminPredictionsNewRoute:
       AuthenticatedAdminPredictionsNewRoute,
   }
