@@ -109,17 +109,38 @@ export async function deleteMedia(item: MediaItem) {
   if (error) throw error;
 }
 
-export type CommentWithAuthor = Comment & {
-  profiles: { display_name: string | null; avatar_url: string | null } | null;
-};
+export type CommentWithAuthor = Comment & { author_name: string };
+
+export async function attachAuthors(rows: Comment[]): Promise<CommentWithAuthor[]> {
+  const ids = [...new Set(rows.map((r) => r.user_id))];
+  if (ids.length === 0) return [];
+  const { data: profiles } = await supabase
+    .from("profiles")
+    .select("id,display_name")
+    .in("id", ids);
+  const map = new Map((profiles ?? []).map((p) => [p.id, p.display_name]));
+  return rows.map((r) => ({ ...r, author_name: map.get(r.user_id) ?? "Reader" }));
+}
 
 export async function fetchApprovedComments(articleId: string) {
   const { data, error } = await supabase
     .from("comments")
-    .select("*, profiles!comments_user_id_fkey(display_name,avatar_url)")
+    .select("*")
     .eq("article_id", articleId)
     .eq("is_approved", true)
     .order("created_at", { ascending: false });
   if (error) throw error;
-  return (data ?? []) as unknown as CommentWithAuthor[];
+  return attachAuthors(data ?? []);
+}
+
+export async function postComment(articleId: string, content: string) {
+  const { data: userData } = await supabase.auth.getUser();
+  if (!userData.user) throw new Error("You must be signed in to comment");
+  const body = content.trim();
+  if (!body) throw new Error("Comment cannot be empty");
+  if (body.length > 2000) throw new Error("Comment is too long (max 2000 characters)");
+  const { error } = await supabase
+    .from("comments")
+    .insert({ article_id: articleId, user_id: userData.user.id, content: body });
+  if (error) throw error;
 }
