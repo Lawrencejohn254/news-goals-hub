@@ -7,6 +7,9 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ArticleCard } from "@/components/site/ArticleCard";
 import { formatDate } from "@/lib/format";
+import { Comments } from "@/components/site/Comments";
+import { AdSlot } from "@/components/site/AdSlot";
+import { logPageView } from "@/lib/site";
 
 export const Route = createFileRoute("/article/$slug")({
   component: ArticlePage,
@@ -52,6 +55,7 @@ function ArticlePage() {
       .update({ view_count: (q.data.view_count ?? 0) + 1 })
       .eq("id", q.data.id)
       .then(() => {});
+    logPageView(`/article/${q.data.slug}`, { articleId: q.data.id });
   }, [q.data?.id]);
 
   if (q.isLoading) {
@@ -113,11 +117,18 @@ function ArticlePage() {
             />
           )}
 
+          <AdSlot placement="article-inline" className="my-8" />
+
           <div
             className="article-prose mt-8"
             dangerouslySetInnerHTML={{ __html: a.content }}
           />
+
+          <AdSlot placement="article-bottom" className="my-10" />
+
+          <Comments articleId={a.id} />
         </article>
+
 
         {/* Related */}
         {related.data && related.data.length > 0 && (

@@ -1,7 +1,21 @@
 import { Link, Outlet, createFileRoute, useNavigate, useRouter } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { LayoutDashboard, Newspaper, Tag, LogOut, Home } from "lucide-react";
+import {
+  LayoutDashboard,
+  Newspaper,
+  Tag,
+  LogOut,
+  Home,
+  Image,
+  MessageSquare,
+  Users,
+  Megaphone,
+  Mail,
+  Settings,
+  BarChart3,
+  Trophy,
+} from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
 export const Route = createFileRoute("/_authenticated/admin")({
@@ -61,16 +75,38 @@ function AdminLayout() {
             <NavItem to="/admin/categories" icon={<Tag size={16} />}>
               Categories
             </NavItem>
-            <NavItem to="/admin/predictions" icon={<Newspaper size={16} />}>
+            <NavItem to="/admin/predictions" icon={<Trophy size={16} />}>
               Predictions
             </NavItem>
-            <NavItem to="/admin/football" icon={<Tag size={16} />}>
+            <NavItem to="/admin/football" icon={<Trophy size={16} />}>
               Football data
+            </NavItem>
+            <NavItem to="/admin/media" icon={<Image size={16} />}>
+              Media
+            </NavItem>
+            <NavItem to="/admin/comments" icon={<MessageSquare size={16} />}>
+              Comments
+            </NavItem>
+            <NavItem to="/admin/users" icon={<Users size={16} />}>
+              Users
+            </NavItem>
+            <NavItem to="/admin/ads" icon={<Megaphone size={16} />}>
+              Ads
+            </NavItem>
+            <NavItem to="/admin/newsletter" icon={<Mail size={16} />}>
+              Newsletter
+            </NavItem>
+            <NavItem to="/admin/analytics" icon={<BarChart3 size={16} />}>
+              Analytics
+            </NavItem>
+            <NavItem to="/admin/settings" icon={<Settings size={16} />}>
+              Settings
             </NavItem>
             <div className="my-2 border-t border-border" />
             <NavItem to="/" icon={<Home size={16} />}>
               View site
             </NavItem>
+
             <button
               onClick={signOut}
               className="mt-1 flex items-center gap-2 rounded px-3 py-2 text-left text-muted-foreground hover:bg-muted"
