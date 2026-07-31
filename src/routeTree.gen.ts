@@ -21,12 +21,17 @@ import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as ArticleSlugRouteImport } from './routes/article.$slug'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminPredictionsRouteImport } from './routes/_authenticated/admin.predictions'
+import { Route as AuthenticatedAdminNewsletterRouteImport } from './routes/_authenticated/admin.newsletter'
 import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin.media'
 import { Route as AuthenticatedAdminFootballRouteImport } from './routes/_authenticated/admin.football'
 import { Route as AuthenticatedAdminCommentsRouteImport } from './routes/_authenticated/admin.comments'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
 import { Route as AuthenticatedAdminArticlesRouteImport } from './routes/_authenticated/admin.articles'
+import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
+import { Route as AuthenticatedAdminAdsRouteImport } from './routes/_authenticated/admin.ads'
 import { Route as AuthenticatedAdminPredictionsNewRouteImport } from './routes/_authenticated/admin.predictions.new'
 import { Route as AuthenticatedAdminPredictionsIdRouteImport } from './routes/_authenticated/admin.predictions.$id'
 import { Route as AuthenticatedAdminArticlesNewRouteImport } from './routes/_authenticated/admin.articles.new'
@@ -91,10 +96,27 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminPredictionsRoute =
   AuthenticatedAdminPredictionsRouteImport.update({
     id: '/predictions',
     path: '/predictions',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminNewsletterRoute =
+  AuthenticatedAdminNewsletterRouteImport.update({
+    id: '/newsletter',
+    path: '/newsletter',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminMediaRoute = AuthenticatedAdminMediaRouteImport.update({
@@ -126,6 +148,17 @@ const AuthenticatedAdminArticlesRoute =
     path: '/articles',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminAnalyticsRoute =
+  AuthenticatedAdminAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAdsRoute = AuthenticatedAdminAdsRouteImport.update({
+  id: '/ads',
+  path: '/ads',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminPredictionsNewRoute =
   AuthenticatedAdminPredictionsNewRouteImport.update({
     id: '/new',
@@ -162,12 +195,17 @@ export interface FileRoutesByFullPath {
   '/category/$slug': typeof CategorySlugRoute
   '/predictions/$slug': typeof PredictionsSlugRoute
   '/predictions/': typeof PredictionsIndexRoute
+  '/admin/ads': typeof AuthenticatedAdminAdsRoute
+  '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/articles': typeof AuthenticatedAdminArticlesRouteWithChildren
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/admin/football': typeof AuthenticatedAdminFootballRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
+  '/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
   '/admin/predictions': typeof AuthenticatedAdminPredictionsRouteWithChildren
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
   '/admin/articles/$id': typeof AuthenticatedAdminArticlesIdRoute
   '/admin/articles/new': typeof AuthenticatedAdminArticlesNewRoute
@@ -184,12 +222,17 @@ export interface FileRoutesByTo {
   '/category/$slug': typeof CategorySlugRoute
   '/predictions/$slug': typeof PredictionsSlugRoute
   '/predictions': typeof PredictionsIndexRoute
+  '/admin/ads': typeof AuthenticatedAdminAdsRoute
+  '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/articles': typeof AuthenticatedAdminArticlesRouteWithChildren
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/admin/football': typeof AuthenticatedAdminFootballRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
+  '/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
   '/admin/predictions': typeof AuthenticatedAdminPredictionsRouteWithChildren
+  '/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
   '/admin/articles/$id': typeof AuthenticatedAdminArticlesIdRoute
   '/admin/articles/new': typeof AuthenticatedAdminArticlesNewRoute
@@ -209,12 +252,17 @@ export interface FileRoutesById {
   '/category/$slug': typeof CategorySlugRoute
   '/predictions/$slug': typeof PredictionsSlugRoute
   '/predictions/': typeof PredictionsIndexRoute
+  '/_authenticated/admin/ads': typeof AuthenticatedAdminAdsRoute
+  '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/articles': typeof AuthenticatedAdminArticlesRouteWithChildren
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/_authenticated/admin/football': typeof AuthenticatedAdminFootballRoute
   '/_authenticated/admin/media': typeof AuthenticatedAdminMediaRoute
+  '/_authenticated/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
   '/_authenticated/admin/predictions': typeof AuthenticatedAdminPredictionsRouteWithChildren
+  '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
+  '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
   '/_authenticated/admin/articles/$id': typeof AuthenticatedAdminArticlesIdRoute
   '/_authenticated/admin/articles/new': typeof AuthenticatedAdminArticlesNewRoute
@@ -234,12 +282,17 @@ export interface FileRouteTypes {
     | '/category/$slug'
     | '/predictions/$slug'
     | '/predictions/'
+    | '/admin/ads'
+    | '/admin/analytics'
     | '/admin/articles'
     | '/admin/categories'
     | '/admin/comments'
     | '/admin/football'
     | '/admin/media'
+    | '/admin/newsletter'
     | '/admin/predictions'
+    | '/admin/settings'
+    | '/admin/users'
     | '/admin/'
     | '/admin/articles/$id'
     | '/admin/articles/new'
@@ -256,12 +309,17 @@ export interface FileRouteTypes {
     | '/category/$slug'
     | '/predictions/$slug'
     | '/predictions'
+    | '/admin/ads'
+    | '/admin/analytics'
     | '/admin/articles'
     | '/admin/categories'
     | '/admin/comments'
     | '/admin/football'
     | '/admin/media'
+    | '/admin/newsletter'
     | '/admin/predictions'
+    | '/admin/settings'
+    | '/admin/users'
     | '/admin'
     | '/admin/articles/$id'
     | '/admin/articles/new'
@@ -280,12 +338,17 @@ export interface FileRouteTypes {
     | '/category/$slug'
     | '/predictions/$slug'
     | '/predictions/'
+    | '/_authenticated/admin/ads'
+    | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/articles'
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/comments'
     | '/_authenticated/admin/football'
     | '/_authenticated/admin/media'
+    | '/_authenticated/admin/newsletter'
     | '/_authenticated/admin/predictions'
+    | '/_authenticated/admin/settings'
+    | '/_authenticated/admin/users'
     | '/_authenticated/admin/'
     | '/_authenticated/admin/articles/$id'
     | '/_authenticated/admin/articles/new'
@@ -392,11 +455,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/users': {
+      id: '/_authenticated/admin/users'
+      path: '/users'
+      fullPath: '/admin/users'
+      preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/predictions': {
       id: '/_authenticated/admin/predictions'
       path: '/predictions'
       fullPath: '/admin/predictions'
       preLoaderRoute: typeof AuthenticatedAdminPredictionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/newsletter': {
+      id: '/_authenticated/admin/newsletter'
+      path: '/newsletter'
+      fullPath: '/admin/newsletter'
+      preLoaderRoute: typeof AuthenticatedAdminNewsletterRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/media': {
@@ -432,6 +516,20 @@ declare module '@tanstack/react-router' {
       path: '/articles'
       fullPath: '/admin/articles'
       preLoaderRoute: typeof AuthenticatedAdminArticlesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/analytics': {
+      id: '/_authenticated/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/ads': {
+      id: '/_authenticated/admin/ads'
+      path: '/ads'
+      fullPath: '/admin/ads'
+      preLoaderRoute: typeof AuthenticatedAdminAdsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/predictions/new': {
@@ -499,23 +597,33 @@ const AuthenticatedAdminPredictionsRouteWithChildren =
   )
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAdsRoute: typeof AuthenticatedAdminAdsRoute
+  AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
   AuthenticatedAdminArticlesRoute: typeof AuthenticatedAdminArticlesRouteWithChildren
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
   AuthenticatedAdminCommentsRoute: typeof AuthenticatedAdminCommentsRoute
   AuthenticatedAdminFootballRoute: typeof AuthenticatedAdminFootballRoute
   AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
+  AuthenticatedAdminNewsletterRoute: typeof AuthenticatedAdminNewsletterRoute
   AuthenticatedAdminPredictionsRoute: typeof AuthenticatedAdminPredictionsRouteWithChildren
+  AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
+  AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAdsRoute: AuthenticatedAdminAdsRoute,
+  AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
   AuthenticatedAdminArticlesRoute: AuthenticatedAdminArticlesRouteWithChildren,
   AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
   AuthenticatedAdminCommentsRoute: AuthenticatedAdminCommentsRoute,
   AuthenticatedAdminFootballRoute: AuthenticatedAdminFootballRoute,
   AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,
+  AuthenticatedAdminNewsletterRoute: AuthenticatedAdminNewsletterRoute,
   AuthenticatedAdminPredictionsRoute:
     AuthenticatedAdminPredictionsRouteWithChildren,
+  AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
+  AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
 }
 
