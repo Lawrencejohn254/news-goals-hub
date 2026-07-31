@@ -7,6 +7,9 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ArticleCard } from "@/components/site/ArticleCard";
 import { formatDate } from "@/lib/format";
+import { Comments } from "@/components/site/Comments";
+import { AdSlot } from "@/components/site/AdSlot";
+import { logPageView } from "@/lib/site";
 
 export const Route = createFileRoute("/article/$slug")({
   component: ArticlePage,
