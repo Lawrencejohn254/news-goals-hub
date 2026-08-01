@@ -32,6 +32,8 @@ import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_auth
 import { Route as AuthenticatedAdminArticlesRouteImport } from './routes/_authenticated/admin.articles'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
 import { Route as AuthenticatedAdminAdsRouteImport } from './routes/_authenticated/admin.ads'
+import { Route as AuthenticatedAdminPredictionsIndexRouteImport } from './routes/_authenticated/admin.predictions.index'
+import { Route as AuthenticatedAdminArticlesIndexRouteImport } from './routes/_authenticated/admin.articles.index'
 import { Route as AuthenticatedAdminPredictionsNewRouteImport } from './routes/_authenticated/admin.predictions.new'
 import { Route as AuthenticatedAdminPredictionsIdRouteImport } from './routes/_authenticated/admin.predictions.$id'
 import { Route as AuthenticatedAdminArticlesNewRouteImport } from './routes/_authenticated/admin.articles.new'
@@ -159,6 +161,18 @@ const AuthenticatedAdminAdsRoute = AuthenticatedAdminAdsRouteImport.update({
   path: '/ads',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminPredictionsIndexRoute =
+  AuthenticatedAdminPredictionsIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminPredictionsRoute,
+  } as any)
+const AuthenticatedAdminArticlesIndexRoute =
+  AuthenticatedAdminArticlesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminArticlesRoute,
+  } as any)
 const AuthenticatedAdminPredictionsNewRoute =
   AuthenticatedAdminPredictionsNewRouteImport.update({
     id: '/new',
@@ -211,6 +225,8 @@ export interface FileRoutesByFullPath {
   '/admin/articles/new': typeof AuthenticatedAdminArticlesNewRoute
   '/admin/predictions/$id': typeof AuthenticatedAdminPredictionsIdRoute
   '/admin/predictions/new': typeof AuthenticatedAdminPredictionsNewRoute
+  '/admin/articles/': typeof AuthenticatedAdminArticlesIndexRoute
+  '/admin/predictions/': typeof AuthenticatedAdminPredictionsIndexRoute
 }
 export interface FileRoutesByTo {
   '/': typeof IndexRoute
@@ -224,13 +240,11 @@ export interface FileRoutesByTo {
   '/predictions': typeof PredictionsIndexRoute
   '/admin/ads': typeof AuthenticatedAdminAdsRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
-  '/admin/articles': typeof AuthenticatedAdminArticlesRouteWithChildren
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/admin/football': typeof AuthenticatedAdminFootballRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
-  '/admin/predictions': typeof AuthenticatedAdminPredictionsRouteWithChildren
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -238,6 +252,8 @@ export interface FileRoutesByTo {
   '/admin/articles/new': typeof AuthenticatedAdminArticlesNewRoute
   '/admin/predictions/$id': typeof AuthenticatedAdminPredictionsIdRoute
   '/admin/predictions/new': typeof AuthenticatedAdminPredictionsNewRoute
+  '/admin/articles': typeof AuthenticatedAdminArticlesIndexRoute
+  '/admin/predictions': typeof AuthenticatedAdminPredictionsIndexRoute
 }
 export interface FileRoutesById {
   __root__: typeof rootRouteImport
@@ -268,6 +284,8 @@ export interface FileRoutesById {
   '/_authenticated/admin/articles/new': typeof AuthenticatedAdminArticlesNewRoute
   '/_authenticated/admin/predictions/$id': typeof AuthenticatedAdminPredictionsIdRoute
   '/_authenticated/admin/predictions/new': typeof AuthenticatedAdminPredictionsNewRoute
+  '/_authenticated/admin/articles/': typeof AuthenticatedAdminArticlesIndexRoute
+  '/_authenticated/admin/predictions/': typeof AuthenticatedAdminPredictionsIndexRoute
 }
 export interface FileRouteTypes {
   fileRoutesByFullPath: FileRoutesByFullPath
@@ -298,6 +316,8 @@ export interface FileRouteTypes {
     | '/admin/articles/new'
     | '/admin/predictions/$id'
     | '/admin/predictions/new'
+    | '/admin/articles/'
+    | '/admin/predictions/'
   fileRoutesByTo: FileRoutesByTo
   to:
     | '/'
@@ -311,13 +331,11 @@ export interface FileRouteTypes {
     | '/predictions'
     | '/admin/ads'
     | '/admin/analytics'
-    | '/admin/articles'
     | '/admin/categories'
     | '/admin/comments'
     | '/admin/football'
     | '/admin/media'
     | '/admin/newsletter'
-    | '/admin/predictions'
     | '/admin/settings'
     | '/admin/users'
     | '/admin'
@@ -325,6 +343,8 @@ export interface FileRouteTypes {
     | '/admin/articles/new'
     | '/admin/predictions/$id'
     | '/admin/predictions/new'
+    | '/admin/articles'
+    | '/admin/predictions'
   id:
     | '__root__'
     | '/'
@@ -354,6 +374,8 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/articles/new'
     | '/_authenticated/admin/predictions/$id'
     | '/_authenticated/admin/predictions/new'
+    | '/_authenticated/admin/articles/'
+    | '/_authenticated/admin/predictions/'
   fileRoutesById: FileRoutesById
 }
 export interface RootRouteChildren {
@@ -532,6 +554,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminAdsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/predictions/': {
+      id: '/_authenticated/admin/predictions/'
+      path: '/'
+      fullPath: '/admin/predictions/'
+      preLoaderRoute: typeof AuthenticatedAdminPredictionsIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminPredictionsRoute
+    }
+    '/_authenticated/admin/articles/': {
+      id: '/_authenticated/admin/articles/'
+      path: '/'
+      fullPath: '/admin/articles/'
+      preLoaderRoute: typeof AuthenticatedAdminArticlesIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminArticlesRoute
+    }
     '/_authenticated/admin/predictions/new': {
       id: '/_authenticated/admin/predictions/new'
       path: '/new'
@@ -566,12 +602,14 @@ declare module '@tanstack/react-router' {
 interface AuthenticatedAdminArticlesRouteChildren {
   AuthenticatedAdminArticlesIdRoute: typeof AuthenticatedAdminArticlesIdRoute
   AuthenticatedAdminArticlesNewRoute: typeof AuthenticatedAdminArticlesNewRoute
+  AuthenticatedAdminArticlesIndexRoute: typeof AuthenticatedAdminArticlesIndexRoute
 }
 
 const AuthenticatedAdminArticlesRouteChildren: AuthenticatedAdminArticlesRouteChildren =
   {
     AuthenticatedAdminArticlesIdRoute: AuthenticatedAdminArticlesIdRoute,
     AuthenticatedAdminArticlesNewRoute: AuthenticatedAdminArticlesNewRoute,
+    AuthenticatedAdminArticlesIndexRoute: AuthenticatedAdminArticlesIndexRoute,
   }
 
 const AuthenticatedAdminArticlesRouteWithChildren =
@@ -582,6 +620,7 @@ const AuthenticatedAdminArticlesRouteWithChildren =
 interface AuthenticatedAdminPredictionsRouteChildren {
   AuthenticatedAdminPredictionsIdRoute: typeof AuthenticatedAdminPredictionsIdRoute
   AuthenticatedAdminPredictionsNewRoute: typeof AuthenticatedAdminPredictionsNewRoute
+  AuthenticatedAdminPredictionsIndexRoute: typeof AuthenticatedAdminPredictionsIndexRoute
 }
 
 const AuthenticatedAdminPredictionsRouteChildren: AuthenticatedAdminPredictionsRouteChildren =
@@ -589,6 +628,8 @@ const AuthenticatedAdminPredictionsRouteChildren: AuthenticatedAdminPredictionsR
     AuthenticatedAdminPredictionsIdRoute: AuthenticatedAdminPredictionsIdRoute,
     AuthenticatedAdminPredictionsNewRoute:
       AuthenticatedAdminPredictionsNewRoute,
+    AuthenticatedAdminPredictionsIndexRoute:
+      AuthenticatedAdminPredictionsIndexRoute,
   }
 
 const AuthenticatedAdminPredictionsRouteWithChildren =
