@@ -17,19 +17,19 @@ export function Footer() {
         <div>
           <h4 className="mb-3 text-xs font-bold uppercase tracking-widest text-white">Sections</h4>
           <ul className="space-y-2 text-sm">
-            <li><Link to="/category/politics">Politics</Link></li>
-            <li><Link to="/category/business">Business</Link></li>
-            <li><Link to="/category/technology">Technology</Link></li>
-            <li><Link to="/category/sports">Sports</Link></li>
+            <li><Link to="/category/$slug" params={{ slug: "politics" }}>Politics</Link></li>
+            <li><Link to="/category/$slug" params={{ slug: "business" }}>Business</Link></li>
+            <li><Link to="/category/$slug" params={{ slug: "technology" }}>Technology</Link></li>
+            <li><Link to="/category/$slug" params={{ slug: "sports" }}>Sports</Link></li>
             <li><Link to="/predictions">Football Predictions</Link></li>
           </ul>
         </div>
         <div>
           <h4 className="mb-3 text-xs font-bold uppercase tracking-widest text-white">More</h4>
           <ul className="space-y-2 text-sm">
-            <li><Link to="/category/entertainment">Entertainment</Link></li>
-            <li><Link to="/category/international">International</Link></li>
-            <li><Link to="/category/local-news">Local News</Link></li>
+            <li><Link to="/category/$slug" params={{ slug: "entertainment" }}>Entertainment</Link></li>
+            <li><Link to="/category/$slug" params={{ slug: "international" }}>International</Link></li>
+            <li><Link to="/category/$slug" params={{ slug: "local-news" }}>Local News</Link></li>
           </ul>
         </div>
         <div>
