@@ -5,7 +5,7 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { formatDate } from "@/lib/format";
 
-export const Route = createFileRoute("/_authenticated/admin/articles")({
+export const Route = createFileRoute("/_authenticated/admin/articles/")({
   component: ArticlesList,
 });
 

@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { fetchPredictions } from "@/lib/football";
 import { ResultBadge } from "@/components/site/FootballBits";
 
-export const Route = createFileRoute("/_authenticated/admin/predictions")({
+export const Route = createFileRoute("/_authenticated/admin/predictions/")({
   component: PredictionsAdmin,
 });
 
