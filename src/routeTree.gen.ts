@@ -23,11 +23,13 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
+import { Route as AuthenticatedAdminPredictionsRouteImport } from './routes/_authenticated/admin.predictions'
 import { Route as AuthenticatedAdminNewsletterRouteImport } from './routes/_authenticated/admin.newsletter'
 import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin.media'
 import { Route as AuthenticatedAdminFootballRouteImport } from './routes/_authenticated/admin.football'
 import { Route as AuthenticatedAdminCommentsRouteImport } from './routes/_authenticated/admin.comments'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
+import { Route as AuthenticatedAdminArticlesRouteImport } from './routes/_authenticated/admin.articles'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
 import { Route as AuthenticatedAdminAdsRouteImport } from './routes/_authenticated/admin.ads'
 import { Route as AuthenticatedAdminPredictionsIndexRouteImport } from './routes/_authenticated/admin.predictions.index'
@@ -107,6 +109,12 @@ const AuthenticatedAdminSettingsRoute =
     path: '/settings',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminPredictionsRoute =
+  AuthenticatedAdminPredictionsRouteImport.update({
+    id: '/predictions',
+    path: '/predictions',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminNewsletterRoute =
   AuthenticatedAdminNewsletterRouteImport.update({
     id: '/newsletter',
@@ -136,6 +144,12 @@ const AuthenticatedAdminCategoriesRoute =
     path: '/categories',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminArticlesRoute =
+  AuthenticatedAdminArticlesRouteImport.update({
+    id: '/articles',
+    path: '/articles',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminAnalyticsRoute =
   AuthenticatedAdminAnalyticsRouteImport.update({
     id: '/analytics',
@@ -149,39 +163,39 @@ const AuthenticatedAdminAdsRoute = AuthenticatedAdminAdsRouteImport.update({
 } as any)
 const AuthenticatedAdminPredictionsIndexRoute =
   AuthenticatedAdminPredictionsIndexRouteImport.update({
-    id: '/predictions/',
-    path: '/predictions/',
-    getParentRoute: () => AuthenticatedAdminRoute,
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminPredictionsRoute,
   } as any)
 const AuthenticatedAdminArticlesIndexRoute =
   AuthenticatedAdminArticlesIndexRouteImport.update({
-    id: '/articles/',
-    path: '/articles/',
-    getParentRoute: () => AuthenticatedAdminRoute,
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminArticlesRoute,
   } as any)
 const AuthenticatedAdminPredictionsNewRoute =
   AuthenticatedAdminPredictionsNewRouteImport.update({
-    id: '/predictions/new',
-    path: '/predictions/new',
-    getParentRoute: () => AuthenticatedAdminRoute,
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedAdminPredictionsRoute,
   } as any)
 const AuthenticatedAdminPredictionsIdRoute =
   AuthenticatedAdminPredictionsIdRouteImport.update({
-    id: '/predictions/$id',
-    path: '/predictions/$id',
-    getParentRoute: () => AuthenticatedAdminRoute,
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAdminPredictionsRoute,
   } as any)
 const AuthenticatedAdminArticlesNewRoute =
   AuthenticatedAdminArticlesNewRouteImport.update({
-    id: '/articles/new',
-    path: '/articles/new',
-    getParentRoute: () => AuthenticatedAdminRoute,
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedAdminArticlesRoute,
   } as any)
 const AuthenticatedAdminArticlesIdRoute =
   AuthenticatedAdminArticlesIdRouteImport.update({
-    id: '/articles/$id',
-    path: '/articles/$id',
-    getParentRoute: () => AuthenticatedAdminRoute,
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAdminArticlesRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -197,11 +211,13 @@ export interface FileRoutesByFullPath {
   '/predictions/': typeof PredictionsIndexRoute
   '/admin/ads': typeof AuthenticatedAdminAdsRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
+  '/admin/articles': typeof AuthenticatedAdminArticlesRouteWithChildren
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/admin/football': typeof AuthenticatedAdminFootballRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
+  '/admin/predictions': typeof AuthenticatedAdminPredictionsRouteWithChildren
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -254,11 +270,13 @@ export interface FileRoutesById {
   '/predictions/': typeof PredictionsIndexRoute
   '/_authenticated/admin/ads': typeof AuthenticatedAdminAdsRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
+  '/_authenticated/admin/articles': typeof AuthenticatedAdminArticlesRouteWithChildren
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/_authenticated/admin/football': typeof AuthenticatedAdminFootballRoute
   '/_authenticated/admin/media': typeof AuthenticatedAdminMediaRoute
   '/_authenticated/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
+  '/_authenticated/admin/predictions': typeof AuthenticatedAdminPredictionsRouteWithChildren
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -284,11 +302,13 @@ export interface FileRouteTypes {
     | '/predictions/'
     | '/admin/ads'
     | '/admin/analytics'
+    | '/admin/articles'
     | '/admin/categories'
     | '/admin/comments'
     | '/admin/football'
     | '/admin/media'
     | '/admin/newsletter'
+    | '/admin/predictions'
     | '/admin/settings'
     | '/admin/users'
     | '/admin/'
@@ -340,11 +360,13 @@ export interface FileRouteTypes {
     | '/predictions/'
     | '/_authenticated/admin/ads'
     | '/_authenticated/admin/analytics'
+    | '/_authenticated/admin/articles'
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/comments'
     | '/_authenticated/admin/football'
     | '/_authenticated/admin/media'
     | '/_authenticated/admin/newsletter'
+    | '/_authenticated/admin/predictions'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/'
@@ -469,6 +491,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/predictions': {
+      id: '/_authenticated/admin/predictions'
+      path: '/predictions'
+      fullPath: '/admin/predictions'
+      preLoaderRoute: typeof AuthenticatedAdminPredictionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/newsletter': {
       id: '/_authenticated/admin/newsletter'
       path: '/newsletter'
@@ -504,6 +533,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCategoriesRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/articles': {
+      id: '/_authenticated/admin/articles'
+      path: '/articles'
+      fullPath: '/admin/articles'
+      preLoaderRoute: typeof AuthenticatedAdminArticlesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/analytics': {
       id: '/_authenticated/admin/analytics'
       path: '/analytics'
@@ -520,86 +556,116 @@ declare module '@tanstack/react-router' {
     }
     '/_authenticated/admin/predictions/': {
       id: '/_authenticated/admin/predictions/'
-      path: '/predictions'
+      path: '/'
       fullPath: '/admin/predictions/'
       preLoaderRoute: typeof AuthenticatedAdminPredictionsIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      parentRoute: typeof AuthenticatedAdminPredictionsRoute
     }
     '/_authenticated/admin/articles/': {
       id: '/_authenticated/admin/articles/'
-      path: '/articles'
+      path: '/'
       fullPath: '/admin/articles/'
       preLoaderRoute: typeof AuthenticatedAdminArticlesIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      parentRoute: typeof AuthenticatedAdminArticlesRoute
     }
     '/_authenticated/admin/predictions/new': {
       id: '/_authenticated/admin/predictions/new'
-      path: '/predictions/new'
+      path: '/new'
       fullPath: '/admin/predictions/new'
       preLoaderRoute: typeof AuthenticatedAdminPredictionsNewRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      parentRoute: typeof AuthenticatedAdminPredictionsRoute
     }
     '/_authenticated/admin/predictions/$id': {
       id: '/_authenticated/admin/predictions/$id'
-      path: '/predictions/$id'
+      path: '/$id'
       fullPath: '/admin/predictions/$id'
       preLoaderRoute: typeof AuthenticatedAdminPredictionsIdRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      parentRoute: typeof AuthenticatedAdminPredictionsRoute
     }
     '/_authenticated/admin/articles/new': {
       id: '/_authenticated/admin/articles/new'
-      path: '/articles/new'
+      path: '/new'
       fullPath: '/admin/articles/new'
       preLoaderRoute: typeof AuthenticatedAdminArticlesNewRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      parentRoute: typeof AuthenticatedAdminArticlesRoute
     }
     '/_authenticated/admin/articles/$id': {
       id: '/_authenticated/admin/articles/$id'
-      path: '/articles/$id'
+      path: '/$id'
       fullPath: '/admin/articles/$id'
       preLoaderRoute: typeof AuthenticatedAdminArticlesIdRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
+      parentRoute: typeof AuthenticatedAdminArticlesRoute
     }
   }
 }
 
+interface AuthenticatedAdminArticlesRouteChildren {
+  AuthenticatedAdminArticlesIdRoute: typeof AuthenticatedAdminArticlesIdRoute
+  AuthenticatedAdminArticlesNewRoute: typeof AuthenticatedAdminArticlesNewRoute
+  AuthenticatedAdminArticlesIndexRoute: typeof AuthenticatedAdminArticlesIndexRoute
+}
+
+const AuthenticatedAdminArticlesRouteChildren: AuthenticatedAdminArticlesRouteChildren =
+  {
+    AuthenticatedAdminArticlesIdRoute: AuthenticatedAdminArticlesIdRoute,
+    AuthenticatedAdminArticlesNewRoute: AuthenticatedAdminArticlesNewRoute,
+    AuthenticatedAdminArticlesIndexRoute: AuthenticatedAdminArticlesIndexRoute,
+  }
+
+const AuthenticatedAdminArticlesRouteWithChildren =
+  AuthenticatedAdminArticlesRoute._addFileChildren(
+    AuthenticatedAdminArticlesRouteChildren,
+  )
+
+interface AuthenticatedAdminPredictionsRouteChildren {
+  AuthenticatedAdminPredictionsIdRoute: typeof AuthenticatedAdminPredictionsIdRoute
+  AuthenticatedAdminPredictionsNewRoute: typeof AuthenticatedAdminPredictionsNewRoute
+  AuthenticatedAdminPredictionsIndexRoute: typeof AuthenticatedAdminPredictionsIndexRoute
+}
+
+const AuthenticatedAdminPredictionsRouteChildren: AuthenticatedAdminPredictionsRouteChildren =
+  {
+    AuthenticatedAdminPredictionsIdRoute: AuthenticatedAdminPredictionsIdRoute,
+    AuthenticatedAdminPredictionsNewRoute:
+      AuthenticatedAdminPredictionsNewRoute,
+    AuthenticatedAdminPredictionsIndexRoute:
+      AuthenticatedAdminPredictionsIndexRoute,
+  }
+
+const AuthenticatedAdminPredictionsRouteWithChildren =
+  AuthenticatedAdminPredictionsRoute._addFileChildren(
+    AuthenticatedAdminPredictionsRouteChildren,
+  )
+
 interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminAdsRoute: typeof AuthenticatedAdminAdsRoute
   AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
+  AuthenticatedAdminArticlesRoute: typeof AuthenticatedAdminArticlesRouteWithChildren
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
   AuthenticatedAdminCommentsRoute: typeof AuthenticatedAdminCommentsRoute
   AuthenticatedAdminFootballRoute: typeof AuthenticatedAdminFootballRoute
   AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
   AuthenticatedAdminNewsletterRoute: typeof AuthenticatedAdminNewsletterRoute
+  AuthenticatedAdminPredictionsRoute: typeof AuthenticatedAdminPredictionsRouteWithChildren
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
-  AuthenticatedAdminArticlesIdRoute: typeof AuthenticatedAdminArticlesIdRoute
-  AuthenticatedAdminArticlesNewRoute: typeof AuthenticatedAdminArticlesNewRoute
-  AuthenticatedAdminPredictionsIdRoute: typeof AuthenticatedAdminPredictionsIdRoute
-  AuthenticatedAdminPredictionsNewRoute: typeof AuthenticatedAdminPredictionsNewRoute
-  AuthenticatedAdminArticlesIndexRoute: typeof AuthenticatedAdminArticlesIndexRoute
-  AuthenticatedAdminPredictionsIndexRoute: typeof AuthenticatedAdminPredictionsIndexRoute
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminAdsRoute: AuthenticatedAdminAdsRoute,
   AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
+  AuthenticatedAdminArticlesRoute: AuthenticatedAdminArticlesRouteWithChildren,
   AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
   AuthenticatedAdminCommentsRoute: AuthenticatedAdminCommentsRoute,
   AuthenticatedAdminFootballRoute: AuthenticatedAdminFootballRoute,
   AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,
   AuthenticatedAdminNewsletterRoute: AuthenticatedAdminNewsletterRoute,
+  AuthenticatedAdminPredictionsRoute:
+    AuthenticatedAdminPredictionsRouteWithChildren,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
-  AuthenticatedAdminArticlesIdRoute: AuthenticatedAdminArticlesIdRoute,
-  AuthenticatedAdminArticlesNewRoute: AuthenticatedAdminArticlesNewRoute,
-  AuthenticatedAdminPredictionsIdRoute: AuthenticatedAdminPredictionsIdRoute,
-  AuthenticatedAdminPredictionsNewRoute: AuthenticatedAdminPredictionsNewRoute,
-  AuthenticatedAdminArticlesIndexRoute: AuthenticatedAdminArticlesIndexRoute,
-  AuthenticatedAdminPredictionsIndexRoute:
-    AuthenticatedAdminPredictionsIndexRoute,
 }
 
 const AuthenticatedAdminRouteWithChildren =
