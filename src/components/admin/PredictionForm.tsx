@@ -5,6 +5,8 @@ import { toast } from "sonner";
 import { supabase } from "@/integrations/supabase/client";
 import { slugify } from "@/lib/format";
 import { fetchMatches, matchLabel } from "@/lib/football";
+import { TIP_OPTIONS } from "@/lib/tips";
+
 import { RichTextEditor } from "@/components/site/RichTextEditor";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
