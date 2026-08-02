@@ -33,14 +33,34 @@ export const Route = createFileRoute("/predictions/")({
   }),
 });
 
+function toDayKey(iso?: string | null) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function PredictionsIndex() {
-  const preds = useQuery({ queryKey: ["predictions"], queryFn: () => fetchPredictions() });
+  const [day, setDay] = useState("");
+  const preds = useQuery({
+    queryKey: ["predictions", "all"],
+    queryFn: () => fetchPredictions({ limit: 200 }),
+  });
   const upcoming = useQuery({ queryKey: ["upcoming-matches"], queryFn: () => fetchUpcomingMatches(8) });
   const stats = useQuery({ queryKey: ["prediction-stats"], queryFn: fetchPredictionStats });
   const comps = useQuery({ queryKey: ["competitions"], queryFn: fetchCompetitions });
 
-  const featured = (preds.data ?? []).filter((p) => p.is_featured);
-  const rest = (preds.data ?? []).filter((p) => !p.is_featured);
+  const all = preds.data ?? [];
+  const days = [...new Set(all.map((p) => toDayKey(p.matches?.kickoff_at)).filter(Boolean))].sort();
+  const visible = day ? all.filter((p) => toDayKey(p.matches?.kickoff_at) === day) : all;
+
+  const dayWon = visible.filter((p) => p.result === "won").length;
+  const dayLost = visible.filter((p) => p.result === "lost").length;
+  const daySettled = dayWon + dayLost;
+  const dayRate = daySettled ? Math.round((dayWon / daySettled) * 100) : 0;
+
+  const featured = visible.filter((p) => p.is_featured);
+  const rest = visible.filter((p) => !p.is_featured);
+
 
   return (
     <div className="min-h-screen bg-background">
