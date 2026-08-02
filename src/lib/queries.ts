@@ -10,7 +10,7 @@ export type ArticleWithMeta = Article & {
 };
 
 const ARTICLE_SELECT =
-  "*, categories(id,name,slug,color), profiles!articles_author_id_fkey(display_name,avatar_url)";
+  "*, categories(id,name,slug,color), profiles!articles_author_profile_fkey(display_name,avatar_url)";
 
 export async function fetchCategories() {
   const { data, error } = await supabase
