@@ -37,7 +37,7 @@ function SearchPage() {
       const [arts, preds] = await Promise.all([
         supabase
           .from("articles")
-          .select("*, categories(id,name,slug,color), profiles!articles_author_id_fkey(display_name,avatar_url)")
+          .select("*, categories(id,name,slug,color), profiles!articles_author_profile_fkey(display_name,avatar_url)")
           .eq("status", "published")
           .or(`title.ilike.${like},excerpt.ilike.${like}`)
           .limit(20),
