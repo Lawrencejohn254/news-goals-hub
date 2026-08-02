@@ -251,7 +251,9 @@ export type Database = {
         Row: {
           country: string | null
           created_at: string
+          external_id: number | null
           id: string
+          is_tracked: boolean
           logo_url: string | null
           name: string
           season: string | null
@@ -262,7 +264,9 @@ export type Database = {
         Insert: {
           country?: string | null
           created_at?: string
+          external_id?: number | null
           id?: string
+          is_tracked?: boolean
           logo_url?: string | null
           name: string
           season?: string | null
@@ -273,7 +277,9 @@ export type Database = {
         Update: {
           country?: string | null
           created_at?: string
+          external_id?: number | null
           id?: string
+          is_tracked?: boolean
           logo_url?: string | null
           name?: string
           season?: string | null
@@ -289,6 +295,7 @@ export type Database = {
           away_team_id: string
           competition_id: string | null
           created_at: string
+          external_id: number | null
           home_score: number | null
           home_team_id: string
           id: string
@@ -302,6 +309,7 @@ export type Database = {
           away_team_id: string
           competition_id?: string | null
           created_at?: string
+          external_id?: number | null
           home_score?: number | null
           home_team_id: string
           id?: string
@@ -315,6 +323,7 @@ export type Database = {
           away_team_id?: string
           competition_id?: string | null
           created_at?: string
+          external_id?: number | null
           home_score?: number | null
           home_team_id?: string
           id?: string
@@ -478,6 +487,7 @@ export type Database = {
           result: Database["public"]["Enums"]["prediction_result"]
           seo_description: string | null
           seo_title: string | null
+          settled_at: string | null
           slug: string
           tip: string
           title: string
@@ -503,6 +513,7 @@ export type Database = {
           result?: Database["public"]["Enums"]["prediction_result"]
           seo_description?: string | null
           seo_title?: string | null
+          settled_at?: string | null
           slug: string
           tip: string
           title: string
@@ -528,6 +539,7 @@ export type Database = {
           result?: Database["public"]["Enums"]["prediction_result"]
           seo_description?: string | null
           seo_title?: string | null
+          settled_at?: string | null
           slug?: string
           tip?: string
           title?: string
@@ -645,6 +657,7 @@ export type Database = {
           country: string | null
           created_at: string
           crest_url: string | null
+          external_id: number | null
           id: string
           name: string
           short_name: string | null
@@ -655,6 +668,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           crest_url?: string | null
+          external_id?: number | null
           id?: string
           name: string
           short_name?: string | null
@@ -665,6 +679,7 @@ export type Database = {
           country?: string | null
           created_at?: string
           crest_url?: string | null
+          external_id?: number | null
           id?: string
           name?: string
           short_name?: string | null
