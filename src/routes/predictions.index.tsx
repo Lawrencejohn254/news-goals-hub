@@ -88,7 +88,46 @@ function PredictionsIndex() {
           <Stat label="Win rate" value={`${stats.data?.winRate ?? 0}%`} highlight />
         </div>
 
+        <div className="mt-8 flex flex-wrap items-center gap-3 border border-border bg-muted/30 p-4">
+          <label htmlFor="dayfilter" className="text-xs font-bold uppercase tracking-widest">
+            Matchday
+          </label>
+          <input
+            id="dayfilter"
+            type="date"
+            value={day}
+            onChange={(e) => setDay(e.target.value)}
+            className="h-9 border border-input bg-background px-3 text-sm"
+          />
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setDay("")}
+              className={`px-3 py-1 text-xs font-semibold uppercase tracking-wider ${day === "" ? "bg-[var(--ink)] text-white" : "border border-border"}`}
+            >
+              All
+            </button>
+            {days.slice(0, 7).map((d) => (
+              <button
+                key={d}
+                onClick={() => setDay(d)}
+                className={`px-3 py-1 text-xs font-semibold uppercase tracking-wider ${day === d ? "bg-[var(--ink)] text-white" : "border border-border"}`}
+              >
+                {new Date(`${d}T12:00:00`).toLocaleDateString("en-GB", {
+                  weekday: "short",
+                  day: "numeric",
+                  month: "short",
+                })}
+              </button>
+            ))}
+          </div>
+          <p className="ml-auto text-xs text-muted-foreground">
+            {day ? `${visible.length} tips` : `${all.length} tips`} · {dayWon}W–{dayLost}L ·{" "}
+            <span className="font-bold text-[var(--brand)]">{dayRate}% strike rate</span>
+          </p>
+        </div>
+
         <AdSlot placement="home-top" className="mt-8" />
+
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_320px]">
           <div>
