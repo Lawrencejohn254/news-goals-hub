@@ -1,5 +1,7 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { AdSlot } from "@/components/site/AdSlot";
@@ -33,14 +35,34 @@ export const Route = createFileRoute("/predictions/")({
   }),
 });
 
+function toDayKey(iso?: string | null) {
+  if (!iso) return "";
+  const d = new Date(iso);
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
+
 function PredictionsIndex() {
-  const preds = useQuery({ queryKey: ["predictions"], queryFn: () => fetchPredictions() });
+  const [day, setDay] = useState("");
+  const preds = useQuery({
+    queryKey: ["predictions", "all"],
+    queryFn: () => fetchPredictions({ limit: 200 }),
+  });
   const upcoming = useQuery({ queryKey: ["upcoming-matches"], queryFn: () => fetchUpcomingMatches(8) });
   const stats = useQuery({ queryKey: ["prediction-stats"], queryFn: fetchPredictionStats });
   const comps = useQuery({ queryKey: ["competitions"], queryFn: fetchCompetitions });
 
-  const featured = (preds.data ?? []).filter((p) => p.is_featured);
-  const rest = (preds.data ?? []).filter((p) => !p.is_featured);
+  const all = preds.data ?? [];
+  const days = [...new Set(all.map((p) => toDayKey(p.matches?.kickoff_at)).filter(Boolean))].sort();
+  const visible = day ? all.filter((p) => toDayKey(p.matches?.kickoff_at) === day) : all;
+
+  const dayWon = visible.filter((p) => p.result === "won").length;
+  const dayLost = visible.filter((p) => p.result === "lost").length;
+  const daySettled = dayWon + dayLost;
+  const dayRate = daySettled ? Math.round((dayWon / daySettled) * 100) : 0;
+
+  const featured = visible.filter((p) => p.is_featured);
+  const rest = visible.filter((p) => !p.is_featured);
+
 
   return (
     <div className="min-h-screen bg-background">
@@ -66,7 +88,46 @@ function PredictionsIndex() {
           <Stat label="Win rate" value={`${stats.data?.winRate ?? 0}%`} highlight />
         </div>
 
+        <div className="mt-8 flex flex-wrap items-center gap-3 border border-border bg-muted/30 p-4">
+          <label htmlFor="dayfilter" className="text-xs font-bold uppercase tracking-widest">
+            Matchday
+          </label>
+          <input
+            id="dayfilter"
+            type="date"
+            value={day}
+            onChange={(e) => setDay(e.target.value)}
+            className="h-9 border border-input bg-background px-3 text-sm"
+          />
+          <div className="flex flex-wrap gap-2">
+            <button
+              onClick={() => setDay("")}
+              className={`px-3 py-1 text-xs font-semibold uppercase tracking-wider ${day === "" ? "bg-[var(--ink)] text-white" : "border border-border"}`}
+            >
+              All
+            </button>
+            {days.slice(0, 7).map((d) => (
+              <button
+                key={d}
+                onClick={() => setDay(d)}
+                className={`px-3 py-1 text-xs font-semibold uppercase tracking-wider ${day === d ? "bg-[var(--ink)] text-white" : "border border-border"}`}
+              >
+                {new Date(`${d}T12:00:00`).toLocaleDateString("en-GB", {
+                  weekday: "short",
+                  day: "numeric",
+                  month: "short",
+                })}
+              </button>
+            ))}
+          </div>
+          <p className="ml-auto text-xs text-muted-foreground">
+            {day ? `${visible.length} tips` : `${all.length} tips`} · {dayWon}W–{dayLost}L ·{" "}
+            <span className="font-bold text-[var(--brand)]">{dayRate}% strike rate</span>
+          </p>
+        </div>
+
         <AdSlot placement="home-top" className="mt-8" />
+
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_320px]">
           <div>

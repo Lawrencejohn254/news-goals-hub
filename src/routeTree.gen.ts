@@ -26,6 +26,7 @@ import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminPredictionsRouteImport } from './routes/_authenticated/admin.predictions'
 import { Route as AuthenticatedAdminNewsletterRouteImport } from './routes/_authenticated/admin.newsletter'
 import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin.media'
+import { Route as AuthenticatedAdminLeaguesRouteImport } from './routes/_authenticated/admin.leagues'
 import { Route as AuthenticatedAdminFootballRouteImport } from './routes/_authenticated/admin.football'
 import { Route as AuthenticatedAdminCommentsRouteImport } from './routes/_authenticated/admin.comments'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
@@ -34,6 +35,7 @@ import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authe
 import { Route as AuthenticatedAdminAdsRouteImport } from './routes/_authenticated/admin.ads'
 import { Route as AuthenticatedAdminPredictionsIndexRouteImport } from './routes/_authenticated/admin.predictions.index'
 import { Route as AuthenticatedAdminArticlesIndexRouteImport } from './routes/_authenticated/admin.articles.index'
+import { Route as ApiPublicHooksFootballSyncRouteImport } from './routes/api/public/hooks/football-sync'
 import { Route as AuthenticatedAdminPredictionsNewRouteImport } from './routes/_authenticated/admin.predictions.new'
 import { Route as AuthenticatedAdminPredictionsIdRouteImport } from './routes/_authenticated/admin.predictions.$id'
 import { Route as AuthenticatedAdminArticlesNewRouteImport } from './routes/_authenticated/admin.articles.new'
@@ -126,6 +128,12 @@ const AuthenticatedAdminMediaRoute = AuthenticatedAdminMediaRouteImport.update({
   path: '/media',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminLeaguesRoute =
+  AuthenticatedAdminLeaguesRouteImport.update({
+    id: '/leagues',
+    path: '/leagues',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminFootballRoute =
   AuthenticatedAdminFootballRouteImport.update({
     id: '/football',
@@ -173,6 +181,12 @@ const AuthenticatedAdminArticlesIndexRoute =
     path: '/',
     getParentRoute: () => AuthenticatedAdminArticlesRoute,
   } as any)
+const ApiPublicHooksFootballSyncRoute =
+  ApiPublicHooksFootballSyncRouteImport.update({
+    id: '/api/public/hooks/football-sync',
+    path: '/api/public/hooks/football-sync',
+    getParentRoute: () => rootRouteImport,
+  } as any)
 const AuthenticatedAdminPredictionsNewRoute =
   AuthenticatedAdminPredictionsNewRouteImport.update({
     id: '/new',
@@ -215,6 +229,7 @@ export interface FileRoutesByFullPath {
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/admin/football': typeof AuthenticatedAdminFootballRoute
+  '/admin/leagues': typeof AuthenticatedAdminLeaguesRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
   '/admin/predictions': typeof AuthenticatedAdminPredictionsRouteWithChildren
@@ -225,6 +240,7 @@ export interface FileRoutesByFullPath {
   '/admin/articles/new': typeof AuthenticatedAdminArticlesNewRoute
   '/admin/predictions/$id': typeof AuthenticatedAdminPredictionsIdRoute
   '/admin/predictions/new': typeof AuthenticatedAdminPredictionsNewRoute
+  '/api/public/hooks/football-sync': typeof ApiPublicHooksFootballSyncRoute
   '/admin/articles/': typeof AuthenticatedAdminArticlesIndexRoute
   '/admin/predictions/': typeof AuthenticatedAdminPredictionsIndexRoute
 }
@@ -243,6 +259,7 @@ export interface FileRoutesByTo {
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/admin/football': typeof AuthenticatedAdminFootballRoute
+  '/admin/leagues': typeof AuthenticatedAdminLeaguesRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
@@ -252,6 +269,7 @@ export interface FileRoutesByTo {
   '/admin/articles/new': typeof AuthenticatedAdminArticlesNewRoute
   '/admin/predictions/$id': typeof AuthenticatedAdminPredictionsIdRoute
   '/admin/predictions/new': typeof AuthenticatedAdminPredictionsNewRoute
+  '/api/public/hooks/football-sync': typeof ApiPublicHooksFootballSyncRoute
   '/admin/articles': typeof AuthenticatedAdminArticlesIndexRoute
   '/admin/predictions': typeof AuthenticatedAdminPredictionsIndexRoute
 }
@@ -274,6 +292,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/_authenticated/admin/football': typeof AuthenticatedAdminFootballRoute
+  '/_authenticated/admin/leagues': typeof AuthenticatedAdminLeaguesRoute
   '/_authenticated/admin/media': typeof AuthenticatedAdminMediaRoute
   '/_authenticated/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
   '/_authenticated/admin/predictions': typeof AuthenticatedAdminPredictionsRouteWithChildren
@@ -284,6 +303,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/articles/new': typeof AuthenticatedAdminArticlesNewRoute
   '/_authenticated/admin/predictions/$id': typeof AuthenticatedAdminPredictionsIdRoute
   '/_authenticated/admin/predictions/new': typeof AuthenticatedAdminPredictionsNewRoute
+  '/api/public/hooks/football-sync': typeof ApiPublicHooksFootballSyncRoute
   '/_authenticated/admin/articles/': typeof AuthenticatedAdminArticlesIndexRoute
   '/_authenticated/admin/predictions/': typeof AuthenticatedAdminPredictionsIndexRoute
 }
@@ -306,6 +326,7 @@ export interface FileRouteTypes {
     | '/admin/categories'
     | '/admin/comments'
     | '/admin/football'
+    | '/admin/leagues'
     | '/admin/media'
     | '/admin/newsletter'
     | '/admin/predictions'
@@ -316,6 +337,7 @@ export interface FileRouteTypes {
     | '/admin/articles/new'
     | '/admin/predictions/$id'
     | '/admin/predictions/new'
+    | '/api/public/hooks/football-sync'
     | '/admin/articles/'
     | '/admin/predictions/'
   fileRoutesByTo: FileRoutesByTo
@@ -334,6 +356,7 @@ export interface FileRouteTypes {
     | '/admin/categories'
     | '/admin/comments'
     | '/admin/football'
+    | '/admin/leagues'
     | '/admin/media'
     | '/admin/newsletter'
     | '/admin/settings'
@@ -343,6 +366,7 @@ export interface FileRouteTypes {
     | '/admin/articles/new'
     | '/admin/predictions/$id'
     | '/admin/predictions/new'
+    | '/api/public/hooks/football-sync'
     | '/admin/articles'
     | '/admin/predictions'
   id:
@@ -364,6 +388,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/comments'
     | '/_authenticated/admin/football'
+    | '/_authenticated/admin/leagues'
     | '/_authenticated/admin/media'
     | '/_authenticated/admin/newsletter'
     | '/_authenticated/admin/predictions'
@@ -374,6 +399,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/articles/new'
     | '/_authenticated/admin/predictions/$id'
     | '/_authenticated/admin/predictions/new'
+    | '/api/public/hooks/football-sync'
     | '/_authenticated/admin/articles/'
     | '/_authenticated/admin/predictions/'
   fileRoutesById: FileRoutesById
@@ -389,6 +415,7 @@ export interface RootRouteChildren {
   CategorySlugRoute: typeof CategorySlugRoute
   PredictionsSlugRoute: typeof PredictionsSlugRoute
   PredictionsIndexRoute: typeof PredictionsIndexRoute
+  ApiPublicHooksFootballSyncRoute: typeof ApiPublicHooksFootballSyncRoute
 }
 
 declare module '@tanstack/react-router' {
@@ -512,6 +539,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminMediaRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/leagues': {
+      id: '/_authenticated/admin/leagues'
+      path: '/leagues'
+      fullPath: '/admin/leagues'
+      preLoaderRoute: typeof AuthenticatedAdminLeaguesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/football': {
       id: '/_authenticated/admin/football'
       path: '/football'
@@ -567,6 +601,13 @@ declare module '@tanstack/react-router' {
       fullPath: '/admin/articles/'
       preLoaderRoute: typeof AuthenticatedAdminArticlesIndexRouteImport
       parentRoute: typeof AuthenticatedAdminArticlesRoute
+    }
+    '/api/public/hooks/football-sync': {
+      id: '/api/public/hooks/football-sync'
+      path: '/api/public/hooks/football-sync'
+      fullPath: '/api/public/hooks/football-sync'
+      preLoaderRoute: typeof ApiPublicHooksFootballSyncRouteImport
+      parentRoute: typeof rootRouteImport
     }
     '/_authenticated/admin/predictions/new': {
       id: '/_authenticated/admin/predictions/new'
@@ -644,6 +685,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
   AuthenticatedAdminCommentsRoute: typeof AuthenticatedAdminCommentsRoute
   AuthenticatedAdminFootballRoute: typeof AuthenticatedAdminFootballRoute
+  AuthenticatedAdminLeaguesRoute: typeof AuthenticatedAdminLeaguesRoute
   AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
   AuthenticatedAdminNewsletterRoute: typeof AuthenticatedAdminNewsletterRoute
   AuthenticatedAdminPredictionsRoute: typeof AuthenticatedAdminPredictionsRouteWithChildren
@@ -659,6 +701,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
   AuthenticatedAdminCommentsRoute: AuthenticatedAdminCommentsRoute,
   AuthenticatedAdminFootballRoute: AuthenticatedAdminFootballRoute,
+  AuthenticatedAdminLeaguesRoute: AuthenticatedAdminLeaguesRoute,
   AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,
   AuthenticatedAdminNewsletterRoute: AuthenticatedAdminNewsletterRoute,
   AuthenticatedAdminPredictionsRoute:
@@ -693,17 +736,8 @@ const rootRouteChildren: RootRouteChildren = {
   CategorySlugRoute: CategorySlugRoute,
   PredictionsSlugRoute: PredictionsSlugRoute,
   PredictionsIndexRoute: PredictionsIndexRoute,
+  ApiPublicHooksFootballSyncRoute: ApiPublicHooksFootballSyncRoute,
 }
 export const routeTree = rootRouteImport
   ._addFileChildren(rootRouteChildren)
   ._addFileTypes<FileRouteTypes>()
-
-import type { getRouter } from './router.tsx'
-import type { startInstance } from './start.ts'
-declare module '@tanstack/react-start' {
-  interface Register {
-    ssr: true
-    router: Awaited<ReturnType<typeof getRouter>>
-    config: Awaited<ReturnType<typeof startInstance.getOptions>>
-  }
-}

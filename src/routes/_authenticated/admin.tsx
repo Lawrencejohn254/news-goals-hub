@@ -81,6 +81,10 @@ function AdminLayout() {
             <NavItem to="/admin/football" icon={<Trophy size={16} />}>
               Football data
             </NavItem>
+            <NavItem to="/admin/leagues" icon={<Trophy size={16} />}>
+              Leagues &amp; sync
+            </NavItem>
+
             <NavItem to="/admin/media" icon={<Image size={16} />}>
               Media
             </NavItem>
