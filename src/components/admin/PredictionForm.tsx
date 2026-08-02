@@ -103,14 +103,25 @@ export function PredictionForm({
           </select>
         </div>
         <div>
-          <Label htmlFor="tip">Tip</Label>
-          <Input
+          <Label htmlFor="tip">Tip (auto-settled markets)</Label>
+          <select
             id="tip"
             value={draft.tip}
             onChange={(e) => set({ tip: e.target.value })}
-            placeholder="Home win & over 2.5 goals"
-          />
+            className="h-10 w-full border border-input bg-background px-3 text-sm"
+          >
+            <option value="">Select a tip…</option>
+            {TIP_OPTIONS.map((t) => (
+              <option key={t} value={t}>
+                {t}
+              </option>
+            ))}
+          </select>
+          <p className="mt-1 text-xs text-muted-foreground">
+            Settled automatically from the final score once the match finishes.
+          </p>
         </div>
+
       </div>
 
       <div>
