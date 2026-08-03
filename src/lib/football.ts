@@ -58,6 +58,27 @@ export async function fetchUpcomingMatches(limit = 10) {
   return (data ?? []) as unknown as MatchWithTeams[];
 }
 
+export async function fetchMatchesBetween(fromISO: string, toISO: string) {
+  const { data, error } = await supabase
+    .from("matches")
+    .select(MATCH_SELECT)
+    .gte("kickoff_at", fromISO)
+    .lte("kickoff_at", toISO)
+    .order("kickoff_at", { ascending: true });
+  if (error) throw error;
+  return (data ?? []) as unknown as MatchWithTeams[];
+}
+
+export async function fetchPredictionsForMatches(matchIds: string[]) {
+  if (!matchIds.length) return [] as Prediction[];
+  const { data, error } = await supabase
+    .from("predictions")
+    .select("*")
+    .in("match_id", matchIds);
+  if (error) throw error;
+  return (data ?? []) as Prediction[];
+}
+
 export async function fetchPredictions(opts: { limit?: number; published?: boolean } = {}) {
   const { limit = 30, published = true } = opts;
   let q = supabase.from("predictions").select(PREDICTION_SELECT);

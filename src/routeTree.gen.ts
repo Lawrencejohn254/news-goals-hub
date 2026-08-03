@@ -37,6 +37,7 @@ import { Route as AuthenticatedAdminPredictionsIndexRouteImport } from './routes
 import { Route as AuthenticatedAdminArticlesIndexRouteImport } from './routes/_authenticated/admin.articles.index'
 import { Route as ApiPublicHooksFootballSyncRouteImport } from './routes/api/public/hooks/football-sync'
 import { Route as AuthenticatedAdminPredictionsNewRouteImport } from './routes/_authenticated/admin.predictions.new'
+import { Route as AuthenticatedAdminPredictionsBoardRouteImport } from './routes/_authenticated/admin.predictions.board'
 import { Route as AuthenticatedAdminPredictionsIdRouteImport } from './routes/_authenticated/admin.predictions.$id'
 import { Route as AuthenticatedAdminArticlesNewRouteImport } from './routes/_authenticated/admin.articles.new'
 import { Route as AuthenticatedAdminArticlesIdRouteImport } from './routes/_authenticated/admin.articles.$id'
@@ -193,6 +194,12 @@ const AuthenticatedAdminPredictionsNewRoute =
     path: '/new',
     getParentRoute: () => AuthenticatedAdminPredictionsRoute,
   } as any)
+const AuthenticatedAdminPredictionsBoardRoute =
+  AuthenticatedAdminPredictionsBoardRouteImport.update({
+    id: '/board',
+    path: '/board',
+    getParentRoute: () => AuthenticatedAdminPredictionsRoute,
+  } as any)
 const AuthenticatedAdminPredictionsIdRoute =
   AuthenticatedAdminPredictionsIdRouteImport.update({
     id: '/$id',
@@ -239,6 +246,7 @@ export interface FileRoutesByFullPath {
   '/admin/articles/$id': typeof AuthenticatedAdminArticlesIdRoute
   '/admin/articles/new': typeof AuthenticatedAdminArticlesNewRoute
   '/admin/predictions/$id': typeof AuthenticatedAdminPredictionsIdRoute
+  '/admin/predictions/board': typeof AuthenticatedAdminPredictionsBoardRoute
   '/admin/predictions/new': typeof AuthenticatedAdminPredictionsNewRoute
   '/api/public/hooks/football-sync': typeof ApiPublicHooksFootballSyncRoute
   '/admin/articles/': typeof AuthenticatedAdminArticlesIndexRoute
@@ -268,6 +276,7 @@ export interface FileRoutesByTo {
   '/admin/articles/$id': typeof AuthenticatedAdminArticlesIdRoute
   '/admin/articles/new': typeof AuthenticatedAdminArticlesNewRoute
   '/admin/predictions/$id': typeof AuthenticatedAdminPredictionsIdRoute
+  '/admin/predictions/board': typeof AuthenticatedAdminPredictionsBoardRoute
   '/admin/predictions/new': typeof AuthenticatedAdminPredictionsNewRoute
   '/api/public/hooks/football-sync': typeof ApiPublicHooksFootballSyncRoute
   '/admin/articles': typeof AuthenticatedAdminArticlesIndexRoute
@@ -302,6 +311,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/articles/$id': typeof AuthenticatedAdminArticlesIdRoute
   '/_authenticated/admin/articles/new': typeof AuthenticatedAdminArticlesNewRoute
   '/_authenticated/admin/predictions/$id': typeof AuthenticatedAdminPredictionsIdRoute
+  '/_authenticated/admin/predictions/board': typeof AuthenticatedAdminPredictionsBoardRoute
   '/_authenticated/admin/predictions/new': typeof AuthenticatedAdminPredictionsNewRoute
   '/api/public/hooks/football-sync': typeof ApiPublicHooksFootballSyncRoute
   '/_authenticated/admin/articles/': typeof AuthenticatedAdminArticlesIndexRoute
@@ -336,6 +346,7 @@ export interface FileRouteTypes {
     | '/admin/articles/$id'
     | '/admin/articles/new'
     | '/admin/predictions/$id'
+    | '/admin/predictions/board'
     | '/admin/predictions/new'
     | '/api/public/hooks/football-sync'
     | '/admin/articles/'
@@ -365,6 +376,7 @@ export interface FileRouteTypes {
     | '/admin/articles/$id'
     | '/admin/articles/new'
     | '/admin/predictions/$id'
+    | '/admin/predictions/board'
     | '/admin/predictions/new'
     | '/api/public/hooks/football-sync'
     | '/admin/articles'
@@ -398,6 +410,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/articles/$id'
     | '/_authenticated/admin/articles/new'
     | '/_authenticated/admin/predictions/$id'
+    | '/_authenticated/admin/predictions/board'
     | '/_authenticated/admin/predictions/new'
     | '/api/public/hooks/football-sync'
     | '/_authenticated/admin/articles/'
@@ -616,6 +629,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPredictionsNewRouteImport
       parentRoute: typeof AuthenticatedAdminPredictionsRoute
     }
+    '/_authenticated/admin/predictions/board': {
+      id: '/_authenticated/admin/predictions/board'
+      path: '/board'
+      fullPath: '/admin/predictions/board'
+      preLoaderRoute: typeof AuthenticatedAdminPredictionsBoardRouteImport
+      parentRoute: typeof AuthenticatedAdminPredictionsRoute
+    }
     '/_authenticated/admin/predictions/$id': {
       id: '/_authenticated/admin/predictions/$id'
       path: '/$id'
@@ -660,6 +680,7 @@ const AuthenticatedAdminArticlesRouteWithChildren =
 
 interface AuthenticatedAdminPredictionsRouteChildren {
   AuthenticatedAdminPredictionsIdRoute: typeof AuthenticatedAdminPredictionsIdRoute
+  AuthenticatedAdminPredictionsBoardRoute: typeof AuthenticatedAdminPredictionsBoardRoute
   AuthenticatedAdminPredictionsNewRoute: typeof AuthenticatedAdminPredictionsNewRoute
   AuthenticatedAdminPredictionsIndexRoute: typeof AuthenticatedAdminPredictionsIndexRoute
 }
@@ -667,6 +688,8 @@ interface AuthenticatedAdminPredictionsRouteChildren {
 const AuthenticatedAdminPredictionsRouteChildren: AuthenticatedAdminPredictionsRouteChildren =
   {
     AuthenticatedAdminPredictionsIdRoute: AuthenticatedAdminPredictionsIdRoute,
+    AuthenticatedAdminPredictionsBoardRoute:
+      AuthenticatedAdminPredictionsBoardRoute,
     AuthenticatedAdminPredictionsNewRoute:
       AuthenticatedAdminPredictionsNewRoute,
     AuthenticatedAdminPredictionsIndexRoute:
