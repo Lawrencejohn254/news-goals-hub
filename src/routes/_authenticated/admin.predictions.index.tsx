@@ -36,12 +36,20 @@ function PredictionsAdmin() {
     <div>
       <div className="mb-6 flex items-center justify-between">
         <h1 className="font-serif text-3xl font-black">Predictions</h1>
-        <Link
-          to="/admin/predictions/new"
-          className="bg-[var(--brand)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--brand)]/90"
-        >
-          + New prediction
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            to="/admin/predictions/board"
+            className="border border-border px-4 py-2 text-sm font-semibold hover:bg-muted"
+          >
+            Fixture board
+          </Link>
+          <Link
+            to="/admin/predictions/new"
+            className="bg-[var(--brand)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--brand)]/90"
+          >
+            + New prediction
+          </Link>
+        </div>
       </div>
 
       <div className="border border-border bg-background">
