@@ -128,6 +128,61 @@ function PredictionsIndex() {
 
         <AdSlot placement="home-top" className="mt-8" />
 
+        <section className="mt-10">
+          <h2 className="mb-4 border-b-2 border-[var(--ink)] pb-2 font-serif text-2xl font-bold uppercase tracking-wider">
+            Tips table
+          </h2>
+          <div className="overflow-x-auto border border-border bg-background">
+            <table className="w-full min-w-[720px] text-sm">
+              <thead className="border-b border-border bg-muted/50 text-xs uppercase tracking-widest text-muted-foreground">
+                <tr>
+                  <th className="p-3 text-left">Kickoff</th>
+                  <th className="p-3 text-left">Competition</th>
+                  <th className="p-3 text-left">Fixture</th>
+                  <th className="p-3 text-left">Tip</th>
+                  <th className="p-3 text-left">Conf.</th>
+                  <th className="p-3 text-left">Odds</th>
+                  <th className="p-3 text-left">Result</th>
+                </tr>
+              </thead>
+              <tbody>
+                {visible.length === 0 && (
+                  <tr>
+                    <td colSpan={7} className="p-6 text-center text-muted-foreground">
+                      No tips for this matchday yet.
+                    </td>
+                  </tr>
+                )}
+                {visible.map((p) => (
+                  <tr key={p.id} className="border-b border-border last:border-b-0">
+                    <td className="whitespace-nowrap p-3 text-muted-foreground">
+                      {p.matches?.kickoff_at
+                        ? new Date(p.matches.kickoff_at).toLocaleString("en-GB", {
+                            day: "numeric",
+                            month: "short",
+                            hour: "2-digit",
+                            minute: "2-digit",
+                          })
+                        : "—"}
+                    </td>
+                    <td className="p-3 text-xs text-muted-foreground">
+                      {p.matches?.competitions?.name ?? "—"}
+                    </td>
+                    <td className="p-3 font-medium">
+                      <Link to="/predictions/$slug" params={{ slug: p.slug }} className="hover:text-[var(--brand)]">
+                        {p.matches?.home_team?.name ?? "?"} vs {p.matches?.away_team?.name ?? "?"}
+                      </Link>
+                    </td>
+                    <td className="p-3 font-semibold text-[var(--brand)]">{p.tip}</td>
+                    <td className="p-3">{p.confidence}/5</td>
+                    <td className="p-3">{p.odds ?? "—"}</td>
+                    <td className="p-3 text-xs font-bold uppercase">{p.result}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </section>
 
         <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_320px]">
           <div>
