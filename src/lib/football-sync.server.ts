@@ -14,6 +14,15 @@ export type ProviderLeague = {
   season: string | null;
 };
 
+export class QuotaError extends Error {
+  constructor() {
+    super(
+      "Football data quota reached for this month on the current API plan. Syncing will resume when the quota resets, or upgrade the plan.",
+    );
+    this.name = "QuotaError";
+  }
+}
+
 async function api<T = any>(path: string): Promise<T> {
   const key = process.env["API_FOOTBALL_KEY"];
   if (!key) throw new Error("Football data key is not configured");
@@ -21,9 +30,13 @@ async function api<T = any>(path: string): Promise<T> {
     headers: { "x-rapidapi-key": key, "x-rapidapi-host": HOST },
   });
   const text = await res.text();
+  if (res.status === 429) throw new QuotaError();
   if (!res.ok) throw new Error(`Football API ${res.status}: ${text.slice(0, 300)}`);
   return JSON.parse(text) as T;
 }
+
+const seasonCache = new Map<number, { id: number; name: string } | null>();
+
 
 /** Search any competition worldwide by name (optionally filtered by country). */
 export async function searchLeagues(query: string, country?: string): Promise<ProviderLeague[]> {
