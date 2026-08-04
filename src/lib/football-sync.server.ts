@@ -2,9 +2,7 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { slugify } from "@/lib/format";
 import { settleTip } from "@/lib/tips";
 
-const HOST = "sportapi7.p.rapidapi.com";
-const BASE = `https://${HOST}/api/v1`;
-const IMG = "https://img.sofascore.com/api/v1";
+const BASE = "https://v3.football.api-sports.io";
 
 export type ProviderLeague = {
   external_id: number;
@@ -17,7 +15,7 @@ export type ProviderLeague = {
 export class QuotaError extends Error {
   constructor() {
     super(
-      "Football data quota reached for this month on the current API plan. Syncing will resume when the quota resets, or upgrade the plan.",
+      "Football data quota reached for the current API plan. Syncing will resume when the quota resets, or upgrade the plan.",
     );
     this.name = "QuotaError";
   }
@@ -26,51 +24,59 @@ export class QuotaError extends Error {
 async function api<T = any>(path: string): Promise<T> {
   const key = process.env["API_FOOTBALL_KEY"];
   if (!key) throw new Error("Football data key is not configured");
-  const res = await fetch(BASE + path, {
-    headers: { "x-rapidapi-key": key, "x-rapidapi-host": HOST },
-  });
+  const res = await fetch(BASE + path, { headers: { "x-apisports-key": key } });
   const text = await res.text();
   if (res.status === 429) throw new QuotaError();
   if (!res.ok) throw new Error(`Football API ${res.status}: ${text.slice(0, 300)}`);
-  return JSON.parse(text) as T;
+  const json = JSON.parse(text);
+  const errs = json?.errors;
+  if (errs && !Array.isArray(errs) && Object.keys(errs).length) {
+    const msg = Object.values(errs).join("; ");
+    if (/limit|quota|plan/i.test(msg)) throw new QuotaError();
+    throw new Error(`Football API: ${msg}`);
+  }
+  return json as T;
 }
 
-const seasonCache = new Map<number, { id: number; name: string } | null>();
+const seasonCache = new Map<number, number | null>();
 
+function pickSeason(seasons: any[]): number | null {
+  const cur = (seasons ?? []).find((s) => s.current);
+  const last = (seasons ?? [])[(seasons ?? []).length - 1];
+  const y = cur?.year ?? last?.year;
+  return typeof y === "number" ? y : null;
+}
 
 /** Search any competition worldwide by name (optionally filtered by country). */
 export async function searchLeagues(query: string, country?: string): Promise<ProviderLeague[]> {
   const q = query.trim();
-  if (q.length < 2) return [];
-  const json = await api<{ uniqueTournaments: any[] }>(
-    `/search/unique-tournaments/${encodeURIComponent(q)}`,
-  );
-  const c = country?.trim().toLowerCase();
-  return (json.uniqueTournaments ?? [])
-    .filter((t) => (t.category?.sport?.slug ?? "football") === "football")
-    .filter((t) => !c || (t.category?.name ?? "").toLowerCase().includes(c))
-    .slice(0, 60)
-    .map((t) => ({
-      external_id: t.id as number,
-      name: t.name as string,
-      country: t.category?.name ?? null,
-      logo_url: `${IMG}/unique-tournament/${t.id}/image`,
-      season: null,
-    }));
+  if (q.length < 3) return [];
+  let path = `/leagues?search=${encodeURIComponent(q)}`;
+  if (country?.trim()) path += `&country=${encodeURIComponent(country.trim())}`;
+  const json = await api<{ response: any[] }>(path);
+  return (json.response ?? []).slice(0, 60).map((r) => {
+    const season = pickSeason(r.seasons);
+    if (season != null) seasonCache.set(r.league.id, season);
+    return {
+      external_id: r.league.id as number,
+      name: r.league.name as string,
+      country: r.country?.name ?? null,
+      logo_url: r.league.logo ?? null,
+      season: season != null ? String(season) : null,
+    };
+  });
 }
 
-async function currentSeason(tournamentId: number): Promise<{ id: number; name: string } | null> {
-  if (seasonCache.has(tournamentId)) return seasonCache.get(tournamentId)!;
-  const json = await api<{ seasons: any[] }>(`/unique-tournament/${tournamentId}/seasons`);
-  const s = (json.seasons ?? [])[0];
-  const out = s ? { id: s.id as number, name: String(s.year ?? s.name) } : null;
-  seasonCache.set(tournamentId, out);
-  return out;
+async function currentSeason(leagueId: number): Promise<number | null> {
+  if (seasonCache.has(leagueId)) return seasonCache.get(leagueId)!;
+  const json = await api<{ response: any[] }>(`/leagues?id=${leagueId}`);
+  const season = pickSeason(json.response?.[0]?.seasons ?? []);
+  seasonCache.set(leagueId, season);
+  return season;
 }
-
 
 export async function trackLeague(l: ProviderLeague) {
-  const season = (await currentSeason(l.external_id))?.name ?? l.season ?? null;
+  const season = (await currentSeason(l.external_id))?.toString() ?? l.season ?? null;
 
   const { data: existing } = await supabaseAdmin
     .from("competitions")
@@ -113,7 +119,7 @@ export async function setLeagueTracked(competitionId: string, tracked: boolean) 
   if (error) throw new Error(error.message);
 }
 
-async function upsertTeams(teams: { id: number; name: string }[]) {
+async function upsertTeams(teams: { id: number; name: string; logo?: string | null }[]) {
   const uniq = teams.filter((t, i) => teams.findIndex((x) => x.id === t.id) === i);
   if (!uniq.length) return new Map<number, string>();
   const { data: existing, error } = await supabaseAdmin
@@ -135,7 +141,7 @@ async function upsertTeams(teams: { id: number; name: string }[]) {
         missing.map((t) => ({
           name: t.name,
           slug: `${slugify(t.name)}-${t.id}`,
-          crest_url: `${IMG}/team/${t.id}/image`,
+          crest_url: t.logo ?? `https://media.api-sports.io/football/teams/${t.id}.png`,
           external_id: t.id,
         })),
       )
@@ -148,40 +154,49 @@ async function upsertTeams(teams: { id: number; name: string }[]) {
 
 type LocalStatus = "scheduled" | "live" | "finished" | "postponed" | "cancelled";
 
-function mapStatus(type?: string): LocalStatus {
-  switch (type) {
-    case "inprogress":
+function mapStatus(short?: string): LocalStatus {
+  switch (short) {
+    case "1H":
+    case "HT":
+    case "2H":
+    case "ET":
+    case "BT":
+    case "P":
+    case "LIVE":
+    case "INT":
       return "live";
-    case "finished":
+    case "FT":
+    case "AET":
+    case "PEN":
       return "finished";
-    case "postponed":
-    case "delayed":
-    case "interrupted":
-    case "suspended":
+    case "PST":
+    case "SUSP":
       return "postponed";
-    case "canceled":
-    case "cancelled":
+    case "CANC":
+    case "ABD":
+    case "AWD":
+    case "WO":
       return "cancelled";
     default:
       return "scheduled";
   }
 }
 
-function rowFromEvent(e: any, competitionId: string, teamMap: Map<number, string>) {
-  const homeId = teamMap.get(e.homeTeam?.id);
-  const awayId = teamMap.get(e.awayTeam?.id);
+function rowFromFixture(f: any, competitionId: string, teamMap: Map<number, string>) {
+  const homeId = teamMap.get(f.teams?.home?.id);
+  const awayId = teamMap.get(f.teams?.away?.id);
   if (!homeId || !awayId) return null;
-  const status = mapStatus(e.status?.type);
+  const status = mapStatus(f.fixture?.status?.short);
   return {
-    external_id: e.id as number,
+    external_id: f.fixture.id as number,
     competition_id: competitionId,
     home_team_id: homeId,
     away_team_id: awayId,
-    kickoff_at: new Date((e.startTimestamp as number) * 1000).toISOString(),
-    venue: e.venue?.stadium?.name ?? e.venue?.name ?? null,
+    kickoff_at: new Date((f.fixture.timestamp as number) * 1000).toISOString(),
+    venue: f.fixture?.venue?.name ?? null,
     status,
-    home_score: status === "scheduled" ? null : (e.homeScore?.current ?? null),
-    away_score: status === "scheduled" ? null : (e.awayScore?.current ?? null),
+    home_score: status === "scheduled" ? null : (f.goals?.home ?? null),
+    away_score: status === "scheduled" ? null : (f.goals?.away ?? null),
   };
 }
 
@@ -213,7 +228,9 @@ async function saveRows(rows: any[]) {
   return { created, updated };
 }
 
-/** Pull upcoming fixtures for every tracked competition, from now to +days. */
+const ymd = (d: Date) => d.toISOString().slice(0, 10);
+
+/** Pull upcoming fixtures for every tracked competition, from today to +days. */
 export async function syncFixtures(days = 10) {
   const { data: comps, error } = await supabaseAdmin
     .from("competitions")
@@ -222,13 +239,14 @@ export async function syncFixtures(days = 10) {
     .not("external_id", "is", null);
   if (error) throw new Error(error.message);
 
-  const until = Date.now() + days * 86400_000;
+  const from = ymd(new Date());
+  const to = ymd(new Date(Date.now() + days * 86400_000));
   let created = 0;
   let updated = 0;
   let quotaExceeded = false;
 
   for (const c of comps ?? []) {
-    let season: { id: number; name: string } | null = null;
+    let season: number | null = null;
     try {
       season = await currentSeason(c.external_id!);
     } catch (e) {
@@ -238,50 +256,42 @@ export async function syncFixtures(days = 10) {
       }
       continue;
     }
-    if (!season) continue;
-    if (season.name !== c.season) {
-      await supabaseAdmin.from("competitions").update({ season: season.name }).eq("id", c.id);
+    if (season == null) continue;
+    if (String(season) !== c.season) {
+      await supabaseAdmin.from("competitions").update({ season: String(season) }).eq("id", c.id);
     }
 
-    const events: any[] = [];
-    for (let page = 0; page < 3; page++) {
-      let json: { events?: any[]; hasNextPage?: boolean };
-      try {
-        json = await api(
-          `/unique-tournament/${c.external_id}/season/${season.id}/events/next/${page}`,
-        );
-      } catch (e) {
-        if (e instanceof QuotaError) quotaExceeded = true;
+    let fixtures: any[] = [];
+    try {
+      const json = await api<{ response: any[] }>(
+        `/fixtures?league=${c.external_id}&season=${season}&from=${from}&to=${to}`,
+      );
+      fixtures = json.response ?? [];
+    } catch (e) {
+      if (e instanceof QuotaError) {
+        quotaExceeded = true;
         break;
       }
-      const batch = json.events ?? [];
-      events.push(...batch);
-      const last = batch[batch.length - 1];
-      if (!json.hasNextPage || !last || last.startTimestamp * 1000 > until) break;
+      continue;
     }
 
-    const inWindow = events.filter((e) => e.startTimestamp * 1000 <= until);
-    if (inWindow.length) {
+    if (fixtures.length) {
       const teamMap = await upsertTeams(
-        inWindow.flatMap((e) => [
-          { id: e.homeTeam?.id, name: e.homeTeam?.name },
-          { id: e.awayTeam?.id, name: e.awayTeam?.name },
-        ]).filter((t) => t.id && t.name),
+        fixtures
+          .flatMap((f) => [f.teams?.home, f.teams?.away])
+          .filter((t) => t?.id && t?.name)
+          .map((t) => ({ id: t.id, name: t.name, logo: t.logo })),
       );
-
-      const rows = inWindow
-        .map((e) => rowFromEvent(e, c.id, teamMap))
+      const rows = fixtures
+        .map((f) => rowFromFixture(f, c.id, teamMap))
         .filter(Boolean) as any[];
       const res = await saveRows(rows);
       created += res.created;
       updated += res.updated;
     }
-
-    if (quotaExceeded) break;
   }
 
   return { competitions: comps?.length ?? 0, created, updated, quotaExceeded };
-
 }
 
 /** Refresh results for started-but-unfinished matches and settle their tips. */
@@ -300,10 +310,15 @@ export async function settleResults() {
   let settled = 0;
   let quotaExceeded = false;
 
-  for (const m of pending) {
-    let json: { event?: any };
+  // API-Football allows batching up to 20 fixture ids per request.
+  for (let i = 0; i < pending.length; i += 20) {
+    const batch = pending.slice(i, i + 20);
+    let fixtures: any[] = [];
     try {
-      json = await api(`/event/${m.external_id}`);
+      const json = await api<{ response: any[] }>(
+        `/fixtures?ids=${batch.map((m) => m.external_id).join("-")}`,
+      );
+      fixtures = json.response ?? [];
     } catch (err) {
       if (err instanceof QuotaError) {
         quotaExceeded = true;
@@ -311,22 +326,24 @@ export async function settleResults() {
       }
       continue;
     }
-    const e = json.event;
-    if (!e) continue;
-    const status = mapStatus(e.status?.type);
-    const home = e.homeScore?.current ?? null;
-    const away = e.awayScore?.current ?? null;
-    await supabaseAdmin
-      .from("matches")
-      .update({ status, home_score: home, away_score: away })
-      .eq("id", m.id);
-    if (status !== "finished" || home == null || away == null) continue;
-    finished++;
-    settled += await settleMatchPredictions(m.id, home, away);
+
+    for (const f of fixtures) {
+      const local = batch.find((m) => m.external_id === f.fixture?.id);
+      if (!local) continue;
+      const status = mapStatus(f.fixture?.status?.short);
+      const home = f.goals?.home ?? null;
+      const away = f.goals?.away ?? null;
+      await supabaseAdmin
+        .from("matches")
+        .update({ status, home_score: home, away_score: away })
+        .eq("id", local.id);
+      if (status !== "finished" || home == null || away == null) continue;
+      finished++;
+      settled += await settleMatchPredictions(local.id, home, away);
+    }
   }
 
   return { checked: pending.length, finished, settled, quotaExceeded };
-
 }
 
 export async function settleMatchPredictions(matchId: string, home: number, away: number) {
