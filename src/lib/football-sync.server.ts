@@ -60,10 +60,14 @@ export async function searchLeagues(query: string, country?: string): Promise<Pr
 }
 
 async function currentSeason(tournamentId: number): Promise<{ id: number; name: string } | null> {
+  if (seasonCache.has(tournamentId)) return seasonCache.get(tournamentId)!;
   const json = await api<{ seasons: any[] }>(`/unique-tournament/${tournamentId}/seasons`);
   const s = (json.seasons ?? [])[0];
-  return s ? { id: s.id as number, name: String(s.year ?? s.name) } : null;
+  const out = s ? { id: s.id as number, name: String(s.year ?? s.name) } : null;
+  seasonCache.set(tournamentId, out);
+  return out;
 }
+
 
 export async function trackLeague(l: ProviderLeague) {
   const season = (await currentSeason(l.external_id))?.name ?? l.season ?? null;
