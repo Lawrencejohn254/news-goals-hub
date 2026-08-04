@@ -5,28 +5,22 @@ import { useQuery } from "@tanstack/react-query";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { AdSlot } from "@/components/site/AdSlot";
-import { PredictionCard, MatchLine } from "@/components/site/FootballBits";
-import {
-  fetchPredictions,
-  fetchUpcomingMatches,
-  fetchPredictionStats,
-  fetchCompetitions,
-} from "@/lib/football";
+import { fetchPredictions, fetchPredictionStats, type PredictionWithMatch } from "@/lib/football";
 
 export const Route = createFileRoute("/predictions/")({
   component: PredictionsIndex,
   head: () => ({
     meta: [
-      { title: "Football Predictions & Betting Tips — The Dispatch" },
+      { title: "Football Tips Today — Free Predictions | The Dispatch" },
       {
         name: "description",
         content:
-          "Expert football predictions, match previews, form guides and betting tips across the Premier League, La Liga, Serie A and the Champions League.",
+          "Free football betting tips for today, tomorrow and the weekend. Match predictions, correct scores, form guides and odds across every major league.",
       },
-      { property: "og:title", content: "Football Predictions & Betting Tips" },
+      { property: "og:title", content: "Football Tips Today — Free Predictions" },
       {
         property: "og:description",
-        content: "Expert football predictions and match analysis from The Dispatch sports desk.",
+        content: "Free football predictions, correct scores and form guides from The Dispatch.",
       },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
@@ -35,263 +29,260 @@ export const Route = createFileRoute("/predictions/")({
   }),
 });
 
+function dayKey(d: Date) {
+  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+}
 function toDayKey(iso?: string | null) {
   if (!iso) return "";
-  const d = new Date(iso);
-  return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+  return dayKey(new Date(iso));
+}
+function longDate(key: string) {
+  return new Date(`${key}T12:00:00`).toLocaleDateString("en-GB", {
+    weekday: "long",
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+  });
+}
+
+const DAYS = Array.from({ length: 5 }, (_, i) => {
+  const d = new Date();
+  d.setDate(d.getDate() + i);
+  return dayKey(d);
+});
+
+function Form({ value }: { value?: string | null }) {
+  const chars = (value ?? "")
+    .toUpperCase()
+    .replace(/[^WDL]/g, "")
+    .slice(-5)
+    .split("");
+  if (!chars.length) return <span className="text-[10px] text-muted-foreground">—</span>;
+  return (
+    <span className="inline-flex gap-0.5">
+      {chars.map((c, i) => (
+        <span
+          key={i}
+          className={`flex h-4 w-4 items-center justify-center text-[9px] font-bold text-white ${
+            c === "W" ? "bg-[#1b8a3f]" : c === "D" ? "bg-[#8a8a8a]" : "bg-[var(--brand)]"
+          }`}
+        >
+          {c}
+        </span>
+      ))}
+    </span>
+  );
+}
+
+function ResultCell({ p }: { p: PredictionWithMatch }) {
+  if (p.result === "won")
+    return <span className="bg-[#1b8a3f] px-2 py-0.5 text-[10px] font-bold uppercase text-white">Won</span>;
+  if (p.result === "lost")
+    return <span className="bg-[var(--brand)] px-2 py-0.5 text-[10px] font-bold uppercase text-white">Lost</span>;
+  if (p.result === "void")
+    return <span className="bg-muted px-2 py-0.5 text-[10px] font-bold uppercase">Void</span>;
+  return <span className="text-[10px] font-semibold uppercase text-muted-foreground">Pending</span>;
 }
 
 function PredictionsIndex() {
-  const [day, setDay] = useState("");
+  const [day, setDay] = useState(DAYS[0]);
   const preds = useQuery({
     queryKey: ["predictions", "all"],
-    queryFn: () => fetchPredictions({ limit: 200 }),
+    queryFn: () => fetchPredictions({ limit: 500 }),
   });
-  const upcoming = useQuery({ queryKey: ["upcoming-matches"], queryFn: () => fetchUpcomingMatches(8) });
   const stats = useQuery({ queryKey: ["prediction-stats"], queryFn: fetchPredictionStats });
-  const comps = useQuery({ queryKey: ["competitions"], queryFn: fetchCompetitions });
 
   const all = preds.data ?? [];
-  const days = [...new Set(all.map((p) => toDayKey(p.matches?.kickoff_at)).filter(Boolean))].sort();
-  const visible = day ? all.filter((p) => toDayKey(p.matches?.kickoff_at) === day) : all;
+  const visible = all.filter((p) => toDayKey(p.matches?.kickoff_at) === day);
 
-  const dayWon = visible.filter((p) => p.result === "won").length;
-  const dayLost = visible.filter((p) => p.result === "lost").length;
-  const daySettled = dayWon + dayLost;
-  const dayRate = daySettled ? Math.round((dayWon / daySettled) * 100) : 0;
+  const groups = new Map<string, PredictionWithMatch[]>();
+  for (const p of visible) {
+    const key = p.matches?.competitions?.name ?? "Other fixtures";
+    if (!groups.has(key)) groups.set(key, []);
+    groups.get(key)!.push(p);
+  }
+  for (const list of groups.values())
+    list.sort((a, b) => (a.matches?.kickoff_at ?? "").localeCompare(b.matches?.kickoff_at ?? ""));
 
-  const featured = visible.filter((p) => p.is_featured);
-  const rest = visible.filter((p) => !p.is_featured);
-
+  const won = visible.filter((p) => p.result === "won").length;
+  const lost = visible.filter((p) => p.result === "lost").length;
+  const rate = won + lost ? Math.round((won / (won + lost)) * 100) : 0;
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
-      <main className="container-page py-10">
-        <div className="border-b-4 border-[var(--brand)] pb-6">
-          <p className="text-xs font-bold uppercase tracking-[0.3em] text-[var(--brand)]">
-            The Dispatch Football Desk
-          </p>
-          <h1 className="mt-2 font-serif text-4xl font-black text-[var(--ink)] md:text-6xl">
-            Football Predictions
-          </h1>
-          <p className="mt-3 max-w-2xl text-muted-foreground">
-            Data-driven match analysis, form guides and tips from our sports desk. Published
-            before kickoff, settled after full time.
-          </p>
-        </div>
 
-        <div className="mt-6 grid gap-4 sm:grid-cols-4">
-          <Stat label="Tips published" value={stats.data?.total ?? 0} />
-          <Stat label="Winners" value={stats.data?.won ?? 0} />
-          <Stat label="Pending" value={stats.data?.pending ?? 0} />
-          <Stat label="Win rate" value={`${stats.data?.winRate ?? 0}%`} highlight />
-        </div>
-
-        <div className="mt-8 flex flex-wrap items-center gap-3 border border-border bg-muted/30 p-4">
-          <label htmlFor="dayfilter" className="text-xs font-bold uppercase tracking-widest">
-            Matchday
-          </label>
-          <input
-            id="dayfilter"
-            type="date"
-            value={day}
-            onChange={(e) => setDay(e.target.value)}
-            className="h-9 border border-input bg-background px-3 text-sm"
-          />
-          <div className="flex flex-wrap gap-2">
+      {/* Day tabs */}
+      <div className="border-b border-border bg-[var(--ink)]">
+        <div className="container-page flex flex-wrap gap-px py-0">
+          {DAYS.map((d, i) => (
             <button
-              onClick={() => setDay("")}
-              className={`px-3 py-1 text-xs font-semibold uppercase tracking-wider ${day === "" ? "bg-[var(--ink)] text-white" : "border border-border"}`}
+              key={d}
+              onClick={() => setDay(d)}
+              className={`px-4 py-3 text-xs font-bold uppercase tracking-wider transition-colors ${
+                day === d
+                  ? "bg-[var(--brand)] text-white"
+                  : "text-white/70 hover:bg-white/10 hover:text-white"
+              }`}
             >
-              All
+              {i === 0
+                ? "Today"
+                : i === 1
+                  ? "Tomorrow"
+                  : new Date(`${d}T12:00:00`).toLocaleDateString("en-GB", { weekday: "long" })}{" "}
+              <span className="opacity-70">
+                ({new Date(`${d}T12:00:00`).toLocaleDateString("en-GB", { day: "numeric", month: "short" })})
+              </span>
             </button>
-            {days.slice(0, 7).map((d) => (
-              <button
-                key={d}
-                onClick={() => setDay(d)}
-                className={`px-3 py-1 text-xs font-semibold uppercase tracking-wider ${day === d ? "bg-[var(--ink)] text-white" : "border border-border"}`}
-              >
-                {new Date(`${d}T12:00:00`).toLocaleDateString("en-GB", {
-                  weekday: "short",
-                  day: "numeric",
-                  month: "short",
-                })}
-              </button>
-            ))}
-          </div>
-          <p className="ml-auto text-xs text-muted-foreground">
-            {day ? `${visible.length} tips` : `${all.length} tips`} · {dayWon}W–{dayLost}L ·{" "}
-            <span className="font-bold text-[var(--brand)]">{dayRate}% strike rate</span>
-          </p>
+          ))}
+        </div>
+      </div>
+
+      <main className="container-page py-8">
+        <h1 className="font-serif text-3xl font-black text-[var(--ink)] md:text-4xl">
+          Football Tips — {longDate(day)}
+        </h1>
+        <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
+          Here are all of our free football betting tips for this matchday. Each row shows both
+          teams&apos; last five results, our predicted score, the recommended tip and the price.
+          Click any fixture for the full match preview.
+        </p>
+
+        <div className="mt-4 flex flex-wrap items-center gap-4 border-y border-border py-2 text-xs">
+          <span className="font-bold uppercase tracking-widest">Key</span>
+          <span className="flex items-center gap-1"><Form value="W" /> Win</span>
+          <span className="flex items-center gap-1"><Form value="D" /> Draw</span>
+          <span className="flex items-center gap-1"><Form value="L" /> Loss</span>
+          <span className="ml-auto text-muted-foreground">
+            {visible.length} tips · {won}W–{lost}L ·{" "}
+            <strong className="text-[var(--brand)]">{rate}% strike rate</strong> today · all-time{" "}
+            {stats.data?.winRate ?? 0}%
+          </span>
         </div>
 
-        <AdSlot placement="home-top" className="mt-8" />
+        <AdSlot placement="home-top" className="mt-6" />
 
-        <section className="mt-10">
-          <h2 className="mb-4 border-b-2 border-[var(--ink)] pb-2 font-serif text-2xl font-bold uppercase tracking-wider">
-            Tips table
-          </h2>
-          <div className="overflow-x-auto border border-border bg-background">
-            <table className="w-full min-w-[720px] text-sm">
-              <thead className="border-b border-border bg-muted/50 text-xs uppercase tracking-widest text-muted-foreground">
-                <tr>
-                  <th className="p-3 text-left">Kickoff</th>
-                  <th className="p-3 text-left">Competition</th>
-                  <th className="p-3 text-left">Fixture</th>
-                  <th className="p-3 text-left">Tip</th>
-                  <th className="p-3 text-left">Conf.</th>
-                  <th className="p-3 text-left">Odds</th>
-                  <th className="p-3 text-left">Result</th>
-                </tr>
-              </thead>
-              <tbody>
-                {visible.length === 0 && (
-                  <tr>
-                    <td colSpan={7} className="p-6 text-center text-muted-foreground">
-                      No tips for this matchday yet.
-                    </td>
-                  </tr>
+        {preds.isLoading && <p className="mt-8 text-muted-foreground">Loading tips…</p>}
+        {!preds.isLoading && visible.length === 0 && (
+          <p className="mt-8 border border-border bg-muted/30 p-6 text-muted-foreground">
+            No tips published for {longDate(day)} yet. Check back soon.
+          </p>
+        )}
+
+        <div className="mt-8 space-y-10">
+          {[...groups.entries()].map(([comp, list]) => (
+            <section key={comp}>
+              <h2 className="flex items-center gap-2 bg-[var(--ink)] px-3 py-2 font-serif text-lg font-bold uppercase tracking-wide text-white">
+                {list[0]?.matches?.competitions?.logo_url && (
+                  <img
+                    src={list[0].matches!.competitions!.logo_url!}
+                    alt=""
+                    className="h-5 w-5 object-contain"
+                    loading="lazy"
+                  />
                 )}
-                {visible.map((p) => (
-                  <tr key={p.id} className="border-b border-border last:border-b-0">
-                    <td className="whitespace-nowrap p-3 text-muted-foreground">
-                      {p.matches?.kickoff_at
-                        ? new Date(p.matches.kickoff_at).toLocaleString("en-GB", {
-                            day: "numeric",
-                            month: "short",
-                            hour: "2-digit",
-                            minute: "2-digit",
-                          })
-                        : "—"}
-                    </td>
-                    <td className="p-3 text-xs text-muted-foreground">
-                      {p.matches?.competitions?.name ?? "—"}
-                    </td>
-                    <td className="p-3 font-medium">
-                      <Link to="/predictions/$slug" params={{ slug: p.slug }} className="hover:text-[var(--brand)]">
-                        {p.matches?.home_team?.name ?? "?"} vs {p.matches?.away_team?.name ?? "?"}
-                      </Link>
-                    </td>
-                    <td className="p-3 font-semibold text-[var(--brand)]">{p.tip}</td>
-                    <td className="p-3">{p.confidence}/5</td>
-                    <td className="p-3">{p.odds ?? "—"}</td>
-                    <td className="p-3 text-xs font-bold uppercase">{p.result}</td>
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-        </section>
-
-        <div className="mt-10 grid gap-10 lg:grid-cols-[1fr_320px]">
-          <div>
-            {featured.length > 0 && (
-              <section className="mb-10">
-                <h2 className="mb-4 border-b-2 border-[var(--ink)] pb-2 font-serif text-2xl font-bold uppercase tracking-wider">
-                  Featured tips
-                </h2>
-                <div className="grid gap-6 md:grid-cols-2">
-                  {featured.map((p) => (
-                    <PredictionCard key={p.id} p={p} />
-                  ))}
-                </div>
-              </section>
-            )}
-
-            <section>
-              <h2 className="mb-4 border-b-2 border-[var(--ink)] pb-2 font-serif text-2xl font-bold uppercase tracking-wider">
-                Latest predictions
+                {comp} Tips
               </h2>
-              {preds.isLoading && <p className="text-muted-foreground">Loading…</p>}
-              {!preds.isLoading && rest.length === 0 && featured.length === 0 && (
-                <p className="text-muted-foreground">
-                  No predictions published yet. Check back before the next matchday.
-                </p>
-              )}
-              <div className="grid gap-6 md:grid-cols-2">
-                {rest.map((p) => (
-                  <PredictionCard key={p.id} p={p} />
+              <div className="overflow-x-auto border border-t-0 border-border">
+                <table className="w-full min-w-[860px] border-collapse text-sm">
+                  <thead className="bg-muted/60 text-[10px] uppercase tracking-widest text-muted-foreground">
+                    <tr>
+                      <th className="w-20 p-2 text-left">Time</th>
+                      <th className="p-2 text-right">Home</th>
+                      <th className="w-28 p-2 text-center">Prediction</th>
+                      <th className="p-2 text-left">Away</th>
+                      <th className="w-16 p-2 text-center">Tip</th>
+                      <th className="w-16 p-2 text-center">Odds</th>
+                      <th className="w-20 p-2 text-center">Conf.</th>
+                      <th className="w-20 p-2 text-center">Result</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {list.map((p, idx) => {
+                      const m = p.matches;
+                      const score =
+                        p.predicted_home_score != null && p.predicted_away_score != null
+                          ? `${p.predicted_home_score}-${p.predicted_away_score}`
+                          : "—";
+                      return (
+                        <tr
+                          key={p.id}
+                          className={`border-t border-border ${idx % 2 ? "bg-muted/20" : "bg-background"}`}
+                        >
+                          <td className="whitespace-nowrap p-2 text-xs text-muted-foreground">
+                            {m?.kickoff_at
+                              ? new Date(m.kickoff_at).toLocaleTimeString("en-GB", {
+                                  hour: "2-digit",
+                                  minute: "2-digit",
+                                })
+                              : "—"}
+                          </td>
+                          <td className="p-2 text-right">
+                            <div className="flex items-center justify-end gap-2">
+                              <Form value={p.home_form} />
+                              <span className="font-semibold">{m?.home_team?.name ?? "?"}</span>
+                              {m?.home_team?.crest_url && (
+                                <img src={m.home_team.crest_url} alt="" className="h-5 w-5" loading="lazy" />
+                              )}
+                            </div>
+                          </td>
+                          <td className="p-2 text-center">
+                            <Link
+                              to="/predictions/$slug"
+                              params={{ slug: p.slug }}
+                              className="font-serif text-base font-black text-[var(--brand)] hover:underline"
+                            >
+                              {score}
+                            </Link>
+                          </td>
+                          <td className="p-2">
+                            <div className="flex items-center gap-2">
+                              {m?.away_team?.crest_url && (
+                                <img src={m.away_team.crest_url} alt="" className="h-5 w-5" loading="lazy" />
+                              )}
+                              <span className="font-semibold">{m?.away_team?.name ?? "?"}</span>
+                              <Form value={p.away_form} />
+                            </div>
+                          </td>
+                          <td className="p-2 text-center text-xs font-bold uppercase">{p.tip}</td>
+                          <td className="p-2 text-center">
+                            <span className="inline-block border border-border px-2 py-0.5 text-xs font-semibold">
+                              {p.odds ?? "—"}
+                            </span>
+                          </td>
+                          <td className="p-2 text-center text-xs">{p.confidence}/5</td>
+                          <td className="p-2 text-center">
+                            <ResultCell p={p} />
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+              <div className="border border-t-0 border-border bg-muted/30 px-3 py-2 text-right">
+                {list.map((p) => (
+                  <Link
+                    key={p.id}
+                    to="/predictions/$slug"
+                    params={{ slug: p.slug }}
+                    className="ml-3 text-[11px] font-bold uppercase tracking-wider text-[var(--brand)] hover:underline"
+                  >
+                    {p.matches?.home_team?.short_name ?? p.matches?.home_team?.name} preview
+                  </Link>
                 ))}
               </div>
             </section>
-          </div>
-
-          <aside className="space-y-8">
-            <div className="border border-border bg-background p-5">
-              <h3 className="mb-4 font-serif text-lg font-bold uppercase tracking-wider">
-                Upcoming fixtures
-              </h3>
-              {(upcoming.data ?? []).length === 0 && (
-                <p className="text-sm text-muted-foreground">No fixtures scheduled.</p>
-              )}
-              <ul className="space-y-4">
-                {(upcoming.data ?? []).map((m) => (
-                  <li key={m.id} className="border-b border-border pb-3 last:border-b-0 last:pb-0">
-                    <p className="mb-1 text-[10px] uppercase tracking-widest text-muted-foreground">
-                      {m.competitions?.name ?? "Fixture"} ·{" "}
-                      {new Date(m.kickoff_at).toLocaleString("en-GB", {
-                        day: "numeric",
-                        month: "short",
-                        hour: "2-digit",
-                        minute: "2-digit",
-                      })}
-                    </p>
-                    <MatchLine m={m} />
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <div className="border border-border bg-background p-5">
-              <h3 className="mb-3 font-serif text-lg font-bold uppercase tracking-wider">
-                Competitions
-              </h3>
-              <ul className="space-y-2 text-sm">
-                {(comps.data ?? []).map((c) => (
-                  <li key={c.id} className="flex items-center justify-between">
-                    <span>{c.name}</span>
-                    <span className="text-xs text-muted-foreground">{c.country}</span>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            <AdSlot placement="sidebar" />
-
-            <p className="border-l-4 border-[var(--brand)] bg-muted/40 p-4 text-xs text-muted-foreground">
-              18+. Predictions are opinion and analysis, not financial advice. Please gamble
-              responsibly.
-            </p>
-          </aside>
+          ))}
         </div>
 
-        <div className="mt-12 text-center">
-          <Link to="/" className="text-sm font-semibold text-[var(--brand)] underline">
-            ← Back to the front page
-          </Link>
-        </div>
+        <AdSlot placement="sidebar" className="mt-10" />
+
+        <p className="mt-8 border-l-4 border-[var(--brand)] bg-muted/40 p-4 text-xs text-muted-foreground">
+          18+. Predictions are opinion and analysis, not financial advice. Please gamble responsibly.
+        </p>
       </main>
       <Footer />
-    </div>
-  );
-}
-
-function Stat({
-  label,
-  value,
-  highlight,
-}: {
-  label: string;
-  value: number | string;
-  highlight?: boolean;
-}) {
-  return (
-    <div
-      className={`border border-border p-4 ${highlight ? "bg-[var(--ink)] text-white" : "bg-background"}`}
-    >
-      <p className="text-[10px] font-semibold uppercase tracking-[0.2em] opacity-70">{label}</p>
-      <p className="mt-1 font-serif text-3xl font-black">{value}</p>
     </div>
   );
 }

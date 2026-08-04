@@ -1,9 +1,28 @@
 import { EditorContent, useEditor } from "@tiptap/react";
 import StarterKit from "@tiptap/starter-kit";
-import Image from "@tiptap/extension-image";
 import Link from "@tiptap/extension-link";
+import TextAlign from "@tiptap/extension-text-align";
+import { DragHandle } from "@tiptap/extension-drag-handle-react";
 import { useEffect } from "react";
-import { Bold, Italic, List, ListOrdered, Quote, Heading2, Heading3, Link as LinkIcon, Image as ImageIcon, Undo, Redo } from "lucide-react";
+import {
+  Bold,
+  Italic,
+  List,
+  ListOrdered,
+  Quote,
+  Heading2,
+  Heading3,
+  Link as LinkIcon,
+  Image as ImageIcon,
+  Undo,
+  Redo,
+  AlignLeft,
+  AlignCenter,
+  AlignRight,
+  GripVertical,
+  Minus,
+} from "lucide-react";
+import { ResizableImage } from "@/components/admin/ResizableImage";
 
 interface Props {
   value: string;
@@ -15,8 +34,9 @@ export function RichTextEditor({ value, onChange, placeholder = "Start writingâ€
   const editor = useEditor({
     extensions: [
       StarterKit,
-      Image.configure({ inline: false }),
+      ResizableImage.configure({ inline: false }),
       Link.configure({ openOnClick: false, HTMLAttributes: { rel: "noopener" } }),
+      TextAlign.configure({ types: ["heading", "paragraph"] }),
     ],
     content: value,
     editorProps: {
@@ -35,13 +55,14 @@ export function RichTextEditor({ value, onChange, placeholder = "Start writingâ€
     }
   }, [value, editor]);
 
-  if (!editor) return <div className="border border-border p-4 text-muted-foreground">Loading editorâ€¦</div>;
+  if (!editor)
+    return <div className="border border-border p-4 text-muted-foreground">Loading editorâ€¦</div>;
 
   const btn = "p-2 hover:bg-muted rounded";
   const active = "bg-[var(--ink)] text-white hover:bg-[var(--ink)]";
 
   return (
-    <div className="border border-border bg-background">
+    <div className="relative border border-border bg-background">
       <div className="flex flex-wrap items-center gap-1 border-b border-border p-2">
         <button type="button" onClick={() => editor.chain().focus().toggleBold().run()} className={`${btn} ${editor.isActive("bold") ? active : ""}`}><Bold size={16}/></button>
         <button type="button" onClick={() => editor.chain().focus().toggleItalic().run()} className={`${btn} ${editor.isActive("italic") ? active : ""}`}><Italic size={16}/></button>
@@ -49,9 +70,14 @@ export function RichTextEditor({ value, onChange, placeholder = "Start writingâ€
         <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 2 }).run()} className={`${btn} ${editor.isActive("heading", { level: 2 }) ? active : ""}`}><Heading2 size={16}/></button>
         <button type="button" onClick={() => editor.chain().focus().toggleHeading({ level: 3 }).run()} className={`${btn} ${editor.isActive("heading", { level: 3 }) ? active : ""}`}><Heading3 size={16}/></button>
         <span className="mx-1 h-5 w-px bg-border" />
+        <button type="button" onClick={() => editor.chain().focus().setTextAlign("left").run()} className={`${btn} ${editor.isActive({ textAlign: "left" }) ? active : ""}`}><AlignLeft size={16}/></button>
+        <button type="button" onClick={() => editor.chain().focus().setTextAlign("center").run()} className={`${btn} ${editor.isActive({ textAlign: "center" }) ? active : ""}`}><AlignCenter size={16}/></button>
+        <button type="button" onClick={() => editor.chain().focus().setTextAlign("right").run()} className={`${btn} ${editor.isActive({ textAlign: "right" }) ? active : ""}`}><AlignRight size={16}/></button>
+        <span className="mx-1 h-5 w-px bg-border" />
         <button type="button" onClick={() => editor.chain().focus().toggleBulletList().run()} className={`${btn} ${editor.isActive("bulletList") ? active : ""}`}><List size={16}/></button>
         <button type="button" onClick={() => editor.chain().focus().toggleOrderedList().run()} className={`${btn} ${editor.isActive("orderedList") ? active : ""}`}><ListOrdered size={16}/></button>
         <button type="button" onClick={() => editor.chain().focus().toggleBlockquote().run()} className={`${btn} ${editor.isActive("blockquote") ? active : ""}`}><Quote size={16}/></button>
+        <button type="button" onClick={() => editor.chain().focus().setHorizontalRule().run()} className={btn}><Minus size={16}/></button>
         <span className="mx-1 h-5 w-px bg-border" />
         <button
           type="button"
@@ -76,7 +102,17 @@ export function RichTextEditor({ value, onChange, placeholder = "Start writingâ€
         <span className="mx-1 h-5 w-px bg-border" />
         <button type="button" onClick={() => editor.chain().focus().undo().run()} className={btn}><Undo size={16}/></button>
         <button type="button" onClick={() => editor.chain().focus().redo().run()} className={btn}><Redo size={16}/></button>
+        <span className="ml-auto hidden text-[11px] text-muted-foreground sm:block">
+          Drag the handle to move blocks Â· drag an image corner to resize
+        </span>
       </div>
+
+      <DragHandle editor={editor}>
+        <div className="flex cursor-grab items-center rounded bg-muted p-1 text-muted-foreground hover:bg-[var(--brand)] hover:text-white active:cursor-grabbing">
+          <GripVertical size={14} />
+        </div>
+      </DragHandle>
+
       <EditorContent editor={editor} />
     </div>
   );
