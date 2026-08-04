@@ -225,9 +225,19 @@ export async function syncFixtures(days = 10) {
   const until = Date.now() + days * 86400_000;
   let created = 0;
   let updated = 0;
+  let quotaExceeded = false;
 
   for (const c of comps ?? []) {
-    const season = await currentSeason(c.external_id!);
+    let season: { id: number; name: string } | null = null;
+    try {
+      season = await currentSeason(c.external_id!);
+    } catch (e) {
+      if (e instanceof QuotaError) {
+        quotaExceeded = true;
+        break;
+      }
+      continue;
+    }
     if (!season) continue;
     if (season.name !== c.season) {
       await supabaseAdmin.from("competitions").update({ season: season.name }).eq("id", c.id);
@@ -240,7 +250,8 @@ export async function syncFixtures(days = 10) {
         json = await api(
           `/unique-tournament/${c.external_id}/season/${season.id}/events/next/${page}`,
         );
-      } catch {
+      } catch (e) {
+        if (e instanceof QuotaError) quotaExceeded = true;
         break;
       }
       const batch = json.events ?? [];
@@ -250,24 +261,27 @@ export async function syncFixtures(days = 10) {
     }
 
     const inWindow = events.filter((e) => e.startTimestamp * 1000 <= until);
-    if (!inWindow.length) continue;
+    if (inWindow.length) {
+      const teamMap = await upsertTeams(
+        inWindow.flatMap((e) => [
+          { id: e.homeTeam?.id, name: e.homeTeam?.name },
+          { id: e.awayTeam?.id, name: e.awayTeam?.name },
+        ]).filter((t) => t.id && t.name),
+      );
 
-    const teamMap = await upsertTeams(
-      inWindow.flatMap((e) => [
-        { id: e.homeTeam?.id, name: e.homeTeam?.name },
-        { id: e.awayTeam?.id, name: e.awayTeam?.name },
-      ]).filter((t) => t.id && t.name),
-    );
+      const rows = inWindow
+        .map((e) => rowFromEvent(e, c.id, teamMap))
+        .filter(Boolean) as any[];
+      const res = await saveRows(rows);
+      created += res.created;
+      updated += res.updated;
+    }
 
-    const rows = inWindow
-      .map((e) => rowFromEvent(e, c.id, teamMap))
-      .filter(Boolean) as any[];
-    const res = await saveRows(rows);
-    created += res.created;
-    updated += res.updated;
+    if (quotaExceeded) break;
   }
 
-  return { competitions: comps?.length ?? 0, created, updated };
+  return { competitions: comps?.length ?? 0, created, updated, quotaExceeded };
+
 }
 
 /** Refresh results for started-but-unfinished matches and settle their tips. */
