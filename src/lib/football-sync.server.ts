@@ -294,16 +294,21 @@ export async function settleResults() {
     .lte("kickoff_at", new Date().toISOString())
     .gte("kickoff_at", new Date(Date.now() - 14 * 86400_000).toISOString());
   if (error) throw new Error(error.message);
-  if (!pending?.length) return { checked: 0, finished: 0, settled: 0 };
+  if (!pending?.length) return { checked: 0, finished: 0, settled: 0, quotaExceeded: false };
 
   let finished = 0;
   let settled = 0;
+  let quotaExceeded = false;
 
   for (const m of pending) {
     let json: { event?: any };
     try {
       json = await api(`/event/${m.external_id}`);
-    } catch {
+    } catch (err) {
+      if (err instanceof QuotaError) {
+        quotaExceeded = true;
+        break;
+      }
       continue;
     }
     const e = json.event;
@@ -320,7 +325,8 @@ export async function settleResults() {
     settled += await settleMatchPredictions(m.id, home, away);
   }
 
-  return { checked: pending.length, finished, settled };
+  return { checked: pending.length, finished, settled, quotaExceeded };
+
 }
 
 export async function settleMatchPredictions(matchId: string, home: number, away: number) {
