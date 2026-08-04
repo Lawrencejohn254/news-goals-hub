@@ -14,6 +14,15 @@ export type ProviderLeague = {
   season: string | null;
 };
 
+export class QuotaError extends Error {
+  constructor() {
+    super(
+      "Football data quota reached for this month on the current API plan. Syncing will resume when the quota resets, or upgrade the plan.",
+    );
+    this.name = "QuotaError";
+  }
+}
+
 async function api<T = any>(path: string): Promise<T> {
   const key = process.env["API_FOOTBALL_KEY"];
   if (!key) throw new Error("Football data key is not configured");
@@ -21,9 +30,13 @@ async function api<T = any>(path: string): Promise<T> {
     headers: { "x-rapidapi-key": key, "x-rapidapi-host": HOST },
   });
   const text = await res.text();
+  if (res.status === 429) throw new QuotaError();
   if (!res.ok) throw new Error(`Football API ${res.status}: ${text.slice(0, 300)}`);
   return JSON.parse(text) as T;
 }
+
+const seasonCache = new Map<number, { id: number; name: string } | null>();
+
 
 /** Search any competition worldwide by name (optionally filtered by country). */
 export async function searchLeagues(query: string, country?: string): Promise<ProviderLeague[]> {
@@ -47,10 +60,14 @@ export async function searchLeagues(query: string, country?: string): Promise<Pr
 }
 
 async function currentSeason(tournamentId: number): Promise<{ id: number; name: string } | null> {
+  if (seasonCache.has(tournamentId)) return seasonCache.get(tournamentId)!;
   const json = await api<{ seasons: any[] }>(`/unique-tournament/${tournamentId}/seasons`);
   const s = (json.seasons ?? [])[0];
-  return s ? { id: s.id as number, name: String(s.year ?? s.name) } : null;
+  const out = s ? { id: s.id as number, name: String(s.year ?? s.name) } : null;
+  seasonCache.set(tournamentId, out);
+  return out;
 }
+
 
 export async function trackLeague(l: ProviderLeague) {
   const season = (await currentSeason(l.external_id))?.name ?? l.season ?? null;
@@ -208,9 +225,19 @@ export async function syncFixtures(days = 10) {
   const until = Date.now() + days * 86400_000;
   let created = 0;
   let updated = 0;
+  let quotaExceeded = false;
 
   for (const c of comps ?? []) {
-    const season = await currentSeason(c.external_id!);
+    let season: { id: number; name: string } | null = null;
+    try {
+      season = await currentSeason(c.external_id!);
+    } catch (e) {
+      if (e instanceof QuotaError) {
+        quotaExceeded = true;
+        break;
+      }
+      continue;
+    }
     if (!season) continue;
     if (season.name !== c.season) {
       await supabaseAdmin.from("competitions").update({ season: season.name }).eq("id", c.id);
@@ -223,7 +250,8 @@ export async function syncFixtures(days = 10) {
         json = await api(
           `/unique-tournament/${c.external_id}/season/${season.id}/events/next/${page}`,
         );
-      } catch {
+      } catch (e) {
+        if (e instanceof QuotaError) quotaExceeded = true;
         break;
       }
       const batch = json.events ?? [];
@@ -233,24 +261,27 @@ export async function syncFixtures(days = 10) {
     }
 
     const inWindow = events.filter((e) => e.startTimestamp * 1000 <= until);
-    if (!inWindow.length) continue;
+    if (inWindow.length) {
+      const teamMap = await upsertTeams(
+        inWindow.flatMap((e) => [
+          { id: e.homeTeam?.id, name: e.homeTeam?.name },
+          { id: e.awayTeam?.id, name: e.awayTeam?.name },
+        ]).filter((t) => t.id && t.name),
+      );
 
-    const teamMap = await upsertTeams(
-      inWindow.flatMap((e) => [
-        { id: e.homeTeam?.id, name: e.homeTeam?.name },
-        { id: e.awayTeam?.id, name: e.awayTeam?.name },
-      ]).filter((t) => t.id && t.name),
-    );
+      const rows = inWindow
+        .map((e) => rowFromEvent(e, c.id, teamMap))
+        .filter(Boolean) as any[];
+      const res = await saveRows(rows);
+      created += res.created;
+      updated += res.updated;
+    }
 
-    const rows = inWindow
-      .map((e) => rowFromEvent(e, c.id, teamMap))
-      .filter(Boolean) as any[];
-    const res = await saveRows(rows);
-    created += res.created;
-    updated += res.updated;
+    if (quotaExceeded) break;
   }
 
-  return { competitions: comps?.length ?? 0, created, updated };
+  return { competitions: comps?.length ?? 0, created, updated, quotaExceeded };
+
 }
 
 /** Refresh results for started-but-unfinished matches and settle their tips. */
@@ -263,16 +294,21 @@ export async function settleResults() {
     .lte("kickoff_at", new Date().toISOString())
     .gte("kickoff_at", new Date(Date.now() - 14 * 86400_000).toISOString());
   if (error) throw new Error(error.message);
-  if (!pending?.length) return { checked: 0, finished: 0, settled: 0 };
+  if (!pending?.length) return { checked: 0, finished: 0, settled: 0, quotaExceeded: false };
 
   let finished = 0;
   let settled = 0;
+  let quotaExceeded = false;
 
   for (const m of pending) {
     let json: { event?: any };
     try {
       json = await api(`/event/${m.external_id}`);
-    } catch {
+    } catch (err) {
+      if (err instanceof QuotaError) {
+        quotaExceeded = true;
+        break;
+      }
       continue;
     }
     const e = json.event;
@@ -289,7 +325,8 @@ export async function settleResults() {
     settled += await settleMatchPredictions(m.id, home, away);
   }
 
-  return { checked: pending.length, finished, settled };
+  return { checked: pending.length, finished, settled, quotaExceeded };
+
 }
 
 export async function settleMatchPredictions(matchId: string, home: number, away: number) {

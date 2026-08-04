@@ -64,7 +64,11 @@ function LeaguesAdmin() {
             onClick={() =>
               run("sync", async () => {
                 const r: any = await sync({ data: { days: 10 } });
-                toast.success(`Synced ${r.created} new and ${r.updated} existing fixtures`);
+                if (r.quotaExceeded)
+                  toast.warning(
+                    `Monthly football data quota reached — saved ${r.created} new and ${r.updated} existing fixtures before stopping.`,
+                  );
+                else toast.success(`Synced ${r.created} new and ${r.updated} existing fixtures`);
                 qc.invalidateQueries({ queryKey: ["admin", "matches"] });
               })
             }
@@ -77,13 +81,19 @@ function LeaguesAdmin() {
             onClick={() =>
               run("settle", async () => {
                 const r: any = await settle({});
-                toast.success(`${r.finished} matches finished, ${r.settled} tips settled`);
+                if (r.quotaExceeded)
+                  toast.warning(
+                    `Monthly football data quota reached — ${r.finished} matches finished, ${r.settled} tips settled before stopping.`,
+                  );
+                else
+                  toast.success(`${r.finished} matches finished, ${r.settled} tips settled`);
                 qc.invalidateQueries({ queryKey: ["admin", "predictions"] });
               })
             }
           >
             {busy === "settle" ? "Checking…" : "Update results & settle tips"}
           </Button>
+
         </div>
       </div>
 
