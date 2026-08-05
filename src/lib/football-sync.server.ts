@@ -20,6 +20,14 @@ export class QuotaError extends Error {
     this.name = "QuotaError";
   }
 }
+/** The current API plan does not cover the requested date/season window. */
+export class PlanError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "PlanError";
+  }
+}
+
 
 async function api<T = any>(path: string): Promise<T> {
   const key = process.env["API_FOOTBALL_KEY"];
