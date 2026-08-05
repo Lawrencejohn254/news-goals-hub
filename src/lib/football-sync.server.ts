@@ -239,7 +239,30 @@ async function saveRows(rows: any[]) {
 
 const ymd = (d: Date) => d.toISOString().slice(0, 10);
 
-/** Pull upcoming fixtures for every tracked competition, from today to +days. */
+/** Fetch every fixture on a given date, filtered to the tracked league ids. */
+async function fixturesOnDate(date: string, leagueIds: Set<number>) {
+  const json = await api<{ response: any[] }>(`/fixtures?date=${date}`);
+  return (json.response ?? []).filter((f) => leagueIds.has(f.league?.id));
+}
+
+async function persistFixtures(fixtures: any[], compByLeague: Map<number, string>) {
+  if (!fixtures.length) return { created: 0, updated: 0 };
+  const teamMap = await upsertTeams(
+    fixtures
+      .flatMap((f) => [f.teams?.home, f.teams?.away])
+      .filter((t) => t?.id && t?.name)
+      .map((t) => ({ id: t.id, name: t.name, logo: t.logo })),
+  );
+  const rows = fixtures
+    .map((f) => {
+      const compId = compByLeague.get(f.league?.id);
+      return compId ? rowFromFixture(f, compId, teamMap) : null;
+    })
+    .filter(Boolean) as any[];
+  return await saveRows(rows);
+}
+
+/** Pull fixtures for every tracked competition, from today to +days (plan permitting). */
 export async function syncFixtures(days = 10) {
   const { data: comps, error } = await supabaseAdmin
     .from("competitions")
@@ -248,96 +271,85 @@ export async function syncFixtures(days = 10) {
     .not("external_id", "is", null);
   if (error) throw new Error(error.message);
 
-  const from = ymd(new Date());
-  const to = ymd(new Date(Date.now() + days * 86400_000));
+  const compByLeague = new Map<number, string>();
+  for (const c of comps ?? []) if (c.external_id != null) compByLeague.set(c.external_id, c.id);
+  const leagueIds = new Set(compByLeague.keys());
+
   let created = 0;
   let updated = 0;
   let quotaExceeded = false;
+  let planLimited = false;
 
-  for (const c of comps ?? []) {
-    let season: number | null = null;
-    try {
-      season = await currentSeason(c.external_id!);
-    } catch (e) {
-      if (e instanceof QuotaError) {
-        quotaExceeded = true;
-        break;
+  if (leagueIds.size) {
+    for (let i = 0; i <= days; i++) {
+      const date = ymd(new Date(Date.now() + i * 86400_000));
+      let fixtures: any[];
+      try {
+        fixtures = await fixturesOnDate(date, leagueIds);
+      } catch (e) {
+        if (e instanceof QuotaError) {
+          quotaExceeded = true;
+          break;
+        }
+        if (e instanceof PlanError) {
+          planLimited = true;
+          break;
+        }
+        continue;
       }
-      continue;
-    }
-    if (season == null) continue;
-    if (String(season) !== c.season) {
-      await supabaseAdmin.from("competitions").update({ season: String(season) }).eq("id", c.id);
-    }
-
-    let fixtures: any[] = [];
-    try {
-      const json = await api<{ response: any[] }>(
-        `/fixtures?league=${c.external_id}&season=${season}&from=${from}&to=${to}`,
-      );
-      fixtures = json.response ?? [];
-    } catch (e) {
-      if (e instanceof QuotaError) {
-        quotaExceeded = true;
-        break;
-      }
-      continue;
-    }
-
-    if (fixtures.length) {
-      const teamMap = await upsertTeams(
-        fixtures
-          .flatMap((f) => [f.teams?.home, f.teams?.away])
-          .filter((t) => t?.id && t?.name)
-          .map((t) => ({ id: t.id, name: t.name, logo: t.logo })),
-      );
-      const rows = fixtures
-        .map((f) => rowFromFixture(f, c.id, teamMap))
-        .filter(Boolean) as any[];
-      const res = await saveRows(rows);
+      const res = await persistFixtures(fixtures, compByLeague);
       created += res.created;
       updated += res.updated;
     }
   }
 
-  return { competitions: comps?.length ?? 0, created, updated, quotaExceeded };
+  return { competitions: comps?.length ?? 0, created, updated, quotaExceeded, planLimited };
 }
 
 /** Refresh results for started-but-unfinished matches and settle their tips. */
 export async function settleResults() {
   const { data: pending, error } = await supabaseAdmin
     .from("matches")
-    .select("id, external_id, status")
+    .select("id, external_id, status, kickoff_at, competition_id")
     .not("external_id", "is", null)
     .in("status", ["scheduled", "live"])
     .lte("kickoff_at", new Date().toISOString())
     .gte("kickoff_at", new Date(Date.now() - 14 * 86400_000).toISOString());
   if (error) throw new Error(error.message);
-  if (!pending?.length) return { checked: 0, finished: 0, settled: 0, quotaExceeded: false };
+  if (!pending?.length)
+    return { checked: 0, finished: 0, settled: 0, quotaExceeded: false, planLimited: false };
+
+  const byId = new Map<number, { id: string }>();
+  const dates = new Set<string>();
+  for (const m of pending) {
+    if (m.external_id != null) byId.set(m.external_id, { id: m.id });
+    dates.add(ymd(new Date(m.kickoff_at)));
+  }
 
   let finished = 0;
   let settled = 0;
   let quotaExceeded = false;
+  let planLimited = false;
 
-  // API-Football allows batching up to 20 fixture ids per request.
-  for (let i = 0; i < pending.length; i += 20) {
-    const batch = pending.slice(i, i + 20);
-    let fixtures: any[] = [];
+  for (const date of dates) {
+    let fixtures: any[];
     try {
-      const json = await api<{ response: any[] }>(
-        `/fixtures?ids=${batch.map((m) => m.external_id).join("-")}`,
-      );
+      const json = await api<{ response: any[] }>(`/fixtures?date=${date}`);
       fixtures = json.response ?? [];
     } catch (err) {
       if (err instanceof QuotaError) {
         quotaExceeded = true;
         break;
       }
+      if (err instanceof PlanError) {
+        planLimited = true;
+        continue;
+      }
       continue;
     }
 
     for (const f of fixtures) {
-      const local = batch.find((m) => m.external_id === f.fixture?.id);
+      const local = byId.get(f.fixture?.id);
       if (!local) continue;
       const status = mapStatus(f.fixture?.status?.short);
       const home = f.goals?.home ?? null;
@@ -352,7 +364,7 @@ export async function settleResults() {
     }
   }
 
-  return { checked: pending.length, finished, settled, quotaExceeded };
+  return { checked: pending.length, finished, settled, quotaExceeded, planLimited };
 }
 
 export async function settleMatchPredictions(matchId: string, home: number, away: number) {
