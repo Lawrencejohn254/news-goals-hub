@@ -77,7 +77,7 @@ function LeaguesAdmin() {
               })
             }
           >
-            {busy === "sync" ? "Syncing…" : "Sync fixtures (10 days)"}
+            {busy === "sync" ? "Syncing…" : "Sync fixtures"}
           </Button>
           <Button
             className="bg-[var(--brand)] text-white hover:bg-[var(--brand)]/90"
