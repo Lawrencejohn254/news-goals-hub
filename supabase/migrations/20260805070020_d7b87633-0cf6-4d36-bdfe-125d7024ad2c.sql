@@ -1,0 +1,1 @@
+UPDATE public.competitions SET external_id = 39, is_tracked = true, season = '2026', country = 'England', logo_url = 'https://media.api-sports.io/football/leagues/39.png' WHERE id = '6fcb6a27-e2be-414b-90d7-eca663461247';

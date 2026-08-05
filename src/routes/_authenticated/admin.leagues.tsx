@@ -66,14 +66,18 @@ function LeaguesAdmin() {
                 const r: any = await sync({ data: { days: 10 } });
                 if (r.quotaExceeded)
                   toast.warning(
-                    `Monthly football data quota reached — saved ${r.created} new and ${r.updated} existing fixtures before stopping.`,
+                    `Daily football data quota reached — saved ${r.created} new and ${r.updated} existing fixtures before stopping.`,
+                  );
+                else if (r.planLimited)
+                  toast.success(
+                    `Synced ${r.created} new and ${r.updated} existing fixtures (your API plan only covers the next few days).`,
                   );
                 else toast.success(`Synced ${r.created} new and ${r.updated} existing fixtures`);
                 qc.invalidateQueries({ queryKey: ["admin", "matches"] });
               })
             }
           >
-            {busy === "sync" ? "Syncing…" : "Sync fixtures (10 days)"}
+            {busy === "sync" ? "Syncing…" : "Sync fixtures"}
           </Button>
           <Button
             className="bg-[var(--brand)] text-white hover:bg-[var(--brand)]/90"
@@ -83,7 +87,7 @@ function LeaguesAdmin() {
                 const r: any = await settle({});
                 if (r.quotaExceeded)
                   toast.warning(
-                    `Monthly football data quota reached — ${r.finished} matches finished, ${r.settled} tips settled before stopping.`,
+                    `Daily football data quota reached — ${r.finished} matches finished, ${r.settled} tips settled before stopping.`,
                   );
                 else
                   toast.success(`${r.finished} matches finished, ${r.settled} tips settled`);
