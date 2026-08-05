@@ -32,7 +32,8 @@ async function api<T = any>(path: string): Promise<T> {
   const errs = json?.errors;
   if (errs && !Array.isArray(errs) && Object.keys(errs).length) {
     const msg = Object.values(errs).join("; ");
-    if (/limit|quota|plan/i.test(msg)) throw new QuotaError();
+    if (/limit|quota|too many/i.test(msg)) throw new QuotaError();
+    if (errs.plan) throw new PlanError(msg);
     throw new Error(`Football API: ${msg}`);
   }
   return json as T;
