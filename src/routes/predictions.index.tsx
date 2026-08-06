@@ -120,7 +120,7 @@ function PredictionsIndex() {
       {/* Day tabs */}
       <div className="border-b border-border bg-[var(--ink)]">
         <div className="container-page flex flex-wrap items-center gap-px py-0">
-          {tabs.map((d, i) => (
+          {tabs.map((d) => (
             <button
               key={d}
               onClick={() => setDay(d)}
@@ -307,14 +307,24 @@ function PredictionsIndex() {
               </div>
               <div className="border border-t-0 border-border bg-muted/30 px-3 py-2 text-right">
                 {list.map((p) => (
-                  <Link
-                    key={p.id}
-                    to="/predictions/$slug"
-                    params={{ slug: p.slug }}
-                    className="ml-3 text-[11px] font-bold uppercase tracking-wider text-[var(--brand)] hover:underline"
-                  >
-                    {p.matches?.home_team?.short_name ?? p.matches?.home_team?.name} preview
-                  </Link>
+                  <span key={p.id} className="ml-3 inline-flex gap-2 text-[11px] font-bold uppercase tracking-wider">
+                    <Link
+                      to="/predictions/$slug"
+                      params={{ slug: p.slug }}
+                      className="text-[var(--brand)] hover:underline"
+                    >
+                      {p.matches?.home_team?.short_name ?? p.matches?.home_team?.name} preview
+                    </Link>
+                    {p.matches?.home_team?.slug && (
+                      <Link
+                        to="/teams/$slug"
+                        params={{ slug: p.matches.home_team.slug }}
+                        className="text-muted-foreground hover:text-[var(--brand)] hover:underline"
+                      >
+                        stats
+                      </Link>
+                    )}
+                  </span>
                 ))}
               </div>
             </section>
