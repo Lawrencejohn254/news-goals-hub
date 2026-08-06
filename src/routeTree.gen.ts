@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
 import { Route as IndexRouteImport } from './routes/index'
 import { Route as PredictionsIndexRouteImport } from './routes/predictions.index'
+import { Route as TeamsSlugRouteImport } from './routes/teams.$slug'
 import { Route as PredictionsSlugRouteImport } from './routes/predictions.$slug'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as ArticleSlugRouteImport } from './routes/article.$slug'
@@ -74,6 +75,11 @@ const IndexRoute = IndexRouteImport.update({
 const PredictionsIndexRoute = PredictionsIndexRouteImport.update({
   id: '/predictions/',
   path: '/predictions/',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const TeamsSlugRoute = TeamsSlugRouteImport.update({
+  id: '/teams/$slug',
+  path: '/teams/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PredictionsSlugRoute = PredictionsSlugRouteImport.update({
@@ -229,6 +235,7 @@ export interface FileRoutesByFullPath {
   '/article/$slug': typeof ArticleSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/predictions/$slug': typeof PredictionsSlugRoute
+  '/teams/$slug': typeof TeamsSlugRoute
   '/predictions/': typeof PredictionsIndexRoute
   '/admin/ads': typeof AuthenticatedAdminAdsRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -261,6 +268,7 @@ export interface FileRoutesByTo {
   '/article/$slug': typeof ArticleSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/predictions/$slug': typeof PredictionsSlugRoute
+  '/teams/$slug': typeof TeamsSlugRoute
   '/predictions': typeof PredictionsIndexRoute
   '/admin/ads': typeof AuthenticatedAdminAdsRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -294,6 +302,7 @@ export interface FileRoutesById {
   '/article/$slug': typeof ArticleSlugRoute
   '/category/$slug': typeof CategorySlugRoute
   '/predictions/$slug': typeof PredictionsSlugRoute
+  '/teams/$slug': typeof TeamsSlugRoute
   '/predictions/': typeof PredictionsIndexRoute
   '/_authenticated/admin/ads': typeof AuthenticatedAdminAdsRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
@@ -329,6 +338,7 @@ export interface FileRouteTypes {
     | '/article/$slug'
     | '/category/$slug'
     | '/predictions/$slug'
+    | '/teams/$slug'
     | '/predictions/'
     | '/admin/ads'
     | '/admin/analytics'
@@ -361,6 +371,7 @@ export interface FileRouteTypes {
     | '/article/$slug'
     | '/category/$slug'
     | '/predictions/$slug'
+    | '/teams/$slug'
     | '/predictions'
     | '/admin/ads'
     | '/admin/analytics'
@@ -393,6 +404,7 @@ export interface FileRouteTypes {
     | '/article/$slug'
     | '/category/$slug'
     | '/predictions/$slug'
+    | '/teams/$slug'
     | '/predictions/'
     | '/_authenticated/admin/ads'
     | '/_authenticated/admin/analytics'
@@ -427,6 +439,7 @@ export interface RootRouteChildren {
   ArticleSlugRoute: typeof ArticleSlugRoute
   CategorySlugRoute: typeof CategorySlugRoute
   PredictionsSlugRoute: typeof PredictionsSlugRoute
+  TeamsSlugRoute: typeof TeamsSlugRoute
   PredictionsIndexRoute: typeof PredictionsIndexRoute
   ApiPublicHooksFootballSyncRoute: typeof ApiPublicHooksFootballSyncRoute
 }
@@ -480,6 +493,13 @@ declare module '@tanstack/react-router' {
       path: '/predictions'
       fullPath: '/predictions/'
       preLoaderRoute: typeof PredictionsIndexRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/teams/$slug': {
+      id: '/teams/$slug'
+      path: '/teams/$slug'
+      fullPath: '/teams/$slug'
+      preLoaderRoute: typeof TeamsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/predictions/$slug': {
@@ -758,6 +778,7 @@ const rootRouteChildren: RootRouteChildren = {
   ArticleSlugRoute: ArticleSlugRoute,
   CategorySlugRoute: CategorySlugRoute,
   PredictionsSlugRoute: PredictionsSlugRoute,
+  TeamsSlugRoute: TeamsSlugRoute,
   PredictionsIndexRoute: PredictionsIndexRoute,
   ApiPublicHooksFootballSyncRoute: ApiPublicHooksFootballSyncRoute,
 }

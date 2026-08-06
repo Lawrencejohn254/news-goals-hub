@@ -12,6 +12,14 @@ export type ProviderLeague = {
   season: string | null;
 };
 
+/** The API account itself is blocked/suspended by the provider. */
+export class AccessError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AccessError";
+  }
+}
+
 export class QuotaError extends Error {
   constructor() {
     super(
@@ -41,6 +49,7 @@ async function api<T = any>(path: string): Promise<T> {
   if (errs && !Array.isArray(errs) && Object.keys(errs).length) {
     const msg = Object.values(errs).join("; ");
     if (/limit|quota|too many/i.test(msg)) throw new QuotaError();
+    if (errs.access || /suspend|blocked|not authorized|token/i.test(msg)) throw new AccessError(msg);
     if (errs.plan) throw new PlanError(msg);
     throw new Error(`Football API: ${msg}`);
   }
@@ -317,7 +326,14 @@ export async function settleResults() {
     .gte("kickoff_at", new Date(Date.now() - 14 * 86400_000).toISOString());
   if (error) throw new Error(error.message);
   if (!pending?.length)
-    return { checked: 0, finished: 0, settled: 0, quotaExceeded: false, planLimited: false };
+    return {
+      checked: 0,
+      finished: 0,
+      settled: 0,
+      quotaExceeded: false,
+      planLimited: false,
+      errors: [] as string[],
+    };
 
   const byId = new Map<number, { id: string }>();
   const dates = new Set<string>();
@@ -330,6 +346,7 @@ export async function settleResults() {
   let settled = 0;
   let quotaExceeded = false;
   let planLimited = false;
+  const errors: string[] = [];
 
   for (const date of dates) {
     let fixtures: any[];
@@ -341,10 +358,16 @@ export async function settleResults() {
         quotaExceeded = true;
         break;
       }
+      if (err instanceof AccessError) {
+        errors.push(err.message);
+        break;
+      }
       if (err instanceof PlanError) {
         planLimited = true;
+        errors.push(`${date}: ${err.message}`);
         continue;
       }
+      errors.push(`${date}: ${(err as Error).message}`);
       continue;
     }
 
@@ -364,7 +387,18 @@ export async function settleResults() {
     }
   }
 
-  return { checked: pending.length, finished, settled, quotaExceeded, planLimited };
+  return { checked: pending.length, finished, settled, quotaExceeded, planLimited, errors };
+}
+
+/** Manually record a final score and settle every pending tip on that match. */
+export async function setMatchResult(matchId: string, home: number, away: number) {
+  const { error } = await supabaseAdmin
+    .from("matches")
+    .update({ status: "finished", home_score: home, away_score: away })
+    .eq("id", matchId);
+  if (error) throw new Error(error.message);
+  const settled = await settleMatchPredictions(matchId, home, away);
+  return { settled };
 }
 
 export async function settleMatchPredictions(matchId: string, home: number, away: number) {

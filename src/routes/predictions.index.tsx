@@ -1,6 +1,10 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useState } from "react";
 import { useQuery } from "@tanstack/react-query";
+import { CalendarIcon } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Calendar } from "@/components/ui/calendar";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
@@ -86,6 +90,7 @@ function ResultCell({ p }: { p: PredictionWithMatch }) {
 
 function PredictionsIndex() {
   const [day, setDay] = useState(DAYS[0]);
+  const tabs = DAYS.includes(day) ? DAYS : [day, ...DAYS];
   const preds = useQuery({
     queryKey: ["predictions", "all"],
     queryFn: () => fetchPredictions({ limit: 500 }),
@@ -114,8 +119,8 @@ function PredictionsIndex() {
 
       {/* Day tabs */}
       <div className="border-b border-border bg-[var(--ink)]">
-        <div className="container-page flex flex-wrap gap-px py-0">
-          {DAYS.map((d, i) => (
+        <div className="container-page flex flex-wrap items-center gap-px py-0">
+          {tabs.map((d) => (
             <button
               key={d}
               onClick={() => setDay(d)}
@@ -125,9 +130,9 @@ function PredictionsIndex() {
                   : "text-white/70 hover:bg-white/10 hover:text-white"
               }`}
             >
-              {i === 0
+              {d === DAYS[0]
                 ? "Today"
-                : i === 1
+                : d === DAYS[1]
                   ? "Tomorrow"
                   : new Date(`${d}T12:00:00`).toLocaleDateString("en-GB", { weekday: "long" })}{" "}
               <span className="opacity-70">
@@ -135,6 +140,26 @@ function PredictionsIndex() {
               </span>
             </button>
           ))}
+          <Popover>
+            <PopoverTrigger asChild>
+              <Button
+                variant="ghost"
+                className="ml-auto gap-2 rounded-none px-4 py-3 text-xs font-bold uppercase tracking-wider text-white hover:bg-white/10 hover:text-white"
+              >
+                <CalendarIcon className="h-4 w-4" />
+                Pick a date
+              </Button>
+            </PopoverTrigger>
+            <PopoverContent className="w-auto p-0" align="end">
+              <Calendar
+                mode="single"
+                selected={new Date(`${day}T12:00:00`)}
+                onSelect={(d) => d && setDay(dayKey(d))}
+                initialFocus
+                className="pointer-events-auto p-3"
+              />
+            </PopoverContent>
+          </Popover>
         </div>
       </div>
 
@@ -220,7 +245,17 @@ function PredictionsIndex() {
                           <td className="p-2 text-right">
                             <div className="flex items-center justify-end gap-2">
                               <Form value={p.home_form} />
-                              <span className="font-semibold">{m?.home_team?.name ?? "?"}</span>
+                              {m?.home_team?.slug ? (
+                                <Link
+                                  to="/teams/$slug"
+                                  params={{ slug: m.home_team.slug }}
+                                  className="font-semibold hover:text-[var(--brand)] hover:underline"
+                                >
+                                  {m.home_team.name}
+                                </Link>
+                              ) : (
+                                <span className="font-semibold">{m?.home_team?.name ?? "?"}</span>
+                              )}
                               {m?.home_team?.crest_url && (
                                 <img src={m.home_team.crest_url} alt="" className="h-5 w-5" loading="lazy" />
                               )}
@@ -240,7 +275,17 @@ function PredictionsIndex() {
                               {m?.away_team?.crest_url && (
                                 <img src={m.away_team.crest_url} alt="" className="h-5 w-5" loading="lazy" />
                               )}
-                              <span className="font-semibold">{m?.away_team?.name ?? "?"}</span>
+                              {m?.away_team?.slug ? (
+                                <Link
+                                  to="/teams/$slug"
+                                  params={{ slug: m.away_team.slug }}
+                                  className="font-semibold hover:text-[var(--brand)] hover:underline"
+                                >
+                                  {m.away_team.name}
+                                </Link>
+                              ) : (
+                                <span className="font-semibold">{m?.away_team?.name ?? "?"}</span>
+                              )}
                               <Form value={p.away_form} />
                             </div>
                           </td>
@@ -262,14 +307,24 @@ function PredictionsIndex() {
               </div>
               <div className="border border-t-0 border-border bg-muted/30 px-3 py-2 text-right">
                 {list.map((p) => (
-                  <Link
-                    key={p.id}
-                    to="/predictions/$slug"
-                    params={{ slug: p.slug }}
-                    className="ml-3 text-[11px] font-bold uppercase tracking-wider text-[var(--brand)] hover:underline"
-                  >
-                    {p.matches?.home_team?.short_name ?? p.matches?.home_team?.name} preview
-                  </Link>
+                  <span key={p.id} className="ml-3 inline-flex gap-2 text-[11px] font-bold uppercase tracking-wider">
+                    <Link
+                      to="/predictions/$slug"
+                      params={{ slug: p.slug }}
+                      className="text-[var(--brand)] hover:underline"
+                    >
+                      {p.matches?.home_team?.short_name ?? p.matches?.home_team?.name} preview
+                    </Link>
+                    {p.matches?.home_team?.slug && (
+                      <Link
+                        to="/teams/$slug"
+                        params={{ slug: p.matches.home_team.slug }}
+                        className="text-muted-foreground hover:text-[var(--brand)] hover:underline"
+                      >
+                        stats
+                      </Link>
+                    )}
+                  </span>
                 ))}
               </div>
             </section>

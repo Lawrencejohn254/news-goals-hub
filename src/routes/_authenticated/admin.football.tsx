@@ -8,6 +8,8 @@ import { fetchTeams, fetchCompetitions, fetchMatches, matchLabel } from "@/lib/f
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Button } from "@/components/ui/button";
+import { useServerFn } from "@tanstack/react-start";
+import { setMatchResultFn } from "@/lib/football-sync.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/football")({
   component: FootballAdmin,
@@ -15,6 +17,7 @@ export const Route = createFileRoute("/_authenticated/admin/football")({
 
 function FootballAdmin() {
   const qc = useQueryClient();
+  const saveResult = useServerFn(setMatchResultFn);
   const teams = useQuery({ queryKey: ["teams"], queryFn: fetchTeams });
   const comps = useQuery({ queryKey: ["competitions"], queryFn: fetchCompetitions });
   const matches = useQuery({ queryKey: ["admin", "matches"], queryFn: () => fetchMatches(200) });
@@ -67,16 +70,25 @@ function FootballAdmin() {
   };
 
   const setScore = async (id: string, h: string, a: string) => {
-    const { error } = await supabase
-      .from("matches")
-      .update({
-        home_score: h === "" ? null : Number(h),
-        away_score: a === "" ? null : Number(a),
-        status: h !== "" && a !== "" ? "finished" : "scheduled",
-      })
-      .eq("id", id);
-    if (error) return toast.error(error.message);
-    qc.invalidateQueries({ queryKey: ["admin", "matches"] });
+    if (h === "" || a === "") {
+      const { error } = await supabase
+        .from("matches")
+        .update({ home_score: null, away_score: null, status: "scheduled" })
+        .eq("id", id);
+      if (error) return toast.error(error.message);
+      qc.invalidateQueries({ queryKey: ["admin", "matches"] });
+      return;
+    }
+    try {
+      const r: any = await saveResult({ data: { matchId: id, home: Number(h), away: Number(a) } });
+      toast.success(
+        r?.settled ? `Result saved — ${r.settled} tip(s) settled` : "Result saved",
+      );
+      qc.invalidateQueries({ queryKey: ["admin", "matches"] });
+      qc.invalidateQueries({ queryKey: ["admin", "predictions"] });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Could not save result");
+    }
   };
 
   const removeMatch = async (id: string) => {
