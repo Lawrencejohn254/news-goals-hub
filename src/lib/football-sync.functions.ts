@@ -52,3 +52,12 @@ export const settleResultsFn = createServerFn({ method: "POST" })
     const { settleResults } = await import("@/lib/football-sync.server");
     return await settleResults();
   });
+
+export const setMatchResultFn = createServerFn({ method: "POST" })
+  .middleware([requireSupabaseAuth])
+  .inputValidator((input: { matchId: string; home: number; away: number }) => input)
+  .handler(async ({ data, context }) => {
+    await assertStaff(context as any);
+    const { setMatchResult } = await import("@/lib/football-sync.server");
+    return await setMatchResult(data.matchId, data.home, data.away);
+  });
