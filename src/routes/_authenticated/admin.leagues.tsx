@@ -89,8 +89,17 @@ function LeaguesAdmin() {
                   toast.warning(
                     `Daily football data quota reached — ${r.finished} matches finished, ${r.settled} tips settled before stopping.`,
                   );
+                else if (r.checked === 0)
+                  toast.info("No played fixtures are waiting for a result right now.");
+                else if (r.finished === 0 && r.errors?.length)
+                  toast.error(`Results provider unavailable: ${r.errors[0]}`, { duration: 8000 });
+                else if (r.finished === 0)
+                  toast.info(
+                    `Checked ${r.checked} fixtures — the provider has no final scores for them yet. You can enter scores manually in Football data.`,
+                  );
                 else
                   toast.success(`${r.finished} matches finished, ${r.settled} tips settled`);
+                qc.invalidateQueries({ queryKey: ["admin", "matches"] });
                 qc.invalidateQueries({ queryKey: ["admin", "predictions"] });
               })
             }
