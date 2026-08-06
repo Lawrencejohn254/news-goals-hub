@@ -49,6 +49,7 @@ async function api<T = any>(path: string): Promise<T> {
   if (errs && !Array.isArray(errs) && Object.keys(errs).length) {
     const msg = Object.values(errs).join("; ");
     if (/limit|quota|too many/i.test(msg)) throw new QuotaError();
+    if (errs.access || /suspend|blocked|not authorized|token/i.test(msg)) throw new AccessError(msg);
     if (errs.plan) throw new PlanError(msg);
     throw new Error(`Football API: ${msg}`);
   }
