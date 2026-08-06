@@ -326,7 +326,14 @@ export async function settleResults() {
     .gte("kickoff_at", new Date(Date.now() - 14 * 86400_000).toISOString());
   if (error) throw new Error(error.message);
   if (!pending?.length)
-    return { checked: 0, finished: 0, settled: 0, quotaExceeded: false, planLimited: false };
+    return {
+      checked: 0,
+      finished: 0,
+      settled: 0,
+      quotaExceeded: false,
+      planLimited: false,
+      errors: [] as string[],
+    };
 
   const byId = new Map<number, { id: string }>();
   const dates = new Set<string>();
@@ -339,6 +346,7 @@ export async function settleResults() {
   let settled = 0;
   let quotaExceeded = false;
   let planLimited = false;
+  const errors: string[] = [];
 
   for (const date of dates) {
     let fixtures: any[];
@@ -350,10 +358,16 @@ export async function settleResults() {
         quotaExceeded = true;
         break;
       }
+      if (err instanceof AccessError) {
+        errors.push(err.message);
+        break;
+      }
       if (err instanceof PlanError) {
         planLimited = true;
+        errors.push(`${date}: ${err.message}`);
         continue;
       }
+      errors.push(`${date}: ${(err as Error).message}`);
       continue;
     }
 
@@ -373,7 +387,18 @@ export async function settleResults() {
     }
   }
 
-  return { checked: pending.length, finished, settled, quotaExceeded, planLimited };
+  return { checked: pending.length, finished, settled, quotaExceeded, planLimited, errors };
+}
+
+/** Manually record a final score and settle every pending tip on that match. */
+export async function setMatchResult(matchId: string, home: number, away: number) {
+  const { error } = await supabaseAdmin
+    .from("matches")
+    .update({ status: "finished", home_score: home, away_score: away })
+    .eq("id", matchId);
+  if (error) throw new Error(error.message);
+  const settled = await settleMatchPredictions(matchId, home, away);
+  return { settled };
 }
 
 export async function settleMatchPredictions(matchId: string, home: number, away: number) {
