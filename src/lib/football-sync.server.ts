@@ -12,6 +12,14 @@ export type ProviderLeague = {
   season: string | null;
 };
 
+/** The API account itself is blocked/suspended by the provider. */
+export class AccessError extends Error {
+  constructor(message: string) {
+    super(message);
+    this.name = "AccessError";
+  }
+}
+
 export class QuotaError extends Error {
   constructor() {
     super(
