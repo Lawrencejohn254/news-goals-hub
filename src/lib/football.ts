@@ -7,8 +7,8 @@ export type Match = Database["public"]["Tables"]["matches"]["Row"];
 export type Prediction = Database["public"]["Tables"]["predictions"]["Row"];
 
 export type MatchWithTeams = Match & {
-  home_team: Pick<Team, "id" | "name" | "short_name" | "crest_url"> | null;
-  away_team: Pick<Team, "id" | "name" | "short_name" | "crest_url"> | null;
+  home_team: Pick<Team, "id" | "name" | "short_name" | "slug" | "crest_url"> | null;
+  away_team: Pick<Team, "id" | "name" | "short_name" | "slug" | "crest_url"> | null;
   competitions: Pick<Competition, "id" | "name" | "slug" | "logo_url"> | null;
 };
 
@@ -17,7 +17,7 @@ export type PredictionWithMatch = Prediction & {
 };
 
 const MATCH_SELECT =
-  "*, home_team:teams!matches_home_team_id_fkey(id,name,short_name,crest_url), away_team:teams!matches_away_team_id_fkey(id,name,short_name,crest_url), competitions(id,name,slug,logo_url)";
+  "*, home_team:teams!matches_home_team_id_fkey(id,name,short_name,slug,crest_url), away_team:teams!matches_away_team_id_fkey(id,name,short_name,slug,crest_url), competitions(id,name,slug,logo_url)";
 
 const PREDICTION_SELECT = `*, matches(${MATCH_SELECT})`;
 
