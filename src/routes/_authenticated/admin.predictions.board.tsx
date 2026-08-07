@@ -269,8 +269,24 @@ function FixtureBoard() {
                     />
                   </td>
                   <td className="p-3 text-xs font-semibold uppercase">
-                    {existing ? (existing.is_published ? "Live" : "Draft") : "—"}
+                    {existing
+                      ? existing.result && existing.result !== "pending"
+                        ? existing.result
+                        : existing.is_published
+                          ? "Live"
+                          : "Draft"
+                      : "—"}
                   </td>
+                  <td className="p-3">
+                    <ResultCell
+                      key={`${m.id}-${m.home_score}-${m.away_score}`}
+                      home={m.home_score ?? null}
+                      away={m.away_score ?? null}
+                      disabled={busy === m.id}
+                      onSettle={(h, a) => settle(m.id, h, a)}
+                    />
+                  </td>
+
                   <td className="whitespace-nowrap p-3 text-right">
                     <Button
                       size="sm"
