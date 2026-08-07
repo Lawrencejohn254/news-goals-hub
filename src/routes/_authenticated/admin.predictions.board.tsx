@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { TIP_OPTIONS } from "@/lib/tips";
 import { slugify } from "@/lib/format";
 import { fetchMatchesBetween, fetchPredictionsForMatches, matchLabel } from "@/lib/football";
+import { useServerFn } from "@tanstack/react-start";
+import { setMatchResultFn } from "@/lib/football-sync.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/predictions/board")({
   component: FixtureBoard,
