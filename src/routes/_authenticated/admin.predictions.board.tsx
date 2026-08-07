@@ -208,14 +208,14 @@ function FixtureBoard() {
           <tbody>
             {fixtures.isLoading && (
               <tr>
-                <td colSpan={8} className="p-6 text-center text-muted-foreground">
+                <td colSpan={9} className="p-6 text-center text-muted-foreground">
                   Loading fixtures…
                 </td>
               </tr>
             )}
             {!fixtures.isLoading && rows.length === 0 && (
               <tr>
-                <td colSpan={8} className="p-6 text-center text-muted-foreground">
+                <td colSpan={9} className="p-6 text-center text-muted-foreground">
                   No fixtures for this day. Track leagues and run a sync in Leagues &amp; sync.
                 </td>
               </tr>
