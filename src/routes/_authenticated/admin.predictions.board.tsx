@@ -30,11 +30,12 @@ type Cell = { tip: string; confidence: number; odds: string };
 
 function FixtureBoard() {
   const qc = useQueryClient();
-  const days = useMemo(() => nextDays(4), []);
-  const [day, setDay] = useState(days[0]!);
+  const days = useMemo<string[]>(() => boardDays(), []);
+  const [day, setDay] = useState(days[2]!);
   const [comp, setComp] = useState("");
   const [edits, setEdits] = useState<Record<string, Cell>>({});
   const [busy, setBusy] = useState<string | null>(null);
+  const saveResult = useServerFn(setMatchResultFn);
 
   const from = `${day}T00:00:00.000Z`;
   const to = `${day}T23:59:59.999Z`;
