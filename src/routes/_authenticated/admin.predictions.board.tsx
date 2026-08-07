@@ -16,14 +16,14 @@ function dayKey(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function nextDays(n: number) {
-  const out: string[] = [];
-  for (let i = 0; i < n; i++) {
+const DAY_OFFSETS = [-2, -1, 0, 1, 2, 3];
+
+function boardDays() {
+  return DAY_OFFSETS.map((i) => {
     const d = new Date();
     d.setDate(d.getDate() + i);
-    out.push(dayKey(d));
-  }
-  return out;
+    return dayKey(d);
+  });
 }
 
 type Cell = { tip: string; confidence: number; odds: string };
