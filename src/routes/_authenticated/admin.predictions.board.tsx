@@ -200,7 +200,9 @@ function FixtureBoard() {
               <th className="p-3 text-left">Conf.</th>
               <th className="p-3 text-left">Odds</th>
               <th className="p-3 text-left">State</th>
+              <th className="p-3 text-left">Result</th>
               <th className="p-3"></th>
+
             </tr>
           </thead>
           <tbody>
