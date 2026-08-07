@@ -122,6 +122,26 @@ function FixtureBoard() {
     }
   };
 
+  const settle = async (matchId: string, h: string, a: string) => {
+    if (h === "" || a === "") return toast.error("Enter both scores");
+    setBusy(matchId);
+    try {
+      const r: any = await saveResult({
+        data: { matchId, home: Number(h), away: Number(a) },
+      });
+      toast.success(r?.settled ? `Result saved — ${r.settled} tip(s) settled` : "Result saved");
+      qc.invalidateQueries({ queryKey: ["board"] });
+      qc.invalidateQueries({ queryKey: ["admin", "predictions"] });
+      qc.invalidateQueries({ queryKey: ["admin", "matches"] });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Could not save result");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+
+
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
