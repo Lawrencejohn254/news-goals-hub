@@ -314,3 +314,38 @@ function FixtureBoard() {
     </div>
   );
 }
+
+function ResultCell({
+  home,
+  away,
+  disabled,
+  onSettle,
+}: {
+  home: number | null;
+  away: number | null;
+  disabled: boolean;
+  onSettle: (h: string, a: string) => void;
+}) {
+  const [h, setH] = useState(home != null ? String(home) : "");
+  const [a, setA] = useState(away != null ? String(away) : "");
+  return (
+    <div className="flex items-center gap-1">
+      <input
+        value={h}
+        onChange={(e) => setH(e.target.value)}
+        inputMode="numeric"
+        className="h-9 w-10 border border-input bg-background px-1 text-center text-xs"
+      />
+      <span className="text-muted-foreground">–</span>
+      <input
+        value={a}
+        onChange={(e) => setA(e.target.value)}
+        inputMode="numeric"
+        className="h-9 w-10 border border-input bg-background px-1 text-center text-xs"
+      />
+      <Button size="sm" variant="outline" disabled={disabled} onClick={() => onSettle(h, a)}>
+        Settle
+      </Button>
+    </div>
+  );
+}
