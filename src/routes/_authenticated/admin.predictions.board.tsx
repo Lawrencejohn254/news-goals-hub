@@ -164,7 +164,7 @@ function FixtureBoard() {
                 day === d ? "bg-[var(--ink)] text-white" : "border border-border"
               }`}
             >
-              {i === 0
+              {i === 2
                 ? "Today"
                 : new Date(`${d}T12:00:00`).toLocaleDateString("en-GB", {
                     weekday: "short",
