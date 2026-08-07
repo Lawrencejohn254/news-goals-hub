@@ -7,6 +7,8 @@ import { Button } from "@/components/ui/button";
 import { TIP_OPTIONS } from "@/lib/tips";
 import { slugify } from "@/lib/format";
 import { fetchMatchesBetween, fetchPredictionsForMatches, matchLabel } from "@/lib/football";
+import { useServerFn } from "@tanstack/react-start";
+import { setMatchResultFn } from "@/lib/football-sync.functions";
 
 export const Route = createFileRoute("/_authenticated/admin/predictions/board")({
   component: FixtureBoard,
@@ -16,25 +18,26 @@ function dayKey(d: Date) {
   return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 }
 
-function nextDays(n: number) {
-  const out: string[] = [];
-  for (let i = 0; i < n; i++) {
+const DAY_OFFSETS = [-2, -1, 0, 1, 2, 3];
+
+function boardDays() {
+  return DAY_OFFSETS.map((i) => {
     const d = new Date();
     d.setDate(d.getDate() + i);
-    out.push(dayKey(d));
-  }
-  return out;
+    return dayKey(d);
+  });
 }
 
 type Cell = { tip: string; confidence: number; odds: string };
 
 function FixtureBoard() {
   const qc = useQueryClient();
-  const days = useMemo(() => nextDays(4), []);
-  const [day, setDay] = useState(days[0]!);
+  const days = useMemo<string[]>(() => boardDays(), []);
+  const [day, setDay] = useState(days[2]!);
   const [comp, setComp] = useState("");
   const [edits, setEdits] = useState<Record<string, Cell>>({});
   const [busy, setBusy] = useState<string | null>(null);
+  const saveResult = useServerFn(setMatchResultFn);
 
   const from = `${day}T00:00:00.000Z`;
   const to = `${day}T23:59:59.999Z`;
@@ -119,6 +122,26 @@ function FixtureBoard() {
     }
   };
 
+  const settle = async (matchId: string, h: string, a: string) => {
+    if (h === "" || a === "") return toast.error("Enter both scores");
+    setBusy(matchId);
+    try {
+      const r: any = await saveResult({
+        data: { matchId, home: Number(h), away: Number(a) },
+      });
+      toast.success(r?.settled ? `Result saved — ${r.settled} tip(s) settled` : "Result saved");
+      qc.invalidateQueries({ queryKey: ["board"] });
+      qc.invalidateQueries({ queryKey: ["admin", "predictions"] });
+      qc.invalidateQueries({ queryKey: ["admin", "matches"] });
+    } catch (e: any) {
+      toast.error(e?.message ?? "Could not save result");
+    } finally {
+      setBusy(null);
+    }
+  };
+
+
+
   return (
     <div>
       <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
@@ -141,7 +164,7 @@ function FixtureBoard() {
                 day === d ? "bg-[var(--ink)] text-white" : "border border-border"
               }`}
             >
-              {i === 0
+              {i === 2
                 ? "Today"
                 : new Date(`${d}T12:00:00`).toLocaleDateString("en-GB", {
                     weekday: "short",
@@ -177,20 +200,22 @@ function FixtureBoard() {
               <th className="p-3 text-left">Conf.</th>
               <th className="p-3 text-left">Odds</th>
               <th className="p-3 text-left">State</th>
+              <th className="p-3 text-left">Result</th>
               <th className="p-3"></th>
+
             </tr>
           </thead>
           <tbody>
             {fixtures.isLoading && (
               <tr>
-                <td colSpan={8} className="p-6 text-center text-muted-foreground">
+                <td colSpan={9} className="p-6 text-center text-muted-foreground">
                   Loading fixtures…
                 </td>
               </tr>
             )}
             {!fixtures.isLoading && rows.length === 0 && (
               <tr>
-                <td colSpan={8} className="p-6 text-center text-muted-foreground">
+                <td colSpan={9} className="p-6 text-center text-muted-foreground">
                   No fixtures for this day. Track leagues and run a sync in Leagues &amp; sync.
                 </td>
               </tr>
@@ -246,8 +271,24 @@ function FixtureBoard() {
                     />
                   </td>
                   <td className="p-3 text-xs font-semibold uppercase">
-                    {existing ? (existing.is_published ? "Live" : "Draft") : "—"}
+                    {existing
+                      ? existing.result && existing.result !== "pending"
+                        ? existing.result
+                        : existing.is_published
+                          ? "Live"
+                          : "Draft"
+                      : "—"}
                   </td>
+                  <td className="p-3">
+                    <ResultCell
+                      key={`${m.id}-${m.home_score}-${m.away_score}`}
+                      home={m.home_score ?? null}
+                      away={m.away_score ?? null}
+                      disabled={busy === m.id}
+                      onSettle={(h, a) => settle(m.id, h, a)}
+                    />
+                  </td>
+
                   <td className="whitespace-nowrap p-3 text-right">
                     <Button
                       size="sm"
@@ -272,6 +313,41 @@ function FixtureBoard() {
           </tbody>
         </table>
       </div>
+    </div>
+  );
+}
+
+function ResultCell({
+  home,
+  away,
+  disabled,
+  onSettle,
+}: {
+  home: number | null;
+  away: number | null;
+  disabled: boolean;
+  onSettle: (h: string, a: string) => void;
+}) {
+  const [h, setH] = useState(home != null ? String(home) : "");
+  const [a, setA] = useState(away != null ? String(away) : "");
+  return (
+    <div className="flex items-center gap-1">
+      <input
+        value={h}
+        onChange={(e) => setH(e.target.value)}
+        inputMode="numeric"
+        className="h-9 w-10 border border-input bg-background px-1 text-center text-xs"
+      />
+      <span className="text-muted-foreground">–</span>
+      <input
+        value={a}
+        onChange={(e) => setA(e.target.value)}
+        inputMode="numeric"
+        className="h-9 w-10 border border-input bg-background px-1 text-center text-xs"
+      />
+      <Button size="sm" variant="outline" disabled={disabled} onClick={() => onSettle(h, a)}>
+        Settle
+      </Button>
     </div>
   );
 }
