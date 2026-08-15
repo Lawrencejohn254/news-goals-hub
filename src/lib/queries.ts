@@ -60,6 +60,25 @@ export async function fetchMostRead(limit = 5) {
   return (data ?? []) as unknown as ArticleWithMeta[];
 }
 
+/**
+ * "Trending" = published in the last 7 days, ranked by view count.
+ * This differs from fetchMostRead (all-time views), surfacing stories
+ * that are getting attention *right now* rather than old evergreen hits.
+ */
+export async function fetchTrending(limit = 6, windowDays = 7) {
+  const since = new Date(Date.now() - windowDays * 24 * 60 * 60 * 1000).toISOString();
+  const { data, error } = await supabase
+    .from("articles")
+    .select(ARTICLE_SELECT)
+    .eq("status", "published")
+    .lte("published_at", new Date().toISOString())
+    .gte("published_at", since)
+    .order("view_count", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []) as unknown as ArticleWithMeta[];
+}
+
 export async function fetchArticleBySlug(slug: string) {
   const { data, error } = await supabase
     .from("articles")
@@ -88,4 +107,3 @@ export async function fetchArticlesByCategory(categorySlug: string, limit = 30) 
   if (error) throw error;
   return { category: cat, articles: (data ?? []) as unknown as ArticleWithMeta[] };
 }
-

@@ -41,7 +41,12 @@ export function Footer() {
       <div className="border-t border-white/10">
         <div className="container-page flex flex-col items-center justify-between gap-2 py-4 text-xs text-white/60 md:flex-row">
           <span>© {new Date().getFullYear()} The Dispatch. All rights reserved.</span>
-          <span>Built with editorial integrity.</span>
+          <div className="flex items-center gap-4">
+            <span>Built with editorial integrity.</span>
+            <Link to="/auth" className="text-white/40 hover:text-white/70">
+              Staff Login
+            </Link>
+          </div>
         </div>
       </div>
     </footer>

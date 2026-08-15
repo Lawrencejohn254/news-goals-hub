@@ -1,7 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { Search, Menu, X } from "lucide-react";
-import { supabase } from "@/integrations/supabase/client";
 
 const NAV = [
   { label: "Politics", to: "/category/politics" },
@@ -15,26 +14,20 @@ const NAV = [
 
 export function Header() {
   const [open, setOpen] = useState(false);
-  const [user, setUser] = useState<{ email?: string } | null>(null);
   const [now, setNow] = useState(new Date());
 
   useEffect(() => {
-    supabase.auth.getUser().then(({ data }) => setUser(data.user ?? null));
-    const { data: sub } = supabase.auth.onAuthStateChange((_e, session) => {
-      setUser(session?.user ?? null);
-    });
     const t = setInterval(() => setNow(new Date()), 60_000);
-    return () => {
-      sub.subscription.unsubscribe();
-      clearInterval(t);
-    };
+    return () => clearInterval(t);
   }, []);
 
   return (
     <header className="border-b border-border bg-background">
-      {/* Utility bar */}
+      {/* Utility bar — admin/sign-in link intentionally not shown here.
+          Staff can reach the login screen via the small "Staff Login" link
+          in the footer, or by going directly to /auth. */}
       <div className="border-b border-border bg-[var(--ink)] text-white/80 text-xs">
-        <div className="container-page flex h-8 items-center justify-between">
+        <div className="container-page flex h-8 items-center">
           <span>
             {now.toLocaleDateString("en-US", {
               weekday: "long",
@@ -43,17 +36,6 @@ export function Header() {
               year: "numeric",
             })}
           </span>
-          <div className="flex items-center gap-4">
-            {user ? (
-              <Link to="/admin" className="hover:text-white">
-                Admin
-              </Link>
-            ) : (
-              <Link to="/auth" className="hover:text-white">
-                Sign in
-              </Link>
-            )}
-          </div>
         </div>
       </div>
 
@@ -74,13 +56,13 @@ export function Header() {
           </span>
         </Link>
 
-        <button aria-label="Search" className="p-2 hover:text-[var(--brand)]">
+        <Link to="/search" aria-label="Search" className="p-2 hover:text-[var(--brand)]">
           <Search size={20} />
-        </button>
+        </Link>
       </div>
 
-      {/* Primary nav */}
-      <nav className="hidden border-t border-border bg-background md:block">
+      {/* Primary nav — sticky so it stays visible while scrolling */}
+      <nav className="sticky top-0 z-40 hidden border-t border-border bg-background md:block">
         <div className="container-page flex items-center gap-6 overflow-x-auto py-3 text-sm font-semibold uppercase tracking-wide">
           <Link
             to="/"
