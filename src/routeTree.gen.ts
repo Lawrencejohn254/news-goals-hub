@@ -9,57 +9,43 @@
 // Additionally, you should also exclude this file from your linter and/or formatter to prevent it from being checked or modified.
 
 import { Route as rootRouteImport } from './routes/__root'
-import { Route as IndexRouteImport } from './routes/index'
-import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
-import { Route as AuthRouteImport } from './routes/auth'
-import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
-import { Route as SearchRouteImport } from './routes/search'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
-import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
-import { Route as ArticleSlugRouteImport } from './routes/article.$slug'
-import { Route as CategorySlugRouteImport } from './routes/category.$slug'
+import { Route as SearchRouteImport } from './routes/search'
+import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
+import { Route as AuthRouteImport } from './routes/auth'
+import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/route'
+import { Route as IndexRouteImport } from './routes/index'
 import { Route as PredictionsIndexRouteImport } from './routes/predictions.index'
-import { Route as PredictionsSlugRouteImport } from './routes/predictions.$slug'
 import { Route as TeamsSlugRouteImport } from './routes/teams.$slug'
+import { Route as PredictionsSlugRouteImport } from './routes/predictions.$slug'
+import { Route as CategorySlugRouteImport } from './routes/category.$slug'
+import { Route as ArticleSlugRouteImport } from './routes/article.$slug'
+import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
-import { Route as AuthenticatedAdminAdsRouteImport } from './routes/_authenticated/admin.ads'
-import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
-import { Route as AuthenticatedAdminArticlesRouteImport } from './routes/_authenticated/admin.articles'
-import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
-import { Route as AuthenticatedAdminCommentsRouteImport } from './routes/_authenticated/admin.comments'
-import { Route as AuthenticatedAdminFootballRouteImport } from './routes/_authenticated/admin.football'
-import { Route as AuthenticatedAdminLeaguesRouteImport } from './routes/_authenticated/admin.leagues'
-import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin.media'
-import { Route as AuthenticatedAdminNewsletterRouteImport } from './routes/_authenticated/admin.newsletter'
-import { Route as AuthenticatedAdminPredictionsRouteImport } from './routes/_authenticated/admin.predictions'
-import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
-import { Route as AuthenticatedAdminArticlesIndexRouteImport } from './routes/_authenticated/admin.articles.index'
-import { Route as AuthenticatedAdminArticlesIdRouteImport } from './routes/_authenticated/admin.articles.$id'
-import { Route as AuthenticatedAdminArticlesNewRouteImport } from './routes/_authenticated/admin.articles.new'
+import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
+import { Route as AuthenticatedAdminPredictionsRouteImport } from './routes/_authenticated/admin.predictions'
+import { Route as AuthenticatedAdminNewsletterRouteImport } from './routes/_authenticated/admin.newsletter'
+import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin.media'
+import { Route as AuthenticatedAdminLeaguesRouteImport } from './routes/_authenticated/admin.leagues'
+import { Route as AuthenticatedAdminFootballRouteImport } from './routes/_authenticated/admin.football'
+import { Route as AuthenticatedAdminCommentsRouteImport } from './routes/_authenticated/admin.comments'
+import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
+import { Route as AuthenticatedAdminArticlesRouteImport } from './routes/_authenticated/admin.articles'
+import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
+import { Route as AuthenticatedAdminAdsRouteImport } from './routes/_authenticated/admin.ads'
 import { Route as AuthenticatedAdminPredictionsIndexRouteImport } from './routes/_authenticated/admin.predictions.index'
-import { Route as AuthenticatedAdminPredictionsIdRouteImport } from './routes/_authenticated/admin.predictions.$id'
-import { Route as AuthenticatedAdminPredictionsBoardRouteImport } from './routes/_authenticated/admin.predictions.board'
-import { Route as AuthenticatedAdminPredictionsNewRouteImport } from './routes/_authenticated/admin.predictions.new'
+import { Route as AuthenticatedAdminArticlesIndexRouteImport } from './routes/_authenticated/admin.articles.index'
 import { Route as ApiPublicHooksFootballSyncRouteImport } from './routes/api/public/hooks/football-sync'
+import { Route as AuthenticatedAdminPredictionsNewRouteImport } from './routes/_authenticated/admin.predictions.new'
+import { Route as AuthenticatedAdminPredictionsBoardRouteImport } from './routes/_authenticated/admin.predictions.board'
+import { Route as AuthenticatedAdminPredictionsIdRouteImport } from './routes/_authenticated/admin.predictions.$id'
+import { Route as AuthenticatedAdminArticlesNewRouteImport } from './routes/_authenticated/admin.articles.new'
+import { Route as AuthenticatedAdminArticlesIdRouteImport } from './routes/_authenticated/admin.articles.$id'
 
-const IndexRoute = IndexRouteImport.update({
-  id: '/',
-  path: '/',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
-  id: '/_authenticated',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const AuthRoute = AuthRouteImport.update({
-  id: '/auth',
-  path: '/auth',
-  getParentRoute: () => rootRouteImport,
-} as any)
-const RssDotxmlRoute = RssDotxmlRouteImport.update({
-  id: '/rss.xml',
-  path: '/rss.xml',
+const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
+  id: '/sitemap.xml',
+  path: '/sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const SearchRoute = SearchRouteImport.update({
@@ -67,24 +53,23 @@ const SearchRoute = SearchRouteImport.update({
   path: '/search',
   getParentRoute: () => rootRouteImport,
 } as any)
-const SitemapDotxmlRoute = SitemapDotxmlRouteImport.update({
-  id: '/sitemap.xml',
-  path: '/sitemap.xml',
+const RssDotxmlRoute = RssDotxmlRouteImport.update({
+  id: '/rss.xml',
+  path: '/rss.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
-const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
-  id: '/admin',
-  path: '/admin',
-  getParentRoute: () => AuthenticatedRouteRoute,
-} as any)
-const ArticleSlugRoute = ArticleSlugRouteImport.update({
-  id: '/article/$slug',
-  path: '/article/$slug',
+const AuthRoute = AuthRouteImport.update({
+  id: '/auth',
+  path: '/auth',
   getParentRoute: () => rootRouteImport,
 } as any)
-const CategorySlugRoute = CategorySlugRouteImport.update({
-  id: '/category/$slug',
-  path: '/category/$slug',
+const AuthenticatedRouteRoute = AuthenticatedRouteRouteImport.update({
+  id: '/_authenticated',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const IndexRoute = IndexRouteImport.update({
+  id: '/',
+  path: '/',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PredictionsIndexRoute = PredictionsIndexRouteImport.update({
@@ -92,71 +77,45 @@ const PredictionsIndexRoute = PredictionsIndexRouteImport.update({
   path: '/predictions/',
   getParentRoute: () => rootRouteImport,
 } as any)
+const TeamsSlugRoute = TeamsSlugRouteImport.update({
+  id: '/teams/$slug',
+  path: '/teams/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PredictionsSlugRoute = PredictionsSlugRouteImport.update({
   id: '/predictions/$slug',
   path: '/predictions/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
-const TeamsSlugRoute = TeamsSlugRouteImport.update({
-  id: '/teams/$slug',
-  path: '/teams/$slug',
+const CategorySlugRoute = CategorySlugRouteImport.update({
+  id: '/category/$slug',
+  path: '/category/$slug',
   getParentRoute: () => rootRouteImport,
+} as any)
+const ArticleSlugRoute = ArticleSlugRouteImport.update({
+  id: '/article/$slug',
+  path: '/article/$slug',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
+  id: '/admin',
+  path: '/admin',
+  getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
 const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   id: '/',
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const AuthenticatedAdminAdsRoute = AuthenticatedAdminAdsRouteImport.update({
-  id: '/ads',
-  path: '/ads',
+const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
+  id: '/users',
+  path: '/users',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const AuthenticatedAdminAnalyticsRoute =
-  AuthenticatedAdminAnalyticsRouteImport.update({
-    id: '/analytics',
-    path: '/analytics',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminArticlesRoute =
-  AuthenticatedAdminArticlesRouteImport.update({
-    id: '/articles',
-    path: '/articles',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminCategoriesRoute =
-  AuthenticatedAdminCategoriesRouteImport.update({
-    id: '/categories',
-    path: '/categories',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminCommentsRoute =
-  AuthenticatedAdminCommentsRouteImport.update({
-    id: '/comments',
-    path: '/comments',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminFootballRoute =
-  AuthenticatedAdminFootballRouteImport.update({
-    id: '/football',
-    path: '/football',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminLeaguesRoute =
-  AuthenticatedAdminLeaguesRouteImport.update({
-    id: '/leagues',
-    path: '/leagues',
-    getParentRoute: () => AuthenticatedAdminRoute,
-  } as any)
-const AuthenticatedAdminMediaRoute = AuthenticatedAdminMediaRouteImport.update({
-  id: '/media',
-  path: '/media',
-  getParentRoute: () => AuthenticatedAdminRoute,
-} as any)
-const AuthenticatedAdminNewsletterRoute =
-  AuthenticatedAdminNewsletterRouteImport.update({
-    id: '/newsletter',
-    path: '/newsletter',
+const AuthenticatedAdminSettingsRoute =
+  AuthenticatedAdminSettingsRouteImport.update({
+    id: '/settings',
+    path: '/settings',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminPredictionsRoute =
@@ -165,45 +124,80 @@ const AuthenticatedAdminPredictionsRoute =
     path: '/predictions',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminSettingsRoute =
-  AuthenticatedAdminSettingsRouteImport.update({
-    id: '/settings',
-    path: '/settings',
+const AuthenticatedAdminNewsletterRoute =
+  AuthenticatedAdminNewsletterRouteImport.update({
+    id: '/newsletter',
+    path: '/newsletter',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminUsersRoute = AuthenticatedAdminUsersRouteImport.update({
-  id: '/users',
-  path: '/users',
+const AuthenticatedAdminMediaRoute = AuthenticatedAdminMediaRouteImport.update({
+  id: '/media',
+  path: '/media',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
-const AuthenticatedAdminArticlesIndexRoute =
-  AuthenticatedAdminArticlesIndexRouteImport.update({
-    id: '/',
-    path: '/',
-    getParentRoute: () => AuthenticatedAdminArticlesRoute,
+const AuthenticatedAdminLeaguesRoute =
+  AuthenticatedAdminLeaguesRouteImport.update({
+    id: '/leagues',
+    path: '/leagues',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminArticlesIdRoute =
-  AuthenticatedAdminArticlesIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
-    getParentRoute: () => AuthenticatedAdminArticlesRoute,
+const AuthenticatedAdminFootballRoute =
+  AuthenticatedAdminFootballRouteImport.update({
+    id: '/football',
+    path: '/football',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
-const AuthenticatedAdminArticlesNewRoute =
-  AuthenticatedAdminArticlesNewRouteImport.update({
-    id: '/new',
-    path: '/new',
-    getParentRoute: () => AuthenticatedAdminArticlesRoute,
+const AuthenticatedAdminCommentsRoute =
+  AuthenticatedAdminCommentsRouteImport.update({
+    id: '/comments',
+    path: '/comments',
+    getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminCategoriesRoute =
+  AuthenticatedAdminCategoriesRouteImport.update({
+    id: '/categories',
+    path: '/categories',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminArticlesRoute =
+  AuthenticatedAdminArticlesRouteImport.update({
+    id: '/articles',
+    path: '/articles',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAnalyticsRoute =
+  AuthenticatedAdminAnalyticsRouteImport.update({
+    id: '/analytics',
+    path: '/analytics',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminAdsRoute = AuthenticatedAdminAdsRouteImport.update({
+  id: '/ads',
+  path: '/ads',
+  getParentRoute: () => AuthenticatedAdminRoute,
+} as any)
 const AuthenticatedAdminPredictionsIndexRoute =
   AuthenticatedAdminPredictionsIndexRouteImport.update({
     id: '/',
     path: '/',
     getParentRoute: () => AuthenticatedAdminPredictionsRoute,
   } as any)
-const AuthenticatedAdminPredictionsIdRoute =
-  AuthenticatedAdminPredictionsIdRouteImport.update({
-    id: '/$id',
-    path: '/$id',
+const AuthenticatedAdminArticlesIndexRoute =
+  AuthenticatedAdminArticlesIndexRouteImport.update({
+    id: '/',
+    path: '/',
+    getParentRoute: () => AuthenticatedAdminArticlesRoute,
+  } as any)
+const ApiPublicHooksFootballSyncRoute =
+  ApiPublicHooksFootballSyncRouteImport.update({
+    id: '/api/public/hooks/football-sync',
+    path: '/api/public/hooks/football-sync',
+    getParentRoute: () => rootRouteImport,
+  } as any)
+const AuthenticatedAdminPredictionsNewRoute =
+  AuthenticatedAdminPredictionsNewRouteImport.update({
+    id: '/new',
+    path: '/new',
     getParentRoute: () => AuthenticatedAdminPredictionsRoute,
   } as any)
 const AuthenticatedAdminPredictionsBoardRoute =
@@ -212,17 +206,23 @@ const AuthenticatedAdminPredictionsBoardRoute =
     path: '/board',
     getParentRoute: () => AuthenticatedAdminPredictionsRoute,
   } as any)
-const AuthenticatedAdminPredictionsNewRoute =
-  AuthenticatedAdminPredictionsNewRouteImport.update({
-    id: '/new',
-    path: '/new',
+const AuthenticatedAdminPredictionsIdRoute =
+  AuthenticatedAdminPredictionsIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
     getParentRoute: () => AuthenticatedAdminPredictionsRoute,
   } as any)
-const ApiPublicHooksFootballSyncRoute =
-  ApiPublicHooksFootballSyncRouteImport.update({
-    id: '/api/public/hooks/football-sync',
-    path: '/api/public/hooks/football-sync',
-    getParentRoute: () => rootRouteImport,
+const AuthenticatedAdminArticlesNewRoute =
+  AuthenticatedAdminArticlesNewRouteImport.update({
+    id: '/new',
+    path: '/new',
+    getParentRoute: () => AuthenticatedAdminArticlesRoute,
+  } as any)
+const AuthenticatedAdminArticlesIdRoute =
+  AuthenticatedAdminArticlesIdRouteImport.update({
+    id: '/$id',
+    path: '/$id',
+    getParentRoute: () => AuthenticatedAdminArticlesRoute,
   } as any)
 
 export interface FileRoutesByFullPath {
@@ -446,32 +446,11 @@ export interface RootRouteChildren {
 
 declare module '@tanstack/react-router' {
   interface FileRoutesByPath {
-    '/': {
-      id: '/'
-      path: '/'
-      fullPath: '/'
-      preLoaderRoute: typeof IndexRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/_authenticated': {
-      id: '/_authenticated'
-      path: ''
-      fullPath: '/'
-      preLoaderRoute: typeof AuthenticatedRouteRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/auth': {
-      id: '/auth'
-      path: '/auth'
-      fullPath: '/auth'
-      preLoaderRoute: typeof AuthRouteImport
-      parentRoute: typeof rootRouteImport
-    }
-    '/rss.xml': {
-      id: '/rss.xml'
-      path: '/rss.xml'
-      fullPath: '/rss.xml'
-      preLoaderRoute: typeof RssDotxmlRouteImport
+    '/sitemap.xml': {
+      id: '/sitemap.xml'
+      path: '/sitemap.xml'
+      fullPath: '/sitemap.xml'
+      preLoaderRoute: typeof SitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/search': {
@@ -481,32 +460,32 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof SearchRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/sitemap.xml': {
-      id: '/sitemap.xml'
-      path: '/sitemap.xml'
-      fullPath: '/sitemap.xml'
-      preLoaderRoute: typeof SitemapDotxmlRouteImport
+    '/rss.xml': {
+      id: '/rss.xml'
+      path: '/rss.xml'
+      fullPath: '/rss.xml'
+      preLoaderRoute: typeof RssDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/_authenticated/admin': {
-      id: '/_authenticated/admin'
-      path: '/admin'
-      fullPath: '/admin'
-      preLoaderRoute: typeof AuthenticatedAdminRouteImport
-      parentRoute: typeof AuthenticatedRouteRoute
-    }
-    '/article/$slug': {
-      id: '/article/$slug'
-      path: '/article/$slug'
-      fullPath: '/article/$slug'
-      preLoaderRoute: typeof ArticleSlugRouteImport
+    '/auth': {
+      id: '/auth'
+      path: '/auth'
+      fullPath: '/auth'
+      preLoaderRoute: typeof AuthRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/category/$slug': {
-      id: '/category/$slug'
-      path: '/category/$slug'
-      fullPath: '/category/$slug'
-      preLoaderRoute: typeof CategorySlugRouteImport
+    '/_authenticated': {
+      id: '/_authenticated'
+      path: ''
+      fullPath: '/'
+      preLoaderRoute: typeof AuthenticatedRouteRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/': {
+      id: '/'
+      path: '/'
+      fullPath: '/'
+      preLoaderRoute: typeof IndexRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/predictions/': {
@@ -516,13 +495,6 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PredictionsIndexRouteImport
       parentRoute: typeof rootRouteImport
     }
-    '/predictions/$slug': {
-      id: '/predictions/$slug'
-      path: '/predictions/$slug'
-      fullPath: '/predictions/$slug'
-      preLoaderRoute: typeof PredictionsSlugRouteImport
-      parentRoute: typeof rootRouteImport
-    }
     '/teams/$slug': {
       id: '/teams/$slug'
       path: '/teams/$slug'
@@ -530,88 +502,39 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof TeamsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/predictions/$slug': {
+      id: '/predictions/$slug'
+      path: '/predictions/$slug'
+      fullPath: '/predictions/$slug'
+      preLoaderRoute: typeof PredictionsSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/category/$slug': {
+      id: '/category/$slug'
+      path: '/category/$slug'
+      fullPath: '/category/$slug'
+      preLoaderRoute: typeof CategorySlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/article/$slug': {
+      id: '/article/$slug'
+      path: '/article/$slug'
+      fullPath: '/article/$slug'
+      preLoaderRoute: typeof ArticleSlugRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin': {
+      id: '/_authenticated/admin'
+      path: '/admin'
+      fullPath: '/admin'
+      preLoaderRoute: typeof AuthenticatedAdminRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/admin/': {
       id: '/_authenticated/admin/'
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/ads': {
-      id: '/_authenticated/admin/ads'
-      path: '/ads'
-      fullPath: '/admin/ads'
-      preLoaderRoute: typeof AuthenticatedAdminAdsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/analytics': {
-      id: '/_authenticated/admin/analytics'
-      path: '/analytics'
-      fullPath: '/admin/analytics'
-      preLoaderRoute: typeof AuthenticatedAdminAnalyticsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/articles': {
-      id: '/_authenticated/admin/articles'
-      path: '/articles'
-      fullPath: '/admin/articles'
-      preLoaderRoute: typeof AuthenticatedAdminArticlesRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/categories': {
-      id: '/_authenticated/admin/categories'
-      path: '/categories'
-      fullPath: '/admin/categories'
-      preLoaderRoute: typeof AuthenticatedAdminCategoriesRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/comments': {
-      id: '/_authenticated/admin/comments'
-      path: '/comments'
-      fullPath: '/admin/comments'
-      preLoaderRoute: typeof AuthenticatedAdminCommentsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/football': {
-      id: '/_authenticated/admin/football'
-      path: '/football'
-      fullPath: '/admin/football'
-      preLoaderRoute: typeof AuthenticatedAdminFootballRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/leagues': {
-      id: '/_authenticated/admin/leagues'
-      path: '/leagues'
-      fullPath: '/admin/leagues'
-      preLoaderRoute: typeof AuthenticatedAdminLeaguesRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/media': {
-      id: '/_authenticated/admin/media'
-      path: '/media'
-      fullPath: '/admin/media'
-      preLoaderRoute: typeof AuthenticatedAdminMediaRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/newsletter': {
-      id: '/_authenticated/admin/newsletter'
-      path: '/newsletter'
-      fullPath: '/admin/newsletter'
-      preLoaderRoute: typeof AuthenticatedAdminNewsletterRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/predictions': {
-      id: '/_authenticated/admin/predictions'
-      path: '/predictions'
-      fullPath: '/admin/predictions'
-      preLoaderRoute: typeof AuthenticatedAdminPredictionsRouteImport
-      parentRoute: typeof AuthenticatedAdminRoute
-    }
-    '/_authenticated/admin/settings': {
-      id: '/_authenticated/admin/settings'
-      path: '/settings'
-      fullPath: '/admin/settings'
-      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/users': {
@@ -621,26 +544,82 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminUsersRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/articles/': {
-      id: '/_authenticated/admin/articles/'
-      path: '/'
-      fullPath: '/admin/articles/'
-      preLoaderRoute: typeof AuthenticatedAdminArticlesIndexRouteImport
-      parentRoute: typeof AuthenticatedAdminArticlesRoute
+    '/_authenticated/admin/settings': {
+      id: '/_authenticated/admin/settings'
+      path: '/settings'
+      fullPath: '/admin/settings'
+      preLoaderRoute: typeof AuthenticatedAdminSettingsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/articles/$id': {
-      id: '/_authenticated/admin/articles/$id'
-      path: '/$id'
-      fullPath: '/admin/articles/$id'
-      preLoaderRoute: typeof AuthenticatedAdminArticlesIdRouteImport
-      parentRoute: typeof AuthenticatedAdminArticlesRoute
+    '/_authenticated/admin/predictions': {
+      id: '/_authenticated/admin/predictions'
+      path: '/predictions'
+      fullPath: '/admin/predictions'
+      preLoaderRoute: typeof AuthenticatedAdminPredictionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
-    '/_authenticated/admin/articles/new': {
-      id: '/_authenticated/admin/articles/new'
-      path: '/new'
-      fullPath: '/admin/articles/new'
-      preLoaderRoute: typeof AuthenticatedAdminArticlesNewRouteImport
-      parentRoute: typeof AuthenticatedAdminArticlesRoute
+    '/_authenticated/admin/newsletter': {
+      id: '/_authenticated/admin/newsletter'
+      path: '/newsletter'
+      fullPath: '/admin/newsletter'
+      preLoaderRoute: typeof AuthenticatedAdminNewsletterRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/media': {
+      id: '/_authenticated/admin/media'
+      path: '/media'
+      fullPath: '/admin/media'
+      preLoaderRoute: typeof AuthenticatedAdminMediaRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/leagues': {
+      id: '/_authenticated/admin/leagues'
+      path: '/leagues'
+      fullPath: '/admin/leagues'
+      preLoaderRoute: typeof AuthenticatedAdminLeaguesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/football': {
+      id: '/_authenticated/admin/football'
+      path: '/football'
+      fullPath: '/admin/football'
+      preLoaderRoute: typeof AuthenticatedAdminFootballRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/comments': {
+      id: '/_authenticated/admin/comments'
+      path: '/comments'
+      fullPath: '/admin/comments'
+      preLoaderRoute: typeof AuthenticatedAdminCommentsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/categories': {
+      id: '/_authenticated/admin/categories'
+      path: '/categories'
+      fullPath: '/admin/categories'
+      preLoaderRoute: typeof AuthenticatedAdminCategoriesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/articles': {
+      id: '/_authenticated/admin/articles'
+      path: '/articles'
+      fullPath: '/admin/articles'
+      preLoaderRoute: typeof AuthenticatedAdminArticlesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/analytics': {
+      id: '/_authenticated/admin/analytics'
+      path: '/analytics'
+      fullPath: '/admin/analytics'
+      preLoaderRoute: typeof AuthenticatedAdminAnalyticsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/ads': {
+      id: '/_authenticated/admin/ads'
+      path: '/ads'
+      fullPath: '/admin/ads'
+      preLoaderRoute: typeof AuthenticatedAdminAdsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/predictions/': {
       id: '/_authenticated/admin/predictions/'
@@ -649,11 +628,25 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPredictionsIndexRouteImport
       parentRoute: typeof AuthenticatedAdminPredictionsRoute
     }
-    '/_authenticated/admin/predictions/$id': {
-      id: '/_authenticated/admin/predictions/$id'
-      path: '/$id'
-      fullPath: '/admin/predictions/$id'
-      preLoaderRoute: typeof AuthenticatedAdminPredictionsIdRouteImport
+    '/_authenticated/admin/articles/': {
+      id: '/_authenticated/admin/articles/'
+      path: '/'
+      fullPath: '/admin/articles/'
+      preLoaderRoute: typeof AuthenticatedAdminArticlesIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminArticlesRoute
+    }
+    '/api/public/hooks/football-sync': {
+      id: '/api/public/hooks/football-sync'
+      path: '/api/public/hooks/football-sync'
+      fullPath: '/api/public/hooks/football-sync'
+      preLoaderRoute: typeof ApiPublicHooksFootballSyncRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/_authenticated/admin/predictions/new': {
+      id: '/_authenticated/admin/predictions/new'
+      path: '/new'
+      fullPath: '/admin/predictions/new'
+      preLoaderRoute: typeof AuthenticatedAdminPredictionsNewRouteImport
       parentRoute: typeof AuthenticatedAdminPredictionsRoute
     }
     '/_authenticated/admin/predictions/board': {
@@ -663,19 +656,26 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminPredictionsBoardRouteImport
       parentRoute: typeof AuthenticatedAdminPredictionsRoute
     }
-    '/_authenticated/admin/predictions/new': {
-      id: '/_authenticated/admin/predictions/new'
-      path: '/new'
-      fullPath: '/admin/predictions/new'
-      preLoaderRoute: typeof AuthenticatedAdminPredictionsNewRouteImport
+    '/_authenticated/admin/predictions/$id': {
+      id: '/_authenticated/admin/predictions/$id'
+      path: '/$id'
+      fullPath: '/admin/predictions/$id'
+      preLoaderRoute: typeof AuthenticatedAdminPredictionsIdRouteImport
       parentRoute: typeof AuthenticatedAdminPredictionsRoute
     }
-    '/api/public/hooks/football-sync': {
-      id: '/api/public/hooks/football-sync'
-      path: '/api/public/hooks/football-sync'
-      fullPath: '/api/public/hooks/football-sync'
-      preLoaderRoute: typeof ApiPublicHooksFootballSyncRouteImport
-      parentRoute: typeof rootRouteImport
+    '/_authenticated/admin/articles/new': {
+      id: '/_authenticated/admin/articles/new'
+      path: '/new'
+      fullPath: '/admin/articles/new'
+      preLoaderRoute: typeof AuthenticatedAdminArticlesNewRouteImport
+      parentRoute: typeof AuthenticatedAdminArticlesRoute
+    }
+    '/_authenticated/admin/articles/$id': {
+      id: '/_authenticated/admin/articles/$id'
+      path: '/$id'
+      fullPath: '/admin/articles/$id'
+      preLoaderRoute: typeof AuthenticatedAdminArticlesIdRouteImport
+      parentRoute: typeof AuthenticatedAdminArticlesRoute
     }
   }
 }

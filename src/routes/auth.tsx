@@ -105,7 +105,7 @@ function AuthPage() {
             </h1>
             <p className="mt-1 text-sm text-muted-foreground">
               {step === "email"
-                ? "No password needed — we'll email you a 6-digit code. New here? This creates your account too."
+                ? "No password needed — we'll email you a 8-digit code. New here? This creates your account too."
                 : `We sent a code to ${email}.`}
             </p>
           </div>
@@ -153,24 +153,24 @@ function AuthPage() {
           ) : (
             <form onSubmit={verifyCode} className="space-y-4">
               <div>
-                <Label htmlFor="code">6-digit code</Label>
+                <Label htmlFor="code">8-digit code</Label>
                 <Input
                   id="code"
                   inputMode="numeric"
                   pattern="[0-9]*"
-                  maxLength={6}
+                  maxLength={8}
                   required
                   value={code}
                   onChange={(e) => setCode(e.target.value.replace(/\D/g, ""))}
                   autoComplete="one-time-code"
                   autoFocus
                   className="text-center text-2xl tracking-[0.5em]"
-                  placeholder="······"
+                  placeholder="········"
                 />
               </div>
               <Button
                 type="submit"
-                disabled={loading || code.length !== 6}
+                disabled={loading || code.length !== 8}
                 className="w-full bg-[var(--brand)] text-white hover:bg-[var(--brand)]/90"
               >
                 {loading ? "Verifying…" : "Verify & continue"}

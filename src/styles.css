@@ -88,13 +88,36 @@
 
 @layer base {
   * { border-color: var(--color-border); }
+
+  /* Belt-and-suspenders: stop any single slightly-too-wide element (a long
+     unbroken URL in article content, a fixed-width third-party embed, etc.)
+     from creating a horizontal scrollbar that shifts the whole layout as
+     the browser is zoomed in/out or the viewport changes. */
+  html {
+    /* clip (not hidden) prevents horizontal overflow WITHOUT turning this
+       element into a scroll container — overflow-x: hidden silently forces
+       overflow-y to 'auto', which breaks position: sticky everywhere on
+       the page, since sticky elements attach to the nearest scroll
+       container instead of the real viewport. */
+    overflow-x: clip;
+    width: 100%;
+  }
   body {
     background-color: var(--color-background);
     color: var(--color-foreground);
     font-family: var(--font-sans);
     -webkit-font-smoothing: antialiased;
+    overflow-x: clip;
+    width: 100%;
   }
   h1, h2, h3, h4 { font-family: var(--font-serif); letter-spacing: -0.01em; }
+
+  /* Any image, anywhere in the app, should shrink to fit its container
+     instead of forcing the page wider than the viewport. */
+  img {
+    max-width: 100%;
+    height: auto;
+  }
 }
 
 @utility container-page {
@@ -119,11 +142,15 @@
   font-size: 1.125rem;
   line-height: 1.75;
   color: var(--color-foreground);
+  /* User-authored article content can contain long unbroken strings
+     (URLs, etc.) — wrap them instead of overflowing horizontally. */
+  overflow-wrap: break-word;
+  word-break: break-word;
 }
 .article-prose p { margin: 1em 0; }
 .article-prose h2 { font-size: 1.75rem; margin: 1.5em 0 0.5em; font-weight: 700; }
 .article-prose h3 { font-size: 1.35rem; margin: 1.25em 0 0.4em; font-weight: 700; }
-.article-prose a { color: var(--color-brand); text-decoration: underline; }
+.article-prose a { color: var(--color-brand); text-decoration: underline; overflow-wrap: break-word; }
 .article-prose ul { list-style: disc; padding-left: 1.5em; margin: 1em 0; }
 .article-prose ol { list-style: decimal; padding-left: 1.5em; margin: 1em 0; }
 .article-prose blockquote {
@@ -133,12 +160,24 @@
   margin: 1.25em 0;
   color: var(--color-muted-foreground);
 }
-.article-prose img { border-radius: var(--radius); margin: 1.25em 0; }
+.article-prose img { border-radius: var(--radius); margin: 1.25em 0; max-width: 100%; height: auto; }
 .article-prose code {
   background: var(--color-muted);
   padding: 0.15em 0.35em;
   border-radius: 4px;
   font-size: 0.9em;
+  overflow-wrap: break-word;
+}
+.article-prose pre {
+  overflow-x: auto;
+  max-width: 100%;
+}
+/* Tables inside user-authored content need to scroll horizontally on
+   narrow screens rather than squeezing/breaking the page layout. */
+.article-prose table {
+  display: block;
+  overflow-x: auto;
+  max-width: 100%;
 }
 
 /* TipTap editor */

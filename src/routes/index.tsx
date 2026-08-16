@@ -33,9 +33,10 @@ function HomePage() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Breaking ticker */}
-      <div className="border-y border-border bg-[var(--brand)] text-white">
-        <div className="container-page flex items-center gap-4 py-2 overflow-hidden">
+      {/* Breaking ticker — width now matches the rest of the page's content
+          container instead of stretching full browser width */}
+      <div className="container-page mt-4">
+        <div className="flex items-center gap-4 border border-border bg-[var(--brand)] px-4 py-2 text-white overflow-hidden">
           <span className="shrink-0 bg-[var(--ink)] px-2 py-1 text-xs font-bold uppercase tracking-widest">
             Breaking
           </span>
@@ -66,7 +67,7 @@ function HomePage() {
         </div>
       </div>
 
-      <main className="container-page py-10">
+      <main className="container-page pb-10 pt-6">
         {/* Top banner ad */}
         <div className="mb-10 flex justify-center">
           <AdSlot placement="home-top" className="w-full max-w-4xl" />
