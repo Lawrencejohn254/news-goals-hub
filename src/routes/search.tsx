@@ -33,13 +33,30 @@ function SearchPage() {
     queryKey: ["search", initial],
     enabled: initial.trim().length > 1,
     queryFn: async () => {
-      const like = `%${initial.trim().replace(/[%_]/g, "")}%`;
-      const [arts, preds] = await Promise.all([
+      // Cap length and strip PostgREST/ILIKE special characters so the
+      // value can never be interpreted as anything but a literal search
+      // term, however it's later combined into a query.
+      const cleaned = initial
+        .trim()
+        .slice(0, 100)
+        .replace(/[%_,.()]/g, "");
+      const like = `%${cleaned}%`;
+
+      // Two separate parameterized queries instead of a single hand-built
+      // `.or()` string — each .ilike() call passes its value as a bound
+      // parameter, so there's no raw string for user input to break out of.
+      const [byTitle, byExcerpt, preds] = await Promise.all([
         supabase
           .from("articles")
           .select("*, categories(id,name,slug,color), profiles!articles_author_profile_fkey(display_name,avatar_url)")
           .eq("status", "published")
-          .or(`title.ilike.${like},excerpt.ilike.${like}`)
+          .ilike("title", like)
+          .limit(20),
+        supabase
+          .from("articles")
+          .select("*, categories(id,name,slug,color), profiles!articles_author_profile_fkey(display_name,avatar_url)")
+          .eq("status", "published")
+          .ilike("excerpt", like)
           .limit(20),
         supabase
           .from("predictions")
@@ -48,8 +65,19 @@ function SearchPage() {
           .ilike("title", like)
           .limit(10),
       ]);
+
+      // Merge + de-dupe the two article result sets (title match ∪ excerpt match)
+      const seen = new Set<string>();
+      const articles: ArticleWithMeta[] = [];
+      for (const a of [...(byTitle.data ?? []), ...(byExcerpt.data ?? [])] as unknown as ArticleWithMeta[]) {
+        if (!seen.has(a.id)) {
+          seen.add(a.id);
+          articles.push(a);
+        }
+      }
+
       return {
-        articles: (arts.data ?? []) as unknown as ArticleWithMeta[],
+        articles: articles.slice(0, 20),
         predictions: preds.data ?? [],
       };
     },
@@ -67,13 +95,13 @@ function SearchPage() {
             navigate({ search: { q: term } });
           }}
         >
-          <Input value={term} onChange={(e) => setTerm(e.target.value)} placeholder="Search stories…" />
+          <Input value={term} onChange={(e) => setTerm(e.target.value)} placeholder="Search stories…" maxLength={100} />
           <button className="bg-[var(--brand)] px-5 text-sm font-semibold text-white">Search</button>
         </form>
 
         {initial && (
           <p className="mt-6 text-sm text-muted-foreground">
-            Results for <span className="font-semibold text-foreground">“{initial}”</span>
+            Results for <span className="font-semibold text-foreground">"{initial}"</span>
           </p>
         )}
 

@@ -86,7 +86,7 @@ function HomePage() {
                 featuredRest.map((a) => <ArticleCard key={a.id} article={a} size="sm" />)
               ) : (
                 <p className="text-sm text-muted-foreground">
-                  No featured stories yet — mark articles as "Featured" in the admin.
+                  No featured stories yet
                 </p>
               )}
             </div>

@@ -35,6 +35,35 @@ export const Route = createFileRoute("/article/$slug")({
   ),
 });
 
+function AuthorAvatar({
+  name,
+  avatarUrl,
+  size = 36,
+}: {
+  name: string;
+  avatarUrl: string | null | undefined;
+  size?: number;
+}) {
+  if (avatarUrl) {
+    return (
+      <img
+        src={avatarUrl}
+        alt={name}
+        style={{ width: size, height: size }}
+        className="rounded-full object-cover"
+      />
+    );
+  }
+  return (
+    <span
+      style={{ width: size, height: size }}
+      className="flex items-center justify-center rounded-full bg-[var(--ink)] text-xs font-bold text-white"
+    >
+      {name.slice(0, 2).toUpperCase()}
+    </span>
+  );
+}
+
 function ArticlePage() {
   const { slug } = Route.useParams();
   const q = useQuery({
@@ -73,6 +102,7 @@ function ArticlePage() {
   if (!q.data) throw notFound();
   const a = q.data;
   const cat = a.categories;
+  const authorName = a.profiles?.display_name ?? "Staff";
 
   return (
     <div className="min-h-screen bg-background">
@@ -97,10 +127,11 @@ function ArticlePage() {
               {a.excerpt}
             </p>
           )}
+
+          {/* Byline — now shows the author's photo, not just their name */}
           <div className="mt-6 flex flex-wrap items-center gap-3 border-y border-border py-4 text-sm text-muted-foreground">
-            <span className="font-semibold text-foreground">
-              {a.profiles?.display_name ?? "Staff"}
-            </span>
+            <AuthorAvatar name={authorName} avatarUrl={a.profiles?.avatar_url} size={32} />
+            <span className="font-semibold text-foreground">{authorName}</span>
             <span>·</span>
             <span>{formatDate(a.published_at ?? a.created_at)}</span>
             <span>·</span>
@@ -123,6 +154,26 @@ function ArticlePage() {
             className="article-prose mt-8"
             dangerouslySetInnerHTML={{ __html: a.content }}
           />
+
+          {/* Written by — full author card with photo + bio */}
+          <div className="mt-10 flex gap-4 border border-border bg-[var(--paper)] p-5">
+            <AuthorAvatar name={authorName} avatarUrl={a.profiles?.avatar_url} size={56} />
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+                Written by
+              </p>
+              <p className="mt-1 font-serif text-lg font-bold text-[var(--ink)]">
+                {authorName}
+              </p>
+              {a.profiles?.bio ? (
+                <p className="mt-1 text-sm text-muted-foreground">{a.profiles.bio}</p>
+              ) : (
+                <p className="mt-1 text-sm text-muted-foreground">
+                  Reporter at The Dispatch.
+                </p>
+              )}
+            </div>
+          </div>
 
           <AdSlot placement="article-bottom" className="my-10" />
 

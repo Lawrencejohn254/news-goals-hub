@@ -6,11 +6,11 @@ export type Category = Database["public"]["Tables"]["categories"]["Row"];
 
 export type ArticleWithMeta = Article & {
   categories: Pick<Category, "id" | "name" | "slug" | "color"> | null;
-  profiles: { display_name: string | null; avatar_url: string | null } | null;
+  profiles: { display_name: string | null; avatar_url: string | null; bio: string | null } | null;
 };
 
 const ARTICLE_SELECT =
-  "*, categories(id,name,slug,color), profiles!articles_author_profile_fkey(display_name,avatar_url)";
+  "*, categories(id,name,slug,color), profiles!articles_author_profile_fkey(display_name,avatar_url,bio)";
 
 export async function fetchCategories() {
   const { data, error } = await supabase
