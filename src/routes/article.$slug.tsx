@@ -13,14 +13,49 @@ import { logPageView } from "@/lib/site";
 
 export const Route = createFileRoute("/article/$slug")({
   component: ArticlePage,
-  head: ({ params }) => ({
-    meta: [
-      { title: `${params.slug} — The Dispatch` },
-      { property: "og:type", content: "article" },
-      { property: "og:url", content: `/article/${params.slug}` },
-    ],
-    links: [{ rel: "canonical", href: `/article/${params.slug}` }],
-  }),
+  // Fetch the article on the server before the page renders. This is what
+  // makes per-article title/description/image tags actually work for link
+  // previews on WhatsApp, Twitter/X, Facebook, etc. — those crawlers don't
+  // run JavaScript, so meta tags populated only by a client-side useQuery
+  // (as this page did before) are invisible to them; they'd only ever see
+  // the generic fallback title.
+  loader: async ({ params }) => {
+    const article = await fetchArticleBySlug(params.slug);
+    return { article };
+  },
+  head: ({ loaderData, params }) => {
+    const a = loaderData?.article;
+    if (!a) {
+      return {
+        meta: [{ title: `${params.slug} — The Dispatch` }],
+      };
+    }
+    const title = a.seo_title?.trim() || `${a.title} — The Dispatch`;
+    const description =
+      a.seo_description?.trim() || a.excerpt?.trim() || "Read the full story on The Dispatch.";
+    const image = a.featured_image ?? undefined;
+    const path = `/article/${a.slug}`;
+
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:type", content: "article" },
+        { property: "og:title", content: a.title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: path },
+        ...(image ? [{ property: "og:image", content: image }] : []),
+        { property: "article:published_time", content: a.published_at ?? a.created_at },
+        { property: "article:modified_time", content: a.updated_at },
+        ...(a.categories ? [{ property: "article:section", content: a.categories.name }] : []),
+        { name: "twitter:card", content: image ? "summary_large_image" : "summary" },
+        { name: "twitter:title", content: a.title },
+        { name: "twitter:description", content: description },
+        ...(image ? [{ name: "twitter:image", content: image }] : []),
+      ],
+      links: [{ rel: "canonical", href: path }],
+    };
+  },
   notFoundComponent: () => (
     <div className="min-h-screen">
       <Header />
@@ -66,9 +101,15 @@ function AuthorAvatar({
 
 function ArticlePage() {
   const { slug } = Route.useParams();
+  const { article: loaderArticle } = Route.useLoaderData();
+
+  // Seed with the server-fetched article for an instant first paint, then
+  // let React Query take over for live client-side behavior (view count
+  // bump, refetch on window focus, etc).
   const q = useQuery({
     queryKey: ["article", slug],
     queryFn: () => fetchArticleBySlug(slug),
+    initialData: loaderArticle,
   });
   const related = useQuery({
     queryKey: ["related", q.data?.category_id],
@@ -104,8 +145,38 @@ function ArticlePage() {
   const cat = a.categories;
   const authorName = a.profiles?.display_name ?? "Staff";
 
+  // Structured data (schema.org NewsArticle) — this is what makes Google
+  // News / rich-result eligibility possible, separate from plain OG tags.
+  const jsonLd = {
+    "@context": "https://schema.org",
+    "@type": "NewsArticle",
+    headline: a.title,
+    description: a.excerpt ?? a.seo_description ?? undefined,
+    image: a.featured_image ? [a.featured_image] : undefined,
+    datePublished: a.published_at ?? a.created_at,
+    dateModified: a.updated_at,
+    author: {
+      "@type": "Person",
+      name: authorName,
+    },
+    publisher: {
+      "@type": "Organization",
+      name: "The Dispatch",
+    },
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      "@id": `/article/${a.slug}`,
+    },
+    articleSection: cat?.name ?? undefined,
+  };
+
   return (
     <div className="min-h-screen bg-background">
+      {/* eslint-disable-next-line react/no-danger */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      />
       <Header />
       <main className="container-page py-10">
         <article className="mx-auto max-w-3xl">
