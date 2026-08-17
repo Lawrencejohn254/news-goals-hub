@@ -10,6 +10,7 @@ import { formatDate } from "@/lib/format";
 import { Comments } from "@/components/site/Comments";
 import { AdSlot } from "@/components/site/AdSlot";
 import { logPageView } from "@/lib/site";
+import { absoluteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/article/$slug")({
   component: ArticlePage,
@@ -35,15 +36,17 @@ export const Route = createFileRoute("/article/$slug")({
       a.seo_description?.trim() || a.excerpt?.trim() || "Read the full story on The Dispatch.";
     const image = a.featured_image ?? undefined;
     const path = `/article/${a.slug}`;
+    const url = absoluteUrl(path);
 
     return {
       meta: [
         { title },
         { name: "description", content: description },
         { property: "og:type", content: "article" },
+        { property: "og:site_name", content: "The Dispatch" },
         { property: "og:title", content: a.title },
         { property: "og:description", content: description },
-        { property: "og:url", content: path },
+        { property: "og:url", content: url },
         ...(image ? [{ property: "og:image", content: image }] : []),
         { property: "article:published_time", content: a.published_at ?? a.created_at },
         { property: "article:modified_time", content: a.updated_at },
@@ -53,7 +56,7 @@ export const Route = createFileRoute("/article/$slug")({
         { name: "twitter:description", content: description },
         ...(image ? [{ name: "twitter:image", content: image }] : []),
       ],
-      links: [{ rel: "canonical", href: path }],
+      links: [{ rel: "canonical", href: url }],
     };
   },
   notFoundComponent: () => (
@@ -165,7 +168,7 @@ function ArticlePage() {
     },
     mainEntityOfPage: {
       "@type": "WebPage",
-      "@id": `/article/${a.slug}`,
+      "@id": absoluteUrl(`/article/${a.slug}`),
     },
     articleSection: cat?.name ?? undefined,
   };
@@ -201,8 +204,14 @@ function ArticlePage() {
 
           {/* Byline — now shows the author's photo, not just their name */}
           <div className="mt-6 flex flex-wrap items-center gap-3 border-y border-border py-4 text-sm text-muted-foreground">
-            <AuthorAvatar name={authorName} avatarUrl={a.profiles?.avatar_url} size={32} />
-            <span className="font-semibold text-foreground">{authorName}</span>
+            <Link
+              to="/authors/$id"
+              params={{ id: a.author_id }}
+              className="flex items-center gap-2 hover:text-[var(--brand)]"
+            >
+              <AuthorAvatar name={authorName} avatarUrl={a.profiles?.avatar_url} size={32} />
+              <span className="font-semibold text-foreground">{authorName}</span>
+            </Link>
             <span>·</span>
             <span>{formatDate(a.published_at ?? a.created_at)}</span>
             <span>·</span>
@@ -228,14 +237,20 @@ function ArticlePage() {
 
           {/* Written by — full author card with photo + bio */}
           <div className="mt-10 flex gap-4 border border-border bg-[var(--paper)] p-5">
-            <AuthorAvatar name={authorName} avatarUrl={a.profiles?.avatar_url} size={56} />
+            <Link to="/authors/$id" params={{ id: a.author_id }} className="shrink-0">
+              <AuthorAvatar name={authorName} avatarUrl={a.profiles?.avatar_url} size={56} />
+            </Link>
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
                 Written by
               </p>
-              <p className="mt-1 font-serif text-lg font-bold text-[var(--ink)]">
+              <Link
+                to="/authors/$id"
+                params={{ id: a.author_id }}
+                className="mt-1 inline-block font-serif text-lg font-bold text-[var(--ink)] hover:text-[var(--brand)]"
+              >
                 {authorName}
-              </p>
+              </Link>
               {a.profiles?.bio ? (
                 <p className="mt-1 text-sm text-muted-foreground">{a.profiles.bio}</p>
               ) : (

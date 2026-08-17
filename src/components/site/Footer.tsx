@@ -4,7 +4,7 @@ import { NewsletterForm } from "@/components/site/NewsletterForm";
 export function Footer() {
   return (
     <footer className="mt-16 border-t border-border bg-[var(--ink)] text-white/80">
-      <div className="container-page grid gap-10 py-12 md:grid-cols-4">
+      <div className="container-page grid gap-10 py-12 md:grid-cols-5">
         <div>
           <div className="flex items-center gap-2">
             <span className="inline-block h-6 w-1.5 bg-[var(--brand)]" />
@@ -30,6 +30,17 @@ export function Footer() {
             <li><Link to="/category/$slug" params={{ slug: "entertainment" }}>Entertainment</Link></li>
             <li><Link to="/category/$slug" params={{ slug: "international" }}>International</Link></li>
             <li><Link to="/category/$slug" params={{ slug: "local-news" }}>Local News</Link></li>
+          </ul>
+        </div>
+        <div>
+          <h4 className="mb-3 text-xs font-bold uppercase tracking-widest text-white">About</h4>
+          <ul className="space-y-2 text-sm">
+            <li><Link to="/about">About Us</Link></li>
+            <li><Link to="/contact">Contact</Link></li>
+            <li><Link to="/editorial-policy">Editorial Policy</Link></li>
+            <li><Link to="/disclaimer">Disclaimer</Link></li>
+            <li><Link to="/privacy-policy">Privacy Policy</Link></li>
+            <li><Link to="/terms">Terms of Use</Link></li>
           </ul>
         </div>
         <div>
