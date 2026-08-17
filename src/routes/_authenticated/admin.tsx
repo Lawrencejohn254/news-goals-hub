@@ -15,6 +15,9 @@ import {
   Settings,
   BarChart3,
   Trophy,
+  Menu,
+  X,
+  ArrowLeft,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 
@@ -28,6 +31,7 @@ function AdminLayout() {
   const qc = useQueryClient();
   const [roles, setRoles] = useState<string[]>([]);
   const [email, setEmail] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   useEffect(() => {
     supabase.auth.getUser().then(async ({ data }) => {
@@ -41,6 +45,13 @@ function AdminLayout() {
       }
     });
   }, []);
+
+  // Close the mobile drawer automatically whenever the route changes (e.g.
+  // after tapping a nav link), so it doesn't stay open over the new page.
+  useEffect(() => {
+    const unsub = router.subscribe("onResolved", () => setSidebarOpen(false));
+    return unsub;
+  }, [router]);
 
   const isStaff = roles.some((r) =>
     ["super_admin", "admin", "editor", "author", "moderator"].includes(r),
@@ -57,14 +68,38 @@ function AdminLayout() {
   return (
     <div className="min-h-screen bg-[var(--paper)]">
       <div className="flex">
-        <aside className="hidden w-60 shrink-0 border-r border-border bg-background md:block">
-          <div className="border-b border-border p-5">
+        {/* Mobile backdrop — tapping it closes the drawer */}
+        {sidebarOpen && (
+          <div
+            className="fixed inset-0 z-40 bg-black/50 md:hidden"
+            onClick={() => setSidebarOpen(false)}
+            aria-hidden="true"
+          />
+        )}
+
+        {/* Sidebar: normal in-flow column on desktop (md:static), an
+            off-canvas drawer sliding in from the left on mobile. */}
+        <aside
+          className={
+            "fixed inset-y-0 left-0 z-50 w-64 transform border-r border-border bg-background transition-transform duration-200 ease-in-out " +
+            "md:static md:z-auto md:w-60 md:shrink-0 md:translate-x-0 " +
+            (sidebarOpen ? "translate-x-0" : "-translate-x-full")
+          }
+        >
+          <div className="flex items-center justify-between border-b border-border p-5">
             <Link to="/" className="flex items-center gap-2">
               <span className="inline-block h-6 w-1.5 bg-[var(--brand)]" />
               <span className="font-serif text-lg font-black">Dispatch</span>
             </Link>
-            <p className="mt-1 text-xs text-muted-foreground">Newsroom</p>
+            <button
+              onClick={() => setSidebarOpen(false)}
+              className="text-muted-foreground hover:text-foreground md:hidden"
+              aria-label="Close menu"
+            >
+              <X size={20} />
+            </button>
           </div>
+          <p className="px-5 pt-3 text-xs text-muted-foreground">Newsroom</p>
           <nav className="flex flex-col p-3 text-sm">
             <NavItem to="/admin" icon={<LayoutDashboard size={16} />} exact>
               Dashboard
@@ -120,9 +155,25 @@ function AdminLayout() {
           </nav>
         </aside>
 
-        <div className="flex-1">
-          <header className="flex items-center justify-between border-b border-border bg-background px-6 py-4">
-            <div className="text-sm text-muted-foreground">
+        <div className="min-w-0 flex-1">
+          <header className="flex items-center justify-between gap-3 border-b border-border bg-background px-4 py-4 md:px-6">
+            <div className="flex items-center gap-2">
+              <button
+                onClick={() => setSidebarOpen(true)}
+                className="text-foreground hover:text-[var(--brand)] md:hidden"
+                aria-label="Open menu"
+              >
+                <Menu size={22} />
+              </button>
+              <button
+                onClick={() => router.history.back()}
+                className="text-muted-foreground hover:text-foreground"
+                aria-label="Go back"
+              >
+                <ArrowLeft size={20} />
+              </button>
+            </div>
+            <div className="truncate text-right text-sm text-muted-foreground">
               Signed in as <span className="font-semibold text-foreground">{email}</span>
               {roles.length > 0 && (
                 <span className="ml-2 rounded bg-muted px-2 py-0.5 text-xs">
@@ -142,7 +193,7 @@ function AdminLayout() {
               </p>
             </div>
           )}
-          <div className="p-6">
+          <div className="p-4 md:p-6">
             <Outlet />
           </div>
         </div>
