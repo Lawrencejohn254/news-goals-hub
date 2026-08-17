@@ -142,7 +142,7 @@ function AdminLayout() {
               Settings
             </NavItem>
             <div className="my-2 border-t border-border" />
-            <NavItem to="/" icon={<Home size={16} />}>
+            <NavItem to="/" icon={<Home size={16} />} target="_blank" rel="noopener noreferrer">
               View site
             </NavItem>
 
@@ -207,11 +207,15 @@ function NavItem({
   icon,
   children,
   exact,
+  target,
+  rel,
 }: {
   to: string;
   icon: React.ReactNode;
   children: React.ReactNode;
   exact?: boolean;
+  target?: string;
+  rel?: string;
 }) {
   return (
     <Link
@@ -219,6 +223,8 @@ function NavItem({
       activeOptions={{ exact }}
       className="flex items-center gap-2 rounded px-3 py-2 text-foreground hover:bg-muted"
       activeProps={{ className: "flex items-center gap-2 rounded px-3 py-2 bg-[var(--ink)] text-white hover:bg-[var(--ink)]" }}
+      target={target}
+      rel={rel}
     >
       {icon} {children}
     </Link>
