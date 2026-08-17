@@ -2,10 +2,11 @@ import { supabaseAdmin } from "@/integrations/supabase/client.server";
 import { slugify } from "@/lib/format";
 import { settleTip } from "@/lib/tips";
 
-const BASE = "https://v3.football.api-sports.io";
+const BASE = "https://api.football-data.org/v4";
 
 export type ProviderLeague = {
-  external_id: number;
+  external_id: number | null;
+  provider_code: string;
   name: string;
   country: string | null;
   logo_url: string | null;
@@ -38,9 +39,17 @@ export class PlanError extends Error {
 
 
 async function api<T = any>(path: string): Promise<T> {
-  const key = process.env["API_FOOTBALL_KEY"];
-  if (!key) throw new Error("Football data key is not configured");
-  const res = await fetch(BASE + path, { headers: { "x-apisports-key": key } });
+  const key = process.env["FOOTBALL_DATA_API_TOKEN"];
+
+if (!key) {
+  throw new Error("Football-data.org API token is not configured");
+}
+
+const res = await fetch(BASE + path, {
+  headers: {
+    "X-Auth-Token": key,
+  },
+});
   const text = await res.text();
   if (res.status === 429) throw new QuotaError();
   if (!res.ok) throw new Error(`Football API ${res.status}: ${text.slice(0, 300)}`);
@@ -65,49 +74,107 @@ function pickSeason(seasons: any[]): number | null {
   return typeof y === "number" ? y : null;
 }
 
-/** Search any competition worldwide by name (optionally filtered by country). */
-export async function searchLeagues(query: string, country?: string): Promise<ProviderLeague[]> {
-  const q = query.trim();
-  if (q.length < 3) return [];
-  let path = `/leagues?search=${encodeURIComponent(q)}`;
-  if (country?.trim()) path += `&country=${encodeURIComponent(country.trim())}`;
-  const json = await api<{ response: any[] }>(path);
-  return (json.response ?? []).slice(0, 60).map((r) => {
-    const season = pickSeason(r.seasons);
-    if (season != null) seasonCache.set(r.league.id, season);
-    return {
-      external_id: r.league.id as number,
-      name: r.league.name as string,
-      country: r.country?.name ?? null,
-      logo_url: r.league.logo ?? null,
-      season: season != null ? String(season) : null,
-    };
-  });
+/** Search football-data.org competitions by name or code. */
+export async function searchLeagues(
+  query: string,
+  country?: string
+): Promise<ProviderLeague[]> {
+  const q = query.trim().toLowerCase();
+
+  if (q.length < 2) return [];
+
+  const json = await api<{ competitions: any[] }>(
+    "/competitions"
+  );
+
+  return (json.competitions ?? [])
+    .filter((competition) => {
+      const name = String(
+        competition.name ?? ""
+      ).toLowerCase();
+
+      const code = String(
+        competition.code ?? ""
+      ).toLowerCase();
+
+      const competitionCountry = String(
+        competition.area?.name ?? ""
+      ).toLowerCase();
+
+      const matchesQuery =
+        name.includes(q) || code.includes(q);
+
+      const matchesCountry =
+        !country?.trim() ||
+        competitionCountry.includes(
+          country.trim().toLowerCase()
+        );
+
+      return matchesQuery && matchesCountry;
+    })
+    .slice(0, 60)
+    .map((competition) => ({
+      external_id:
+        typeof competition.id === "number"
+          ? competition.id
+          : null,
+
+      provider_code:
+        competition.code as string,
+
+      name:
+        competition.name as string,
+
+      country:
+        competition.area?.name ?? null,
+
+      logo_url:
+        competition.emblem ?? null,
+
+      season:
+        competition.currentSeason?.startDate
+          ? String(
+              new Date(
+                competition.currentSeason.startDate
+              ).getFullYear()
+            )
+          : null,
+    }));
 }
 
-async function currentSeason(leagueId: number): Promise<number | null> {
-  if (seasonCache.has(leagueId)) return seasonCache.get(leagueId)!;
-  const json = await api<{ response: any[] }>(`/leagues?id=${leagueId}`);
-  const season = pickSeason(json.response?.[0]?.seasons ?? []);
-  seasonCache.set(leagueId, season);
-  return season;
-}
 
-export async function trackLeague(l: ProviderLeague) {
-  const season = (await currentSeason(l.external_id))?.toString() ?? l.season ?? null;
+
+export async function trackLeague(
+  l: ProviderLeague
+) {
+  const providerCode =
+    l.provider_code.trim().toUpperCase();
+
+  if (!providerCode) {
+    throw new Error(
+      "Football-data.org competition code is required"
+    );
+  }
 
   const { data: existing } = await supabaseAdmin
     .from("competitions")
     .select("id")
-    .eq("external_id", l.external_id)
+    .eq("provider_code", providerCode)
     .maybeSingle();
 
   if (existing) {
     const { error } = await supabaseAdmin
       .from("competitions")
-      .update({ is_tracked: true, season, logo_url: l.logo_url, country: l.country })
+      .update({
+        is_tracked: true,
+        season: l.season,
+        logo_url: l.logo_url,
+        country: l.country,
+      })
       .eq("id", existing.id);
+
     if (error) throw new Error(error.message);
+
     return existing.id;
   }
 
@@ -115,17 +182,24 @@ export async function trackLeague(l: ProviderLeague) {
     .from("competitions")
     .insert({
       name: l.name,
-      slug: `${slugify(l.name)}-${l.external_id}`,
+      slug: `${slugify(l.name)}-${providerCode.toLowerCase()}`,
       country: l.country,
       logo_url: l.logo_url,
-      season,
+      season: l.season,
+
+      // Keep this nullable because football-data.org
+      // uses provider_code as the primary identifier.
       external_id: l.external_id,
+
+      provider_code: providerCode,
       is_tracked: true,
       sort_order: 0,
     })
     .select("id")
     .single();
+
   if (error) throw new Error(error.message);
+
   return data.id;
 }
 
@@ -172,49 +246,55 @@ async function upsertTeams(teams: { id: number; name: string; logo?: string | nu
 
 type LocalStatus = "scheduled" | "live" | "finished" | "postponed" | "cancelled";
 
-function mapStatus(short?: string): LocalStatus {
-  switch (short) {
-    case "1H":
-    case "HT":
-    case "2H":
-    case "ET":
-    case "BT":
-    case "P":
-    case "LIVE":
-    case "INT":
+function mapStatus(status?: string): LocalStatus {
+  switch (status) {
+    case "IN_PLAY":
+    case "PAUSED":
       return "live";
-    case "FT":
-    case "AET":
-    case "PEN":
+
+    case "FINISHED":
+    case "AWARDED":
       return "finished";
-    case "PST":
-    case "SUSP":
+
+    case "POSTPONED":
+    case "SUSPENDED":
       return "postponed";
-    case "CANC":
-    case "ABD":
-    case "AWD":
-    case "WO":
+
+    case "CANCELLED":
       return "cancelled";
+
+    case "SCHEDULED":
+    case "TIMED":
     default:
       return "scheduled";
   }
 }
 
-function rowFromFixture(f: any, competitionId: string, teamMap: Map<number, string>) {
-  const homeId = teamMap.get(f.teams?.home?.id);
-  const awayId = teamMap.get(f.teams?.away?.id);
+function rowFromFixture(
+  f: any,
+  competitionId: string,
+  teamMap: Map<number, string>
+) {
+  const homeId = teamMap.get(f.homeTeam?.id);
+  const awayId = teamMap.get(f.awayTeam?.id);
+
   if (!homeId || !awayId) return null;
-  const status = mapStatus(f.fixture?.status?.short);
+
+  const status = mapStatus(f.status);
+
+  const homeScore = f.score?.fullTime?.home ?? null;
+  const awayScore = f.score?.fullTime?.away ?? null;
+
   return {
-    external_id: f.fixture.id as number,
+    external_id: f.id as number,
     competition_id: competitionId,
     home_team_id: homeId,
     away_team_id: awayId,
-    kickoff_at: new Date((f.fixture.timestamp as number) * 1000).toISOString(),
-    venue: f.fixture?.venue?.name ?? null,
+    kickoff_at: new Date(f.utcDate).toISOString(),
+    venue: f.venue ?? null,
     status,
-    home_score: status === "scheduled" ? null : (f.goals?.home ?? null),
-    away_score: status === "scheduled" ? null : (f.goals?.away ?? null),
+    home_score: status === "scheduled" ? null : homeScore,
+    away_score: status === "scheduled" ? null : awayScore,
   };
 }
 
@@ -248,84 +328,150 @@ async function saveRows(rows: any[]) {
 
 const ymd = (d: Date) => d.toISOString().slice(0, 10);
 
-/** Fetch every fixture on a given date, filtered to the tracked league ids. */
-async function fixturesOnDate(date: string, leagueIds: Set<number>) {
-  const json = await api<{ response: any[] }>(`/fixtures?date=${date}`);
-  return (json.response ?? []).filter((f) => leagueIds.has(f.league?.id));
+/** Fetch matches for a competition within a date range. */
+async function fixturesForCompetition(
+  competitionCode: string,
+  dateFrom: string,
+  dateTo: string
+) {
+  const params = new URLSearchParams({
+    dateFrom,
+    dateTo,
+  });
+
+  const json = await api<{ matches: any[] }>(
+    `/competitions/${encodeURIComponent(competitionCode)}/matches?${params.toString()}`
+  );
+
+  return json.matches ?? [];
 }
 
-async function persistFixtures(fixtures: any[], compByLeague: Map<number, string>) {
-  if (!fixtures.length) return { created: 0, updated: 0 };
+async function persistFixtures(
+  fixtures: any[],
+  compByCode: Map<string, string>
+) {
+  if (!fixtures.length) {
+    return { created: 0, updated: 0 };
+  }
+
   const teamMap = await upsertTeams(
     fixtures
-      .flatMap((f) => [f.teams?.home, f.teams?.away])
+      .flatMap((f) => [f.homeTeam, f.awayTeam])
       .filter((t) => t?.id && t?.name)
-      .map((t) => ({ id: t.id, name: t.name, logo: t.logo })),
+      .map((t) => ({
+        id: t.id,
+        name: t.name,
+        logo: t.crest ?? null,
+      }))
   );
+
   const rows = fixtures
     .map((f) => {
-      const compId = compByLeague.get(f.league?.id);
-      return compId ? rowFromFixture(f, compId, teamMap) : null;
+      const competitionCode = f.competition?.code;
+      const competitionId = competitionCode
+        ? compByCode.get(competitionCode)
+        : undefined;
+
+      return competitionId
+        ? rowFromFixture(f, competitionId, teamMap)
+        : null;
     })
     .filter(Boolean) as any[];
+
   return await saveRows(rows);
 }
 
-/** Pull fixtures for every tracked competition, from today to +days (plan permitting). */
-export async function syncFixtures(days = 10) {
+/** Pull fixtures for every tracked competition for the requested date range. */
+export async function syncFixtures(days = 30) {
   const { data: comps, error } = await supabaseAdmin
     .from("competitions")
-    .select("id, external_id, season")
+    .select("id, provider_code, season")
     .eq("is_tracked", true)
-    .not("external_id", "is", null);
+    .not("provider_code", "is", null);
+
   if (error) throw new Error(error.message);
 
-  const compByLeague = new Map<number, string>();
-  for (const c of comps ?? []) if (c.external_id != null) compByLeague.set(c.external_id, c.id);
-  const leagueIds = new Set(compByLeague.keys());
+  const dateFrom = ymd(new Date());
+  const dateTo = ymd(
+    new Date(Date.now() + days * 86400_000)
+  );
 
   let created = 0;
   let updated = 0;
   let quotaExceeded = false;
   let planLimited = false;
 
-  if (leagueIds.size) {
-    for (let i = 0; i <= days; i++) {
-      const date = ymd(new Date(Date.now() + i * 86400_000));
-      let fixtures: any[];
-      try {
-        fixtures = await fixturesOnDate(date, leagueIds);
-      } catch (e) {
-        if (e instanceof QuotaError) {
-          quotaExceeded = true;
-          break;
-        }
-        if (e instanceof PlanError) {
-          planLimited = true;
-          break;
-        }
-        continue;
-      }
-      const res = await persistFixtures(fixtures, compByLeague);
+  for (const competition of comps ?? []) {
+    const code = competition.provider_code?.trim();
+
+    if (!code) continue;
+
+    try {
+      const fixtures = await fixturesForCompetition(
+        code,
+        dateFrom,
+        dateTo
+      );
+
+      const res = await persistFixtures(
+        fixtures,
+        new Map([[code, competition.id]])
+      );
+
       created += res.created;
       updated += res.updated;
+    } catch (e) {
+      if (e instanceof QuotaError) {
+        quotaExceeded = true;
+        break;
+      }
+
+      if (e instanceof PlanError) {
+        planLimited = true;
+        continue;
+      }
+
+      console.error(
+        `Failed to sync ${code}:`,
+        e instanceof Error ? e.message : e
+      );
     }
   }
 
-  return { competitions: comps?.length ?? 0, created, updated, quotaExceeded, planLimited };
+  return {
+    competitions: comps?.length ?? 0,
+    created,
+    updated,
+    quotaExceeded,
+    planLimited,
+    dateFrom,
+    dateTo,
+  };
 }
 
 /** Refresh results for started-but-unfinished matches and settle their tips. */
 export async function settleResults() {
   const { data: pending, error } = await supabaseAdmin
     .from("matches")
-    .select("id, external_id, status, kickoff_at, competition_id")
+    .select(`
+      id,
+      external_id,
+      status,
+      kickoff_at,
+      competition_id,
+      competitions!inner(provider_code)
+    `)
     .not("external_id", "is", null)
     .in("status", ["scheduled", "live"])
     .lte("kickoff_at", new Date().toISOString())
-    .gte("kickoff_at", new Date(Date.now() - 14 * 86400_000).toISOString());
+    .gte(
+      "kickoff_at",
+      new Date(Date.now() - 14 * 86400_000).toISOString()
+    );
+
   if (error) throw new Error(error.message);
-  if (!pending?.length)
+
+  if (!pending?.length) {
     return {
       checked: 0,
       finished: 0,
@@ -334,60 +480,140 @@ export async function settleResults() {
       planLimited: false,
       errors: [] as string[],
     };
+  }
 
-  const byId = new Map<number, { id: string }>();
-  const dates = new Set<string>();
-  for (const m of pending) {
-    if (m.external_id != null) byId.set(m.external_id, { id: m.id });
-    dates.add(ymd(new Date(m.kickoff_at)));
+  const byId = new Map<
+    number,
+    {
+      id: string;
+    }
+  >();
+
+  const byCompetition = new Map<string, Set<number>>();
+
+  for (const match of pending) {
+    if (match.external_id == null) continue;
+
+    byId.set(match.external_id, {
+      id: match.id,
+    });
+
+    const competition = Array.isArray(match.competitions)
+      ? match.competitions[0]
+      : match.competitions;
+
+    const code = competition?.provider_code;
+
+    if (!code) continue;
+
+    if (!byCompetition.has(code)) {
+      byCompetition.set(code, new Set());
+    }
+
+    byCompetition.get(code)!.add(match.external_id);
   }
 
   let finished = 0;
   let settled = 0;
   let quotaExceeded = false;
   let planLimited = false;
+
   const errors: string[] = [];
 
-  for (const date of dates) {
+  const dateFrom = ymd(
+    new Date(Date.now() - 14 * 86400_000)
+  );
+
+  const dateTo = ymd(new Date());
+
+  for (const [competitionCode, matchIds] of byCompetition) {
     let fixtures: any[];
+
     try {
-      const json = await api<{ response: any[] }>(`/fixtures?date=${date}`);
-      fixtures = json.response ?? [];
+      fixtures = await fixturesForCompetition(
+        competitionCode,
+        dateFrom,
+        dateTo
+      );
     } catch (err) {
       if (err instanceof QuotaError) {
         quotaExceeded = true;
         break;
       }
-      if (err instanceof AccessError) {
-        errors.push(err.message);
-        break;
-      }
+
       if (err instanceof PlanError) {
         planLimited = true;
-        errors.push(`${date}: ${err.message}`);
+        errors.push(
+          `${competitionCode}: ${err.message}`
+        );
         continue;
       }
-      errors.push(`${date}: ${(err as Error).message}`);
+
+      if (err instanceof AccessError) {
+        errors.push(
+          `${competitionCode}: ${err.message}`
+        );
+        break;
+      }
+
+      errors.push(
+        `${competitionCode}: ${
+          err instanceof Error ? err.message : String(err)
+        }`
+      );
+
       continue;
     }
 
-    for (const f of fixtures) {
-      const local = byId.get(f.fixture?.id);
+    for (const fixture of fixtures) {
+      const externalId = fixture.id;
+
+      if (!matchIds.has(externalId)) continue;
+
+      const local = byId.get(externalId);
+
       if (!local) continue;
-      const status = mapStatus(f.fixture?.status?.short);
-      const home = f.goals?.home ?? null;
-      const away = f.goals?.away ?? null;
+
+      const status = mapStatus(fixture.status);
+
+      const home = fixture.score?.fullTime?.home ?? null;
+      const away = fixture.score?.fullTime?.away ?? null;
+
       await supabaseAdmin
         .from("matches")
-        .update({ status, home_score: home, away_score: away })
+        .update({
+          status,
+          home_score: home,
+          away_score: away,
+        })
         .eq("id", local.id);
-      if (status !== "finished" || home == null || away == null) continue;
+
+      if (
+        status !== "finished" ||
+        home == null ||
+        away == null
+      ) {
+        continue;
+      }
+
       finished++;
-      settled += await settleMatchPredictions(local.id, home, away);
+
+      settled += await settleMatchPredictions(
+        local.id,
+        home,
+        away
+      );
     }
   }
 
-  return { checked: pending.length, finished, settled, quotaExceeded, planLimited, errors };
+  return {
+    checked: pending.length,
+    finished,
+    settled,
+    quotaExceeded,
+    planLimited,
+    errors,
+  };
 }
 
 /** Manually record a final score and settle every pending tip on that match. */

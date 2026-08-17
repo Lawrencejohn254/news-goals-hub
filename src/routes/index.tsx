@@ -15,15 +15,54 @@ import { NewsletterForm } from "@/components/site/NewsletterForm";
 import { Link } from "@tanstack/react-router";
 
 export const Route = createFileRoute("/")({
+  // Fetch the homepage's content on the server before first paint. Without
+  // this, search engine crawlers (and anyone viewing "page source") only
+  // ever see "Loading…" and "Views will show up here." — the data was
+  // previously fetched entirely client-side, after the page had already
+  // been sent to the browser.
+  loader: async () => {
+    const [featured, latest, mostRead, trending, categories] = await Promise.all([
+      fetchFeaturedArticles(5),
+      fetchPublishedArticles(12),
+      fetchMostRead(5),
+      fetchTrending(6),
+      fetchCategories(),
+    ]);
+    return { featured, latest, mostRead, trending, categories };
+  },
   component: HomePage,
 });
 
 function HomePage() {
-  const featured = useQuery({ queryKey: ["featured"], queryFn: () => fetchFeaturedArticles(5) });
-  const latest = useQuery({ queryKey: ["latest"], queryFn: () => fetchPublishedArticles(12) });
-  const mostRead = useQuery({ queryKey: ["mostRead"], queryFn: () => fetchMostRead(5) });
-  const trending = useQuery({ queryKey: ["trending"], queryFn: () => fetchTrending(6) });
-  const categories = useQuery({ queryKey: ["categories"], queryFn: fetchCategories });
+  // Seed every query with the server-fetched data so the first render (and
+  // the HTML sent to crawlers) already has real content — React Query then
+  // takes over client-side for live refetching as normal.
+  const loaderData = Route.useLoaderData();
+  const featured = useQuery({
+    queryKey: ["featured"],
+    queryFn: () => fetchFeaturedArticles(5),
+    initialData: loaderData.featured,
+  });
+  const latest = useQuery({
+    queryKey: ["latest"],
+    queryFn: () => fetchPublishedArticles(12),
+    initialData: loaderData.latest,
+  });
+  const mostRead = useQuery({
+    queryKey: ["mostRead"],
+    queryFn: () => fetchMostRead(5),
+    initialData: loaderData.mostRead,
+  });
+  const trending = useQuery({
+    queryKey: ["trending"],
+    queryFn: () => fetchTrending(6),
+    initialData: loaderData.trending,
+  });
+  const categories = useQuery({
+    queryKey: ["categories"],
+    queryFn: fetchCategories,
+    initialData: loaderData.categories,
+  });
 
   const hero = featured.data?.[0] ?? latest.data?.[0];
   const featuredRest = (featured.data ?? []).slice(1, 4);

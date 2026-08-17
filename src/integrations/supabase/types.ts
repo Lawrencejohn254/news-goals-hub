@@ -297,6 +297,7 @@ export type Database = {
           created_at: string
           external_id: number | null
           home_score: number | null
+          provider_code: string | null
           home_team_id: string
           id: string
           kickoff_at: string
@@ -311,6 +312,7 @@ export type Database = {
           created_at?: string
           external_id?: number | null
           home_score?: number | null
+          provider_code?: string | null
           home_team_id: string
           id?: string
           kickoff_at: string
@@ -325,6 +327,7 @@ export type Database = {
           created_at?: string
           external_id?: number | null
           home_score?: number | null
+          provider_code?: string | null
           home_team_id?: string
           id?: string
           kickoff_at?: string
