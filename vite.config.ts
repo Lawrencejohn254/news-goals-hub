@@ -21,15 +21,5 @@ export default defineConfig({
     // its own copy — cheap safety net, standard practice.
     dedupe: ["react", "react-dom", "@tanstack/react-router", "@tanstack/react-query"],
   },
-  environments: {
-    ssr: {
-      build: {
-        rollupOptions: {
-          // Route SSR through our custom error-wrapping entry (src/server.ts)
-          // instead of TanStack Start's default bundled entry.
-          input: "./src/server.ts",
-        },
-      },
-    },
-  },
+  
 });
