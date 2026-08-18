@@ -10,26 +10,62 @@ import {
 import { useEffect, type ReactNode } from "react";
 
 import appCss from "../styles.css?url";
-import { reportLovableError } from "../lib/lovable-error-reporting";
+import { reportError } from "../lib/error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 
+const NOT_FOUND_CATEGORIES = [
+  { label: "Politics", slug: "politics" },
+  { label: "Business", slug: "business" },
+  { label: "Technology", slug: "technology" },
+  { label: "Sports", slug: "sports" },
+  { label: "Entertainment", slug: "entertainment" },
+  { label: "International", slug: "international" },
+];
+
 function NotFoundComponent() {
   return (
-    <div className="flex min-h-screen items-center justify-center bg-background px-4">
-      <div className="max-w-md text-center">
+    <div className="flex min-h-screen items-center justify-center bg-background px-4 py-16">
+      <div className="max-w-lg text-center">
         <h1 className="font-serif text-7xl font-black text-[var(--ink)]">404</h1>
         <h2 className="mt-4 text-xl font-semibold">Page not found</h2>
         <p className="mt-2 text-sm text-muted-foreground">
           The page you're looking for doesn't exist or has been moved.
         </p>
-        <div className="mt-6">
+        <div className="mt-6 flex flex-wrap items-center justify-center gap-3">
           <Link
             to="/"
             className="inline-flex items-center justify-center bg-[var(--brand)] px-4 py-2 text-sm font-semibold text-white hover:bg-[var(--brand)]/90"
           >
             Back to home
           </Link>
+          <Link
+            to="/search"
+            className="inline-flex items-center justify-center border border-border px-4 py-2 text-sm font-semibold hover:bg-muted"
+          >
+            Search the site
+          </Link>
+        </div>
+
+        <div className="mt-10 border-t border-border pt-6">
+          <p className="text-xs font-bold uppercase tracking-widest text-muted-foreground">
+            Or browse a section
+          </p>
+          <div className="mt-3 flex flex-wrap items-center justify-center gap-x-4 gap-y-2 text-sm">
+            {NOT_FOUND_CATEGORIES.map((c) => (
+              <Link
+                key={c.slug}
+                to="/category/$slug"
+                params={{ slug: c.slug }}
+                className="text-[var(--brand)] hover:underline"
+              >
+                {c.label}
+              </Link>
+            ))}
+            <Link to="/predictions" className="text-[var(--brand)] hover:underline">
+              Predictions
+            </Link>
+          </div>
         </div>
       </div>
     </div>
@@ -40,7 +76,7 @@ function ErrorComponent({ error, reset }: { error: Error; reset: () => void }) {
   console.error(error);
   const router = useRouter();
   useEffect(() => {
-    reportLovableError(error, { boundary: "tanstack_root_error_component" });
+    reportError(error, { boundary: "tanstack_root_error_component" });
   }, [error]);
 
   return (
@@ -89,7 +125,7 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     ],
     links: [
       { rel: "stylesheet", href: appCss },
-      { rel: "icon", href: "/favicon.ico", type: "image/x-icon" },
+      { rel: "icon", href: "/favicon.svg", type: "image/svg+xml" },
       { rel: "preconnect", href: "https://fonts.googleapis.com" },
       { rel: "preconnect", href: "https://fonts.gstatic.com", crossOrigin: "" },
       {
