@@ -7,7 +7,11 @@ import { Mail } from "lucide-react";
 // The one address the publication actually operates today. Swap this (or
 // add real category-specific inboxes/aliases) once you set those up —
 // everything below just changes the mailto subject line, not the address.
+<<<<<<< HEAD
 const CONTACT_EMAIL = "lawrencejohn860@gmail.com";
+=======
+const CONTACT_EMAIL = "contact@thedispach.com";
+>>>>>>> origin/main
 
 export const Route = createFileRoute("/contact")({
   component: ContactPage,
