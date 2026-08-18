@@ -10,27 +10,43 @@ import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { AdSlot } from "@/components/site/AdSlot";
 import { fetchPredictions, fetchPredictionStats, type PredictionWithMatch } from "@/lib/football";
+import { absoluteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/predictions/")({
   component: PredictionsIndex,
-  head: () => ({
-    meta: [
-      { title: "Football Tips Today — Free Predictions | The Dispatch" },
-      {
-        name: "description",
-        content:
-          "Free football betting tips for today, tomorrow and the weekend. Match predictions, correct scores, form guides and odds across every major league.",
-      },
-      { property: "og:title", content: "Football Tips Today — Free Predictions" },
-      {
-        property: "og:description",
-        content: "Free football predictions, correct scores and form guides from The Dispatch.",
-      },
-      { property: "og:type", content: "website" },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: "/predictions" }],
-  }),
+  // Server-fetch predictions + stats so today's fixtures are present in the
+  // initial HTML for crawlers (day-tab switching still happens client-side
+  // by filtering this same already-loaded set).
+  loader: async () => {
+    const [predictions, stats] = await Promise.all([
+      fetchPredictions({ limit: 500 }),
+      fetchPredictionStats(),
+    ]);
+    return { predictions, stats };
+  },
+  head: () => {
+    const url = absoluteUrl("/predictions");
+    return {
+      meta: [
+        { title: "Football Tips Today — Free Predictions | The Dispatch" },
+        {
+          name: "description",
+          content:
+            "Free football betting tips for today, tomorrow and the weekend. Match predictions, correct scores, form guides and odds across every major league.",
+        },
+        { property: "og:site_name", content: "The Dispatch" },
+        { property: "og:title", content: "Football Tips Today — Free Predictions" },
+        {
+          property: "og:description",
+          content: "Free football predictions, correct scores and form guides from The Dispatch.",
+        },
+        { property: "og:type", content: "website" },
+        { property: "og:url", content: url },
+        { name: "twitter:card", content: "summary_large_image" },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
 });
 
 function dayKey(d: Date) {
@@ -89,13 +105,19 @@ function ResultCell({ p }: { p: PredictionWithMatch }) {
 }
 
 function PredictionsIndex() {
+  const loaderData = Route.useLoaderData();
   const [day, setDay] = useState(DAYS[0]);
   const tabs = DAYS.includes(day) ? DAYS : [day, ...DAYS];
   const preds = useQuery({
     queryKey: ["predictions", "all"],
     queryFn: () => fetchPredictions({ limit: 500 }),
+    initialData: loaderData.predictions,
   });
-  const stats = useQuery({ queryKey: ["prediction-stats"], queryFn: fetchPredictionStats });
+  const stats = useQuery({
+    queryKey: ["prediction-stats"],
+    queryFn: fetchPredictionStats,
+    initialData: loaderData.stats,
+  });
 
   const all = preds.data ?? [];
   const visible = all.filter((p) => toDayKey(p.matches?.kickoff_at) === day);

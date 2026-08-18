@@ -107,3 +107,39 @@ export async function fetchArticlesByCategory(categorySlug: string, limit = 30) 
   if (error) throw error;
   return { category: cat, articles: (data ?? []) as unknown as ArticleWithMeta[] };
 }
+export type AuthorProfile = {
+  id: string;
+  display_name: string | null;
+  avatar_url: string | null;
+  bio: string | null;
+  created_at: string;
+};
+
+/**
+ * Public author page data: the profile plus only their *published* articles
+ * (drafts are never exposed here, regardless of who's viewing).
+ */
+export async function fetchAuthorWithArticles(authorId: string) {
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("id,display_name,avatar_url,bio,created_at")
+    .eq("id", authorId)
+    .maybeSingle();
+  if (profileError) throw profileError;
+  if (!profile) return { profile: null as AuthorProfile | null, articles: [] as ArticleWithMeta[] };
+
+  const { data: articles, error: articlesError } = await supabase
+    .from("articles")
+    .select(ARTICLE_SELECT)
+    .eq("author_id", authorId)
+    .eq("status", "published")
+    .lte("published_at", new Date().toISOString())
+    .order("published_at", { ascending: false })
+    .limit(50);
+  if (articlesError) throw articlesError;
+
+  return {
+    profile: profile as AuthorProfile,
+    articles: (articles ?? []) as unknown as ArticleWithMeta[],
+  };
+}

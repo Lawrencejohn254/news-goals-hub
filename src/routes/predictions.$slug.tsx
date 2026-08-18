@@ -8,26 +8,46 @@ import { MatchLine, ConfidenceMeter, ResultBadge, PredictionCard } from "@/compo
 import { fetchPredictionBySlug, fetchPredictions } from "@/lib/football";
 import { supabase } from "@/integrations/supabase/client";
 import { logPageView } from "@/lib/site";
+import { absoluteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/predictions/$slug")({
   component: PredictionPage,
-  head: ({ params }) => ({
-    meta: [
-      { title: `Prediction: ${params.slug.replace(/-/g, " ")} — The Dispatch` },
-      {
-        name: "description",
-        content: "Full match preview, form guide, head-to-head record and our tip for this fixture.",
-      },
-      { property: "og:type", content: "article" },
-      { property: "og:title", content: `Prediction: ${params.slug.replace(/-/g, " ")}` },
-      {
-        property: "og:description",
-        content: "Match preview, form guide, head-to-head and expert tip from The Dispatch.",
-      },
-      { name: "twitter:card", content: "summary_large_image" },
-    ],
-    links: [{ rel: "canonical", href: `/predictions/${params.slug}` }],
-  }),
+  // Server-fetch the prediction so real match/tip data is in the initial
+  // HTML (crawlability) and the title/description below reflect the actual
+  // fixture instead of a generic slug-derived placeholder.
+  loader: async ({ params }) => {
+    const prediction = await fetchPredictionBySlug(params.slug);
+    return { prediction };
+  },
+  head: ({ loaderData, params }) => {
+    const p = loaderData?.prediction;
+    const path = `/predictions/${params.slug}`;
+    const url = absoluteUrl(path);
+    if (!p) {
+      return { meta: [{ title: `Prediction — The Dispatch` }], links: [{ rel: "canonical", href: url }] };
+    }
+    const matchName = `${p.matches?.home_team?.name ?? "?"} vs ${p.matches?.away_team?.name ?? "?"}`;
+    const title = p.seo_title?.trim() || `${p.title} — Prediction | The Dispatch`;
+    const description =
+      p.seo_description?.trim() ||
+      `Our tip for ${matchName}: ${p.tip}. Full match preview, form guide and head-to-head record.`;
+
+    return {
+      meta: [
+        { title },
+        { name: "description", content: description },
+        { property: "og:type", content: "article" },
+        { property: "og:site_name", content: "The Dispatch" },
+        { property: "og:title", content: p.title },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+        { name: "twitter:card", content: "summary_large_image" },
+        { name: "twitter:title", content: p.title },
+        { name: "twitter:description", content: description },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
   notFoundComponent: () => (
     <div className="min-h-screen">
       <Header />
@@ -44,7 +64,12 @@ export const Route = createFileRoute("/predictions/$slug")({
 
 function PredictionPage() {
   const { slug } = Route.useParams();
-  const q = useQuery({ queryKey: ["prediction", slug], queryFn: () => fetchPredictionBySlug(slug) });
+  const { prediction: loaderPrediction } = Route.useLoaderData();
+  const q = useQuery({
+    queryKey: ["prediction", slug],
+    queryFn: () => fetchPredictionBySlug(slug),
+    initialData: loaderPrediction,
+  });
   const more = useQuery({ queryKey: ["predictions"], queryFn: () => fetchPredictions({ limit: 6 }) });
 
   useEffect(() => {

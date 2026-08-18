@@ -1,11 +1,16 @@
 import { createFileRoute } from "@tanstack/react-router";
 import { supabase } from "@/integrations/supabase/client";
+import { getSiteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/sitemap.xml")({
   server: {
     handlers: {
       GET: async ({ request }) => {
-        const origin = new URL(request.url).origin;
+        // Prefer the explicitly configured production domain; fall back to
+        // whatever host the request actually came in on (so this keeps
+        // working correctly on a preview/staging URL too, before
+        // VITE_SITE_URL is set).
+        const origin = getSiteUrl() ?? new URL(request.url).origin;
         const now = new Date().toISOString();
 
         const [{ data: articles }, { data: predictions }, { data: categories }] = await Promise.all([

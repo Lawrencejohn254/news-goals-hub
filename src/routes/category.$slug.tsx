@@ -4,21 +4,38 @@ import { fetchArticlesByCategory } from "@/lib/queries";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ArticleCard } from "@/components/site/ArticleCard";
+import { absoluteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/category/$slug")({
   component: CategoryPage,
-  head: ({ params }) => ({
-    meta: [
-      { title: `${cap(params.slug)} — The Dispatch` },
-      {
-        name: "description",
-        content: `Latest ${cap(params.slug)} news, analysis, and reporting from The Dispatch.`,
-      },
-      { property: "og:title", content: `${cap(params.slug)} — The Dispatch` },
-      { property: "og:url", content: `/category/${params.slug}` },
-    ],
-    links: [{ rel: "canonical", href: `/category/${params.slug}` }],
-  }),
+  // Server-fetch the category + its articles so both are present in the
+  // initial HTML for crawlers, instead of only ever loading client-side.
+  loader: async ({ params }) => {
+    const result = await fetchArticlesByCategory(params.slug);
+    return result;
+  },
+  head: ({ loaderData, params }) => {
+    const cat = loaderData?.category;
+    const name = cat?.name ?? cap(params.slug);
+    const description =
+      cat?.description?.trim() ||
+      `Latest ${name} news, analysis, and reporting from The Dispatch.`;
+    const path = `/category/${params.slug}`;
+    const url = absoluteUrl(path);
+
+    return {
+      meta: [
+        { title: `${name} — The Dispatch` },
+        { name: "description", content: description },
+        { property: "og:type", content: "website" },
+        { property: "og:site_name", content: "The Dispatch" },
+        { property: "og:title", content: `${name} — The Dispatch` },
+        { property: "og:description", content: description },
+        { property: "og:url", content: url },
+      ],
+      links: [{ rel: "canonical", href: url }],
+    };
+  },
 });
 
 function cap(s: string) {
@@ -27,18 +44,18 @@ function cap(s: string) {
 
 function CategoryPage() {
   const { slug } = Route.useParams();
+  const loaderData = Route.useLoaderData();
   const q = useQuery({
     queryKey: ["category", slug],
     queryFn: () => fetchArticlesByCategory(slug),
+    initialData: loaderData,
   });
 
   return (
     <div className="min-h-screen bg-background">
       <Header />
       <main className="container-page py-10">
-        {q.isLoading ? (
-          <p className="text-muted-foreground">Loading…</p>
-        ) : !q.data?.category ? (
+        {!q.data?.category ? (
           <div className="py-20 text-center">
             <h1 className="font-serif text-4xl font-black">Section not found</h1>
             <Link to="/" className="mt-4 inline-block text-[var(--brand)] underline">
