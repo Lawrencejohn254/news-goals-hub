@@ -1,0 +1,1 @@
+var e=[`Home Win`,`Draw`,`Away Win`,`Home Win or Draw`,`Away Win or Draw`,`Home or Away (no draw)`,`Over 1.5 Goals`,`Under 1.5 Goals`,`Over 2.5 Goals`,`Under 2.5 Goals`,`Over 3.5 Goals`,`Under 3.5 Goals`,`Both Teams To Score`,`Both Teams To Score - No`,`Correct Score`];export{e as t};
