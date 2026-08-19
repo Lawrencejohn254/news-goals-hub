@@ -11,7 +11,7 @@ export function Footer() {
             <span className="font-serif text-2xl font-black text-white">The Dispatch</span>
           </div>
           <p className="mt-4 max-w-xs text-sm">
-            Independent reporting on the stories shaping our world — politics, business, sport, and beyond.
+            Independent news, analysis and football intelligence from Kenya and beyond
           </p>
         </div>
         <div>
