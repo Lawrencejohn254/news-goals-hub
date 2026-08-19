@@ -31,7 +31,7 @@ import { t as Root } from "../_libs/radix-ui__react-label.mjs";
 * breaks before the domain is configured; it just becomes fully correct the
 * moment the env var is set.
 */
-var SITE_URL = "https://yourdomain.com".replace(/\/+$/, "");
+var SITE_URL = "https://dispatch-nu-seven.vercel.app/".replace(/\/+$/, "");
 function absoluteUrl(path) {
 	const cleanPath = path.startsWith("/") ? path : `/${path}`;
 	return SITE_URL ? `${SITE_URL}${cleanPath}` : cleanPath;
