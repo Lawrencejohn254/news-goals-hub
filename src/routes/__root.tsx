@@ -145,6 +145,17 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        {/* AdSense Auto ads — Google decides ad placement automatically.
+            Production-only: loading this in local dev/preview risks
+            accidental self-clicks, which AdSense treats as invalid
+            traffic and can penalize the account for. */}
+        {import.meta.env.PROD && (
+          <script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5403976968935620"
+            crossOrigin="anonymous"
+          />
+        )}
       </head>
       <body>
         {children}
