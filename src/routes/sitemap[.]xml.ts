@@ -32,7 +32,6 @@ export const Route = createFileRoute("/sitemap.xml")({
         const staticUrls = [
           { loc: "/", priority: "1.0", changefreq: "hourly" },
           { loc: "/predictions", priority: "0.8", changefreq: "hourly" },
-          { loc: "/search", priority: "0.3", changefreq: "monthly" },
         ];
 
         const urlEntries = [
