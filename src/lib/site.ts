@@ -71,12 +71,17 @@ export async function fetchMedia() {
 }
 
 export function mediaUrl(path: string) {
-  return supabase.storage.from("media").getPublicUrl(path).data.publicUrl;
+  // Proxied through our own domain via /media/$ (see src/routes/media.$.tsx)
+  // — the Supabase project URL never appears anywhere in the page, and
+  // unlike the old signed-URL approach, this link never expires.
+  return `/media/${path}`;
 }
 
 export async function signedMediaUrl(path: string) {
-  const { data } = await supabase.storage.from("media").createSignedUrl(path, 60 * 60 * 24 * 7);
-  return data?.signedUrl ?? mediaUrl(path);
+  // Bucket is public + proxied now, so there's nothing left to "sign."
+  // Kept as an async function so existing `await signedMediaUrl(...)`
+  // call sites keep working unchanged.
+  return mediaUrl(path);
 }
 
 export async function uploadMedia(file: File) {
