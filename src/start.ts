@@ -2,6 +2,7 @@ import { createStart, createCsrfMiddleware, createMiddleware } from "@tanstack/r
 
 import { renderErrorPage } from "./lib/error-page";
 import { attachSupabaseAuth } from "@/integrations/supabase/auth-attacher";
+import { adminHostGuard } from "./lib/admin-host-guard";
 
 const errorMiddleware = createMiddleware().server(async ({ next }) => {
   try {
@@ -27,5 +28,7 @@ const csrfMiddleware = createCsrfMiddleware({
 
 export const startInstance = createStart(() => ({
   functionMiddleware: [attachSupabaseAuth],
-  requestMiddleware: [errorMiddleware, csrfMiddleware],
+  // adminHostGuard runs first so a blocked /auth or /admin request short-circuits
+  // with a plain 404 before any other middleware does extra work.
+  requestMiddleware: [adminHostGuard, errorMiddleware, csrfMiddleware],
 }));

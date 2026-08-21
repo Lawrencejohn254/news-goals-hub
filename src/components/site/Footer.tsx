@@ -11,7 +11,7 @@ export function Footer() {
             <span className="font-serif text-2xl font-black text-white">The Dispatch</span>
           </div>
           <p className="mt-4 max-w-xs text-sm">
-            Independent news, analysis and football intelligence from Kenya and beyond
+            Independent reporting on the stories shaping our world — politics, business, sport, and beyond.
           </p>
         </div>
         <div>
@@ -54,9 +54,6 @@ export function Footer() {
           <span>© {new Date().getFullYear()} The Dispatch. All rights reserved.</span>
           <div className="flex items-center gap-4">
             <span>Built with editorial integrity.</span>
-            <Link to="/auth" className="text-white/40 hover:text-white/70">
-              Staff Login
-            </Link>
           </div>
         </div>
       </div>
