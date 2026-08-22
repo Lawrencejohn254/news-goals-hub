@@ -29,7 +29,7 @@ function ImageView({ node, updateAttributes, selected }: NodeViewProps) {
     align === "left" ? "justify-start" : align === "right" ? "justify-end" : "justify-center";
 
   return (
-    <NodeViewWrapper className={`my-4 flex ${justify}`} data-drag-handle>
+    <NodeViewWrapper className={`group my-4 flex ${justify}`} data-drag-handle>
       <div className="relative inline-block">
         <img
           ref={ref}
@@ -40,7 +40,11 @@ function ImageView({ node, updateAttributes, selected }: NodeViewProps) {
           className={`max-w-full ${selected ? "outline outline-2 outline-[var(--brand)]" : ""}`}
           draggable={false}
         />
-        <div className="pointer-events-none absolute left-1 top-1 flex gap-1 opacity-0 transition-opacity group-hover:opacity-100 [div:hover>&]:opacity-100">
+        {/* Align controls: dim by default so they don't clutter the article
+            while writing, but never fully invisible — the old version relied
+            on a `group-hover` class with no `group` ancestor to trigger it,
+            so it only worked by accident via a fragile fallback selector. */}
+        <div className="absolute left-1 top-1 flex gap-1 opacity-40 transition-opacity group-hover:opacity-100">
           {(["left", "center", "right"] as const).map((a) => (
             <button
               key={a}
@@ -49,15 +53,17 @@ function ImageView({ node, updateAttributes, selected }: NodeViewProps) {
                 e.preventDefault();
                 updateAttributes({ align: a });
               }}
-              className={`pointer-events-auto rounded bg-[var(--ink)]/80 px-2 py-0.5 text-[10px] uppercase text-white ${align === a ? "bg-[var(--brand)]" : ""}`}
+              className={`rounded bg-[var(--ink)]/80 px-2 py-0.5 text-[10px] uppercase text-white ${align === a ? "bg-[var(--brand)]" : ""}`}
             >
               {a}
             </button>
           ))}
         </div>
+        {/* Resize handle: bigger and always at least partly visible, so it's
+            actually discoverable instead of a hidden secret in the corner. */}
         <span
           onMouseDown={startResize}
-          className="absolute -bottom-1 -right-1 h-4 w-4 cursor-nwse-resize rounded-sm border-2 border-background bg-[var(--brand)]"
+          className="absolute -bottom-1.5 -right-1.5 h-5 w-5 cursor-nwse-resize rounded-sm border-2 border-background bg-[var(--brand)] opacity-60 transition-opacity group-hover:opacity-100"
           title="Drag to resize"
         />
       </div>
