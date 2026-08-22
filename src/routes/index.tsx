@@ -23,7 +23,7 @@ export const Route = createFileRoute("/")({
   loader: async () => {
     const [featured, latest, mostRead, trending, categories] = await Promise.all([
       fetchFeaturedArticles(5),
-      fetchPublishedArticles(12),
+      fetchPublishedArticles(13),
       fetchMostRead(5),
       fetchTrending(6),
       fetchCategories(),
@@ -45,7 +45,7 @@ function HomePage() {
   });
   const latest = useQuery({
     queryKey: ["latest"],
-    queryFn: () => fetchPublishedArticles(12),
+    queryFn: () => fetchPublishedArticles(13),
     initialData: loaderData.latest,
   });
   const mostRead = useQuery({
