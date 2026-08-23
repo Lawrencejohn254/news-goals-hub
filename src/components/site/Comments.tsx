@@ -66,9 +66,7 @@ export function Comments({ articleId }: { articleId: string }) {
         </form>
       ) : (
         <p className="mb-8 border-l-4 border-[var(--brand)] bg-muted/40 p-4 text-sm">
-          <Link to="/auth" className="font-semibold underline">
-            Sign in
-          </Link>{" "}
+          
           to join the conversation.
         </p>
       )}
