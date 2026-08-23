@@ -67,7 +67,7 @@ export function Comments({ articleId }: { articleId: string }) {
       ) : (
         <p className="mb-8 border-l-4 border-[var(--brand)] bg-muted/40 p-4 text-sm">
           
-          to join the conversation.
+          Join the conversation.
         </p>
       )}
 
