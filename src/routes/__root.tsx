@@ -13,6 +13,7 @@ import appCss from "../styles.css?url";
 import { reportError } from "../lib/error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
+import { ConsentBanner } from "@/components/site/ConsentBanner";
 
 const NOT_FOUND_CATEGORIES = [
   { label: "Politics", slug: "politics" },
@@ -145,6 +146,19 @@ function RootShell({ children }: { children: ReactNode }) {
     <html lang="en">
       <head>
         <HeadContent />
+        {/* Consent Mode v2 — MUST run before the AdSense script below.
+            Starts every visitor as "denied" for ad/analytics storage until
+            they choose via <ConsentBanner />. Required by Google for EEA/UK
+            traffic; harmless everywhere else (AdSense falls back to
+            non-personalized "Limited Ads" for denied visitors rather than
+            no ads at all). */}
+        {import.meta.env.PROD && (
+          <script
+            dangerouslySetInnerHTML={{
+              __html: `window.dataLayer=window.dataLayer||[];function gtag(){dataLayer.push(arguments);}gtag('consent','default',{ad_storage:'denied',analytics_storage:'denied',ad_user_data:'denied',ad_personalization:'denied',wait_for_update:500});window.gtag=gtag;`,
+            }}
+          />
+        )}
         {/* AdSense Auto ads — Google decides ad placement automatically.
             Production-only: loading this in local dev/preview risks
             accidental self-clicks, which AdSense treats as invalid
@@ -182,6 +196,7 @@ function RootComponent() {
     <QueryClientProvider client={queryClient}>
       <Outlet />
       <Toaster />
+      <ConsentBanner />
     </QueryClientProvider>
   );
 }
