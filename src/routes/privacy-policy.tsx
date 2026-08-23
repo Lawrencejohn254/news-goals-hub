@@ -72,15 +72,66 @@ function PrivacyPage() {
 
             <h2>Cookies</h2>
             <p>
-              We use only the minimum browser storage needed for the site to function — for
-              example, keeping you signed in. We do not use advertising or cross-site tracking
-              cookies.
+              We use the minimum browser storage needed for the site to function — for
+              example, keeping you signed in. Beyond that, our advertising partner also sets
+              cookies on this site — see "Advertising" below for what that involves.
             </p>
 
             <h2>Advertising</h2>
             <p>
-              Any ads shown on The Dispatch are managed directly by us, not served through a
-              third-party ad exchange that tracks you across other sites.
+              The Dispatch shows ads served by Google AdSense. Google and its advertising
+              partners use cookies, device identifiers, and similar technologies to serve ads
+              on this site, measure how they perform, and — where permitted — personalize
+              which ads you see based on your visits here and to other sites. We don't control
+              what data these cookies collect or how long they're retained; that's governed by
+              each vendor's own privacy policy, not ours.
+            </p>
+            <p>
+              Google's own summary of this, which we're required to link to, is available at{" "}
+              <a
+                href="https://policies.google.com/technologies/partner-sites"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--brand)] underline"
+              >
+                How Google uses information from sites that use our services
+              </a>
+              . A full list of third-party ad technology providers that may serve ads on this
+              site is published by Google at{" "}
+              <a
+                href="https://support.google.com/adsense/answer/9012903"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--brand)] underline"
+              >
+                Google's ad technology providers
+              </a>
+              .
+            </p>
+            <p>
+              <strong>Your choices:</strong> you can opt out of personalized advertising from
+              Google at{" "}
+              <a
+                href="https://adssettings.google.com"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--brand)] underline"
+              >
+                Google Ads Settings
+              </a>
+              , and from many other ad networks at once via{" "}
+              <a
+                href="https://www.aboutads.info/choices"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--brand)] underline"
+              >
+                aboutads.info/choices
+              </a>
+              . Opting out doesn't stop ads from showing — it means the ads you see are no
+              longer based on your browsing activity. You can also block cookies generally
+              through your browser's settings, though doing so may affect how parts of this
+              site (and others) work.
             </p>
 
             <h2>Your choices</h2>
