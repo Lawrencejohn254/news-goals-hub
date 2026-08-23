@@ -28,17 +28,17 @@ export const Route = createFileRoute("/predictions/")({
     const url = absoluteUrl("/predictions");
     return {
       meta: [
-        { title: "Football Tips Today — Free Predictions | The Dispatch" },
+        { title: "Football Analysis Today — Free Anyalysis | The Dispatch" },
         {
           name: "description",
           content:
-            "Free football betting tips for today, tomorrow and the weekend. Match predictions, correct scores, form guides and odds across every major league.",
+            "Free football analysis for today, tomorrow and the weekend. Match predictions, correct scores, form guides and odds across every major league.",
         },
         { property: "og:site_name", content: "The Dispatch" },
-        { property: "og:title", content: "Football Tips Today — Free Predictions" },
+        { property: "og:title", content: "Football Analysis Today — Free Analysis" },
         {
           property: "og:description",
-          content: "Free football predictions, correct scores and form guides from The Dispatch.",
+          content: "Free football analysis, correct scores and form guides from The Dispatch.",
         },
         { property: "og:type", content: "website" },
         { property: "og:url", content: url },
@@ -187,10 +187,10 @@ function PredictionsIndex() {
 
       <main className="container-page py-8">
         <h1 className="font-serif text-3xl font-black text-[var(--ink)] md:text-4xl">
-          Football Tips — {longDate(day)}
+          Football Analysis — {longDate(day)}
         </h1>
         <p className="mt-2 max-w-3xl text-sm text-muted-foreground">
-          Here are all of our free football betting tips for this matchday. Each row shows both
+          Here are all of our free football analysis for this matchday. Each row shows both
           teams&apos; last five results, our predicted score, the recommended tip and the price.
           Click any fixture for the full match preview.
         </p>
@@ -201,7 +201,7 @@ function PredictionsIndex() {
           <span className="flex items-center gap-1"><Form value="D" /> Draw</span>
           <span className="flex items-center gap-1"><Form value="L" /> Loss</span>
           <span className="ml-auto text-muted-foreground">
-            {visible.length} tips · {won}W–{lost}L ·{" "}
+            {visible.length} analysis · {won}W–{lost}L ·{" "}
             <strong className="text-[var(--brand)]">{rate}% strike rate</strong> today · all-time{" "}
             {stats.data?.winRate ?? 0}%
           </span>
@@ -209,10 +209,10 @@ function PredictionsIndex() {
 
         <AdSlot placement="home-top" className="mt-6" />
 
-        {preds.isLoading && <p className="mt-8 text-muted-foreground">Loading tips…</p>}
+        {preds.isLoading && <p className="mt-8 text-muted-foreground">Loading Analysis…</p>}
         {!preds.isLoading && visible.length === 0 && (
           <p className="mt-8 border border-border bg-muted/30 p-6 text-muted-foreground">
-            No tips published for {longDate(day)} yet. Check back soon.
+            No analysis published for {longDate(day)} yet. Check back soon.
           </p>
         )}
 
@@ -228,7 +228,7 @@ function PredictionsIndex() {
                     loading="lazy"
                   />
                 )}
-                {comp} Tips
+                {comp} Analysis
               </h2>
               <div className="overflow-x-auto border border-t-0 border-border">
                 <table className="w-full min-w-[860px] border-collapse text-sm">
