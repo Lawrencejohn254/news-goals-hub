@@ -11,6 +11,7 @@ import { Comments } from "@/components/site/Comments";
 import { AdSlot } from "@/components/site/AdSlot";
 import { logPageView } from "@/lib/site";
 import { absoluteUrl } from "@/lib/site-url";
+import { ArticleBody } from "@/components/site/ArticleBody";
 
 export const Route = createFileRoute("/article/$slug")({
   component: ArticlePage,
@@ -230,10 +231,7 @@ function ArticlePage() {
 
           <AdSlot placement="article-inline" className="my-8" />
 
-          <div
-            className="article-prose mt-8"
-            dangerouslySetInnerHTML={{ __html: a.content }}
-          />
+          <ArticleBody html={a.content} />
 
           {/* Written by — full author card with photo + bio */}
           <div className="mt-10 flex gap-4 border border-border bg-[var(--paper)] p-5">
