@@ -41,7 +41,7 @@ function HomePage() {
   const loaderData = Route.useLoaderData();
   const featured = useQuery({
     queryKey: ["featured"],
-    queryFn: () => fetchFeaturedArticles(5),
+    queryFn: () => fetchFeaturedArticles(15),
     initialData: loaderData.featured,
   });
   const latest = useQuery({
