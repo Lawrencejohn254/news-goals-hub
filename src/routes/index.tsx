@@ -1,4 +1,5 @@
 import { createFileRoute } from "@tanstack/react-router";
+import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   fetchCategories,
@@ -64,9 +65,29 @@ function HomePage() {
     initialData: loaderData.categories,
   });
 
-  const hero = featured.data?.[0] ?? latest.data?.[0];
-  const featuredRest = (featured.data ?? []).slice(1, 4);
-  const latestList = (latest.data ?? []).slice(hero ? 1 : 0);
+  const featuredArticles = featured.data ?? [];
+
+const [heroIndex, setHeroIndex] = useState(0);
+
+useEffect(() => {
+  if (featuredArticles.length <= 1) return;
+
+  const interval = window.setInterval(() => {
+    setHeroIndex((current) => (current + 1) % featuredArticles.length);
+  }, 5000);
+
+  return () => window.clearInterval(interval);
+}, [featuredArticles.length]);
+
+const hero =
+  featuredArticles[heroIndex] ??
+  latest.data?.[0];
+
+const featuredRest = featuredArticles
+  .filter((_, index) => index !== heroIndex)
+  .slice(0, 3);
+
+const latestList = (latest.data ?? []).slice(hero ? 1 : 0);
 
   return (
     <div className="min-h-screen bg-background">
@@ -115,7 +136,10 @@ function HomePage() {
         {/* Hero + featured */}
         {hero && (
           <section className="mb-14 grid gap-10 lg:grid-cols-3">
-            <div className="lg:col-span-2">
+            <div
+              key={hero.id}
+              className="lg:col-span-2 animate-in fade-in duration-700"
+            >
               <ArticleCard article={hero} size="hero" />
             </div>
             <div className="space-y-6">
