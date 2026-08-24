@@ -4,7 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 
-export const Route = createFileRoute("/_authenticated/admin/profile" as never)({
+export const Route = createFileRoute("/_authenticated/admin/profile")({
   component: MyProfilePage,
 });
 
