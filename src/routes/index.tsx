@@ -74,7 +74,7 @@ useEffect(() => {
 
   const interval = window.setInterval(() => {
     setHeroIndex((current) => (current + 1) % featuredArticles.length);
-  }, 5000);
+  }, 25000);
 
   return () => window.clearInterval(interval);
 }, [featuredArticles.length]);
