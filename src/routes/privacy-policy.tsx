@@ -79,8 +79,7 @@ function PrivacyPage() {
 
             <h2>Advertising</h2>
             <p>
-              The Africa Daily Dispatch shows ads served by Google AdSense. Google and its advertising
-              partners use cookies, device identifiers, and similar technologies to serve ads
+              If advertising is enabled on The Africa Daily Dispatch, Google and its advertising partners may use cookies, device identifiers, and similar technologies to serve ads
               on this site, measure how they perform, and — where permitted — personalize
               which ads you see based on your visits here and to other sites. We don't control
               what data these cookies collect or how long they're retained; that's governed by
