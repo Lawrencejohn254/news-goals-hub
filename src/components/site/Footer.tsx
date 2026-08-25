@@ -1,7 +1,12 @@
 import { Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { NewsletterForm } from "@/components/site/NewsletterForm";
+import { fetchSettings } from "@/lib/site";
 
 export function Footer() {
+  const settings = useQuery({ queryKey: ["site-settings"], queryFn: fetchSettings });
+  const showPredictions = settings.data?.predictions_enabled ?? true;
+
   return (
     <footer className="mt-16 border-t border-border bg-[var(--ink)] text-white/80">
       <div className="container-page grid gap-10 py-12 md:grid-cols-5">
@@ -21,7 +26,7 @@ export function Footer() {
             <li><Link to="/category/$slug" params={{ slug: "business" }}>Business</Link></li>
             <li><Link to="/category/$slug" params={{ slug: "technology" }}>Technology</Link></li>
             <li><Link to="/category/$slug" params={{ slug: "sports" }}>Sports</Link></li>
-            <li><Link to="/predictions">Football Analysis</Link></li>
+            {showPredictions && <li><Link to="/predictions">Football Predictions</Link></li>}
           </ul>
         </div>
         <div>

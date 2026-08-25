@@ -22,58 +22,7 @@ import {
   ShieldAlert,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
-
-type StaffRole = "super_admin" | "admin" | "editor" | "author" | "moderator";
-
-function useStaffRoles() {
-  const [roles, setRoles] = useState<StaffRole[]>([]);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    let active = true;
-
-    const loadRoles = async () => {
-      setLoading(true);
-      const {
-        data: { user },
-      } = await supabase.auth.getUser();
-
-      if (!user) {
-        if (active) {
-          setRoles([]);
-          setLoading(false);
-        }
-        return;
-      }
-
-      const { data } = await supabase
-        .from("user_roles")
-        .select("role")
-        .eq("user_id", user.id);
-
-      if (active) {
-        const validRoles: StaffRole[] = ["super_admin", "admin", "editor", "author", "moderator"];
-        setRoles(
-          (data ?? [])
-            .map((row) => row.role as StaffRole)
-            .filter((role) => validRoles.includes(role)),
-        );
-        setLoading(false);
-      }
-    };
-
-    void loadRoles();
-    return () => {
-      active = false;
-    };
-  }, []);
-
-  return {
-    roles,
-    loading,
-    hasAny: (...required: StaffRole[]) => required.some((role) => roles.includes(role)),
-  };
-}
+import { useStaffRoles, type StaffRole } from "@/hooks/useStaffRoles";
 
 export const Route = createFileRoute("/_authenticated/admin")({
   component: AdminLayout,
@@ -251,14 +200,9 @@ function AdminLayout() {
             <NavItem to="/admin/profile" icon={<UserCircle size={16} />}>
               My Profile
             </NavItem>
-            <a
-              href="https://africadailydispatch.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center gap-2 rounded px-3 py-2 text-foreground hover:bg-muted"
-            >
-              <Home size={16} /> View site
-            </a>
+            <NavItem to="/" icon={<Home size={16} />} target="_blank" rel="noopener noreferrer">
+              View site
+            </NavItem>
 
             <button
               onClick={signOut}

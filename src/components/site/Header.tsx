@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Menu, X } from "lucide-react";
 import { fetchCategories } from "@/lib/queries";
+import { fetchSettings } from "@/lib/site";
 
 export function Header() {
   const [open, setOpen] = useState(false);
@@ -13,6 +14,10 @@ export function Header() {
   // the admin panel and this updates automatically, no code change needed.
   const categories = useQuery({ queryKey: ["nav-categories"], queryFn: fetchCategories });
   const navCategories = categories.data ?? [];
+  // Predictions nav link respects the toggle in Admin -> Settings — default
+  // true (matches the DB default) so it doesn't flicker away while loading.
+  const settings = useQuery({ queryKey: ["site-settings"], queryFn: fetchSettings });
+  const showPredictions = settings.data?.predictions_enabled ?? true;
 
   useEffect(() => {
     const t = setInterval(() => setNow(new Date()), 60_000);
@@ -83,13 +88,15 @@ export function Header() {
                 {c.name}
               </Link>
             ))}
-            <Link
-              to="/predictions"
-              className="text-[var(--ink)] hover:text-[var(--brand)] whitespace-nowrap"
-              activeProps={{ className: "text-[var(--brand)]" }}
-            >
-              Predictions
-            </Link>
+            {showPredictions && (
+              <Link
+                to="/predictions"
+                className="text-[var(--ink)] hover:text-[var(--brand)] whitespace-nowrap"
+                activeProps={{ className: "text-[var(--brand)]" }}
+              >
+                Predictions
+              </Link>
+            )}
           </div>
         </nav>
 
@@ -110,9 +117,11 @@ export function Header() {
                   {c.name}
                 </Link>
               ))}
-              <Link to="/predictions" onClick={() => setOpen(false)} className="py-2">
-                Predictions
-              </Link>
+              {showPredictions && (
+                <Link to="/predictions" onClick={() => setOpen(false)} className="py-2">
+                  Predictions
+                </Link>
+              )}
             </div>
           </nav>
         )}

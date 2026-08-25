@@ -1,5 +1,4 @@
 import { createFileRoute } from "@tanstack/react-router";
-import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import {
   fetchCategories,
@@ -65,29 +64,17 @@ function HomePage() {
     initialData: loaderData.categories,
   });
 
-  const featuredArticles = featured.data ?? [];
-
-const [heroIndex, setHeroIndex] = useState(0);
-
-useEffect(() => {
-  if (featuredArticles.length <= 1) return;
-
-  const interval = window.setInterval(() => {
-    setHeroIndex((current) => (current + 1) % featuredArticles.length);
-  }, 25000);
-
-  return () => window.clearInterval(interval);
-}, [featuredArticles.length]);
-
-const hero =
-  featuredArticles[heroIndex] ??
-  latest.data?.[0];
-
-const featuredRest = featuredArticles
-  .filter((_, index) => index !== heroIndex)
-  .slice(0, 3);
-
-const latestList = (latest.data ?? []).slice(hero ? 1 : 0);
+  // Hero is always the single most recently published article — never a
+  // manually "featured" one that could be older. Previously this picked
+  // featured.data[0] first and then blindly sliced latest.data[0] off the
+  // grid assuming it *was* the hero — when the featured article was
+  // actually something older, that silently dropped the true newest
+  // article from the page entirely (not shown as hero, not shown in the
+  // grid either). Filtering by id instead of position fixes this for good,
+  // regardless of what's marked featured.
+  const hero = latest.data?.[0];
+  const featuredRest = (featured.data ?? []).filter((f) => f.id !== hero?.id).slice(0, 3);
+  const latestList = (latest.data ?? []).filter((a) => a.id !== hero?.id);
 
   return (
     <div className="min-h-screen bg-background">
@@ -136,10 +123,7 @@ const latestList = (latest.data ?? []).slice(hero ? 1 : 0);
         {/* Hero + featured */}
         {hero && (
           <section className="mb-14 grid gap-10 lg:grid-cols-3">
-            <div
-              key={hero.id}
-              className="lg:col-span-2 animate-in fade-in duration-700"
-            >
+            <div className="lg:col-span-2">
               <ArticleCard article={hero} size="hero" />
             </div>
             <div className="space-y-6">

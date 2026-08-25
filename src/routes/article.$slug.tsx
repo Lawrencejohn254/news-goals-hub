@@ -124,10 +124,6 @@ function ArticlePage() {
   // Controls whether view count / published date show at all — off by
   // default until enabled in Admin -> Settings.
   const settings = useQuery({ queryKey: ["site-settings"], queryFn: fetchSettings });
-  const displaySettings = settings.data as
-    | ({ show_published_date?: boolean; show_view_count?: boolean })
-    | null
-    | undefined;
 
   useEffect(() => {
     if (!q.data) return;
@@ -211,7 +207,7 @@ function ArticlePage() {
             </p>
           )}
 
-         {/* Byline — now shows the author's photo, not just their name.
+          {/* Byline — now shows the author's photo, not just their name.
               Published date and view count are hidden unless turned on in
               Admin -> Settings (both default off). */}
           <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-y border-border py-4 text-sm text-muted-foreground">
@@ -224,7 +220,7 @@ function ArticlePage() {
                 <AuthorAvatar name={authorName} avatarUrl={a.profiles?.avatar_url} size={32} />
                 <span className="font-semibold text-foreground">{authorName}</span>
               </Link>
-              {displaySettings?.show_published_date && (
+              {settings.data?.show_published_date && (
                 <>
                   <span>·</span>
                   <span>{formatDate(a.published_at ?? a.created_at)}</span>
@@ -232,7 +228,7 @@ function ArticlePage() {
               )}
               <span>·</span>
               <span>{a.reading_time} min read</span>
-              {displaySettings?.show_view_count && (
+              {settings.data?.show_view_count && (
                 <>
                   <span>·</span>
                   <span>{a.view_count?.toLocaleString() ?? 0} views</span>
