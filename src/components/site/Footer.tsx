@@ -21,7 +21,7 @@ export function Footer() {
             <li><Link to="/category/$slug" params={{ slug: "business" }}>Business</Link></li>
             <li><Link to="/category/$slug" params={{ slug: "technology" }}>Technology</Link></li>
             <li><Link to="/category/$slug" params={{ slug: "sports" }}>Sports</Link></li>
-            <li><Link to="/predictions">Football Predictions</Link></li>
+            <li><Link to="/predictions">Football Analysis</Link></li>
           </ul>
         </div>
         <div>

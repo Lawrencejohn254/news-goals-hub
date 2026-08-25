@@ -114,11 +114,11 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "The Africa Daily Dispatch — News, Analysis & Football Predictions" },
+      { title: "The Africa Daily Dispatch — News, Analysis & Football Analysis" },
       {
         name: "description",
         content:
-          "Independent reporting on politics, business, technology, and sport — plus expert football predictions and match analysis.",
+          "Independent reporting on politics, business, technology, and sport — plus expert football analysis and match analysis.",
       },
       { property: "og:site_name", content: "The Africa Daily Dispatch" },
       { property: "og:type", content: "website" },

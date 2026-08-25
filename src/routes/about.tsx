@@ -8,7 +8,7 @@ export const Route = createFileRoute("/about")({
   head: () => {
     const url = absoluteUrl("/about");
     const description =
-      "The Africa Daily Dispatch is an independent newsroom covering politics, business, technology, sport and football predictions.";
+      "The Africa Daily Dispatch is an independent newsroom covering politics, business, technology, sport and football analysis.";
     return {
       meta: [
         { title: "About — The Africa Daily Dispatch" },
@@ -35,14 +35,14 @@ function AboutPage() {
             <p>
               The Africa Daily Dispatch is an independent digital newsroom covering politics, business,
               technology, sport and international affairs, alongside a dedicated football
-              predictions section offering match analysis and tips.
+              analysis section offering match analysis and tips.
             </p>
 
             <h2>What we cover</h2>
             <p>
               Our newsroom publishes original reporting and analysis across politics, business,
               finance, technology, health, sport, entertainment, international news and local
-              news. Our football predictions team publishes match previews, form guides and
+              news. Our football analysis team publishes match previews, form guides and
               tips based on publicly available fixture and results data.
             </p>
 

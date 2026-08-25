@@ -7,7 +7,7 @@ export const Route = createFileRoute("/disclaimer")({
   component: DisclaimerPage,
   head: () => {
     const url = absoluteUrl("/disclaimer");
-    const description = "Important information about news accuracy and football predictions on The Africa Daily Dispatch.";
+    const description = "Important information about news accuracy and football analysis on The Africa Daily Dispatch.";
     return {
       meta: [
         { title: "Disclaimer — The Africa Daily Dispatch" },
@@ -43,14 +43,14 @@ function DisclaimerPage() {
               official sources before acting on it.
             </p>
 
-            <h2>Football predictions</h2>
+            <h2>Football analysis</h2>
             <blockquote>
-              18+. Predictions published on The Africa Daily Dispatch are opinion and analysis, not
+              18+. Analysis published on The Africa Daily Dispatch are opinion and analysis, not
               guarantees of any outcome. Past results shown on this site (where available) are
               historical and do not predict future results. Please gamble responsibly.
             </blockquote>
             <p>
-              Our football predictions are informational content based on publicly available
+              Our football analysis are informational content based on publicly available
               form, fixture and statistical data. They are not financial advice, and we make
               no promise — express or implied — about their accuracy or profitability. Any
               betting or wagering decision you make is entirely your own responsibility. If

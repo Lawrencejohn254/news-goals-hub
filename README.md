@@ -630,7 +630,7 @@ Modern animations
 
 No placeholder pages.
 
-The final result should function like a modern WordPress CMS where all content, including news articles, football predictions, advertisements, pages, users, and site settings, can be created, updated, or deleted entirely through the admin dashboard without editing source code.
+The final result should function like a modern WordPress CMS where all content, including news articles, football analysis, advertisements, pages, users, and site settings, can be created, updated, or deleted entirely through the admin dashboard without editing source code.
 
 ............................................
 

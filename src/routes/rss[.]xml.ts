@@ -45,7 +45,7 @@ export const Route = createFileRoute("/rss.xml")({
   <channel>
     <title>The Africa Daily Dispatch</title>
     <link>${origin}</link>
-    <description>Breaking news, analysis and football predictions.</description>
+    <description>Breaking news, analysis and football analysis.</description>
     <language>en</language>
 ${items}
   </channel>

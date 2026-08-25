@@ -59,9 +59,9 @@ function TermsPage() {
               notice.
             </p>
 
-            <h2>Football predictions</h2>
+            <h2>Football analysis</h2>
             <p>
-              Predictions published on The Africa Daily Dispatch are opinion and analysis, not guarantees.
+              Analysis published on The Africa Daily Dispatch are opinion and analysis, not guarantees.
               See our{" "}
               <Link to="/disclaimer" className="text-[var(--brand)] underline">
                 Disclaimer

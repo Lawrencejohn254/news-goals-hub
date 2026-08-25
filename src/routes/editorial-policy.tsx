@@ -48,7 +48,7 @@ function EditorialPolicyPage() {
 
             <h2>Accuracy</h2>
             <p>
-              We aim to verify facts before publication. Football predictions are clearly
+              We aim to verify facts before publication. Football analysis are clearly
               labelled as analysis and opinion, not news reporting, and carry their own
               disclaimer (see our{" "}
               <Link to="/disclaimer" className="text-[var(--brand)] underline">
