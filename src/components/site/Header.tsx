@@ -53,7 +53,7 @@ export function Header() {
           <Link to="/" className="flex items-center gap-2">
             <span className="inline-block h-7 w-2 bg-[var(--brand)]" />
             <span className="font-serif text-2xl font-black tracking-tight text-[var(--ink)] md:text-3xl">
-              The Dispatch
+              The Africa Daily Dispatch
             </span>
           </Link>
 

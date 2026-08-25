@@ -28,17 +28,17 @@ export const Route = createFileRoute("/predictions/")({
     const url = absoluteUrl("/predictions");
     return {
       meta: [
-        { title: "Football Analysis Today — Free Anyalysis | The Dispatch" },
+        { title: "Football Analysis Today — Free Anyalysis | The Africa Daily Dispatch" },
         {
           name: "description",
           content:
             "Free football analysis for today, tomorrow and the weekend. Match predictions, correct scores, form guides and odds across every major league.",
         },
-        { property: "og:site_name", content: "The Dispatch" },
+        { property: "og:site_name", content: "The Africa Daily Dispatch" },
         { property: "og:title", content: "Football Analysis Today — Free Analysis" },
         {
           property: "og:description",
-          content: "Free football analysis, correct scores and form guides from The Dispatch.",
+          content: "Free football analysis, correct scores and form guides from The Africa Daily Dispatch.",
         },
         { property: "og:type", content: "website" },
         { property: "og:url", content: url },

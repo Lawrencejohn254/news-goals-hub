@@ -64,7 +64,7 @@ function NotFoundComponent() {
               </Link>
             ))}
             <Link to="/predictions" className="text-[var(--brand)] hover:underline">
-              Predictions
+              Football Analysis
             </Link>
           </div>
         </div>
@@ -114,13 +114,13 @@ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()(
     meta: [
       { charSet: "utf-8" },
       { name: "viewport", content: "width=device-width, initial-scale=1" },
-      { title: "The Dispatch — News, Analysis & Football Predictions" },
+      { title: "The Africa Daily Dispatch — News, Analysis & Football Predictions" },
       {
         name: "description",
         content:
           "Independent reporting on politics, business, technology, and sport — plus expert football predictions and match analysis.",
       },
-      { property: "og:site_name", content: "The Dispatch" },
+      { property: "og:site_name", content: "The Africa Daily Dispatch" },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary_large_image" },
     ],

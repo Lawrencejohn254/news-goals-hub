@@ -13,12 +13,12 @@ export const Route = createFileRoute("/contact")({
   component: ContactPage,
   head: () => {
     const url = absoluteUrl("/contact");
-    const description = "Get in touch with The Dispatch — news tips, corrections, and general or advertising enquiries.";
+    const description = "Get in touch with The Africa Daily Dispatch — news tips, corrections, and general or advertising enquiries.";
     return {
       meta: [
-        { title: "Contact — The Dispatch" },
+        { title: "Contact — The Africa Daily Dispatch" },
         { name: "description", content: description },
-        { property: "og:title", content: "Contact The Dispatch" },
+        { property: "og:title", content: "Contact The Africa Daily Dispatch" },
         { property: "og:description", content: description },
         { property: "og:url", content: url },
       ],
@@ -31,7 +31,7 @@ const CATEGORIES = [
   {
     label: "General enquiries",
     subject: "General enquiry",
-    description: "Questions about The Dispatch, feedback, or anything not covered below.",
+    description: "Questions about The Africa Daily Dispatch, feedback, or anything not covered below.",
   },
   {
     label: "News tips",
@@ -46,7 +46,7 @@ const CATEGORIES = [
   {
     label: "Advertising & business",
     subject: "Advertising enquiry",
-    description: "Interested in advertising on The Dispatch or a business partnership.",
+    description: "Interested in advertising on The Africa Daily Dispatch or a business partnership.",
   },
 ];
 
@@ -68,7 +68,7 @@ function ContactPage() {
             {CATEGORIES.map((c) => (
               <a
                 key={c.label}
-                href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`[The Dispatch] ${c.subject}`)}`}
+                href={`mailto:${CONTACT_EMAIL}?subject=${encodeURIComponent(`[The Africa Daily Dispatch] ${c.subject}`)}`}
                 className="flex flex-col gap-2 border border-border bg-[var(--paper)] p-5 transition-colors hover:border-[var(--brand)]"
               >
                 <span className="flex items-center gap-2 font-serif text-lg font-bold text-[var(--ink)]">

@@ -24,10 +24,10 @@ export const Route = createFileRoute("/predictions/$slug")({
     const path = `/predictions/${params.slug}`;
     const url = absoluteUrl(path);
     if (!p) {
-      return { meta: [{ title: `Prediction — The Dispatch` }], links: [{ rel: "canonical", href: url }] };
+      return { meta: [{ title: `Prediction — The Africa Daily Dispatch` }], links: [{ rel: "canonical", href: url }] };
     }
     const matchName = `${p.matches?.home_team?.name ?? "?"} vs ${p.matches?.away_team?.name ?? "?"}`;
-    const title = p.seo_title?.trim() || `${p.title} — Prediction | The Dispatch`;
+    const title = p.seo_title?.trim() || `${p.title} — Prediction | The Africa Daily Dispatch`;
     const description =
       p.seo_description?.trim() ||
       `Our tip for ${matchName}: ${p.tip}. Full match preview, form guide and head-to-head record.`;
@@ -37,7 +37,7 @@ export const Route = createFileRoute("/predictions/$slug")({
         { title },
         { name: "description", content: description },
         { property: "og:type", content: "article" },
-        { property: "og:site_name", content: "The Dispatch" },
+        { property: "og:site_name", content: "The Africa Daily Dispatch" },
         { property: "og:title", content: p.title },
         { property: "og:description", content: description },
         { property: "og:url", content: url },

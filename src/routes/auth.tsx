@@ -12,8 +12,8 @@ export const Route = createFileRoute("/auth")({
   component: AuthPage,
   head: () => ({
     meta: [
-      { title: "Sign in — The Dispatch" },
-      { name: "description", content: "Sign in to The Dispatch to publish, comment, and follow stories." },
+      { title: "Sign in — The Africa Daily Dispatch" },
+      { name: "description", content: "Sign in to The Africa Daily Dispatch to publish, comment, and follow stories." },
       { name: "robots", content: "noindex" },
     ],
   }),

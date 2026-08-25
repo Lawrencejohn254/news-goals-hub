@@ -29,12 +29,12 @@ export const Route = createFileRoute("/article/$slug")({
     const a = loaderData?.article;
     if (!a) {
       return {
-        meta: [{ title: `${params.slug} — The Dispatch` }],
+        meta: [{ title: `${params.slug} — The Africa Daily Dispatch` }],
       };
     }
-    const title = a.seo_title?.trim() || `${a.title} — The Dispatch`;
+    const title = a.seo_title?.trim() || `${a.title} — The Africa Daily Dispatch`;
     const description =
-      a.seo_description?.trim() || a.excerpt?.trim() || "Read the full story on The Dispatch.";
+      a.seo_description?.trim() || a.excerpt?.trim() || "Read the full story on The Africa Daily Dispatch.";
     const image = a.featured_image ?? undefined;
     const path = `/article/${a.slug}`;
     const url = absoluteUrl(path);
@@ -44,7 +44,7 @@ export const Route = createFileRoute("/article/$slug")({
         { title },
         { name: "description", content: description },
         { property: "og:type", content: "article" },
-        { property: "og:site_name", content: "The Dispatch" },
+        { property: "og:site_name", content: "The Africa Daily Dispatch" },
         { property: "og:title", content: a.title },
         { property: "og:description", content: description },
         { property: "og:url", content: url },
@@ -165,7 +165,7 @@ function ArticlePage() {
     },
     publisher: {
       "@type": "Organization",
-      name: "The Dispatch",
+      name: "The Africa Daily Dispatch",
     },
     mainEntityOfPage: {
       "@type": "WebPage",
@@ -253,7 +253,7 @@ function ArticlePage() {
                 <p className="mt-1 text-sm text-muted-foreground">{a.profiles.bio}</p>
               ) : (
                 <p className="mt-1 text-sm text-muted-foreground">
-                  Reporter at The Dispatch.
+                  Reporter at The Africa Daily Dispatch.
                 </p>
               )}
             </div>

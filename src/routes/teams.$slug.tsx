@@ -14,7 +14,7 @@ export const Route = createFileRoute("/teams/$slug")({
   component: TeamPage,
   head: ({ params }) => {
     const name = params.slug.replace(/-\d+$/, "").replace(/-/g, " ");
-    const title = `${name} stats, form & fixtures — The Dispatch`;
+    const title = `${name} stats, form & fixtures — The Africa Daily Dispatch`;
     const description = `${name} team stats: recent form, win rate, goals scored and conceded, clean sheets, BTTS and over 2.5 trends plus upcoming fixtures.`;
     return {
       meta: [

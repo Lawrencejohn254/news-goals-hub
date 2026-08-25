@@ -16,19 +16,19 @@ export const Route = createFileRoute("/authors/$id")({
     const profile = loaderData?.profile;
     if (!profile) {
       return {
-        meta: [{ title: "Author — The Dispatch" }],
+        meta: [{ title: "Author — The Africa Daily Dispatch" }],
         links: [{ rel: "canonical", href: url }],
       };
     }
     const name = profile.display_name ?? "Staff";
     const description =
-      profile.bio?.trim() || `Articles by ${name} on The Dispatch.`;
+      profile.bio?.trim() || `Articles by ${name} on The Africa Daily Dispatch.`;
     return {
       meta: [
-        { title: `${name} — The Dispatch` },
+        { title: `${name} — The Africa Daily Dispatch` },
         { name: "description", content: description },
         { property: "og:type", content: "profile" },
-        { property: "og:site_name", content: "The Dispatch" },
+        { property: "og:site_name", content: "The Africa Daily Dispatch" },
         { property: "og:title", content: name },
         { property: "og:description", content: description },
         { property: "og:url", content: url },

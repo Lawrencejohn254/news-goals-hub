@@ -8,7 +8,7 @@ export function Footer() {
         <div>
           <div className="flex items-center gap-2">
             <span className="inline-block h-6 w-1.5 bg-[var(--brand)]" />
-            <span className="font-serif text-2xl font-black text-white">The Dispatch</span>
+            <span className="font-serif text-2xl font-black text-white">The Africa Daily Dispatch</span>
           </div>
           <p className="mt-4 max-w-xs text-sm">
             Independent reporting on the stories shaping our world — politics, business, sport, and beyond.
@@ -51,7 +51,7 @@ export function Footer() {
       </div>
       <div className="border-t border-white/10">
         <div className="container-page flex flex-col items-center justify-between gap-2 py-4 text-xs text-white/60 md:flex-row">
-          <span>© {new Date().getFullYear()} The Dispatch. All rights reserved.</span>
+          <span>© {new Date().getFullYear()} The Africa Daily Dispatch. All rights reserved.</span>
           <div className="flex items-center gap-4">
             <span>Built with editorial integrity.</span>
           </div>

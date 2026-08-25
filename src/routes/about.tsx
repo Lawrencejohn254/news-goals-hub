@@ -8,12 +8,12 @@ export const Route = createFileRoute("/about")({
   head: () => {
     const url = absoluteUrl("/about");
     const description =
-      "The Dispatch is an independent newsroom covering politics, business, technology, sport and football predictions.";
+      "The Africa Daily Dispatch is an independent newsroom covering politics, business, technology, sport and football predictions.";
     return {
       meta: [
-        { title: "About — The Dispatch" },
+        { title: "About — The Africa Daily Dispatch" },
         { name: "description", content: description },
-        { property: "og:title", content: "About The Dispatch" },
+        { property: "og:title", content: "About The Africa Daily Dispatch" },
         { property: "og:description", content: description },
         { property: "og:url", content: url },
       ],
@@ -29,11 +29,11 @@ function AboutPage() {
       <main className="container-page py-10">
         <article className="mx-auto max-w-3xl">
           <h1 className="font-serif text-4xl font-black text-[var(--ink)] md:text-5xl">
-            About The Dispatch
+            About The Africa Daily Dispatch
           </h1>
           <div className="article-prose mt-8">
             <p>
-              The Dispatch is an independent digital newsroom covering politics, business,
+              The Africa Daily Dispatch is an independent digital newsroom covering politics, business,
               technology, sport and international affairs, alongside a dedicated football
               predictions section offering match analysis and tips.
             </p>
@@ -57,9 +57,9 @@ function AboutPage() {
               .
             </p>
 
-            <h2>Who operates The Dispatch</h2>
+            <h2>Who operates The Africa Daily Dispatch</h2>
             <p>
-              The Dispatch is an independently operated publication. For questions about
+              The Africa Daily Dispatch is an independently operated publication. For questions about
               ownership, editorial decisions or corrections, see our{" "}
               <Link to="/contact" className="text-[var(--brand)] underline">
                 Contact

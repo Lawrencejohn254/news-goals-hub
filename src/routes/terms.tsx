@@ -7,12 +7,12 @@ export const Route = createFileRoute("/terms")({
   component: TermsPage,
   head: () => {
     const url = absoluteUrl("/terms");
-    const description = "Terms of use for The Dispatch website.";
+    const description = "Terms of use for The Africa Daily Dispatch website.";
     return {
       meta: [
-        { title: "Terms of Use — The Dispatch" },
+        { title: "Terms of Use — The Africa Daily Dispatch" },
         { name: "description", content: description },
-        { property: "og:title", content: "Terms of Use — The Dispatch" },
+        { property: "og:title", content: "Terms of Use — The Africa Daily Dispatch" },
         { property: "og:description", content: description },
         { property: "og:url", content: url },
       ],
@@ -34,7 +34,7 @@ function TermsPage() {
 
           <div className="article-prose mt-8">
             <p>
-              By using The Dispatch, you agree to these terms. If you don't agree, please
+              By using The Africa Daily Dispatch, you agree to these terms. If you don't agree, please
               don't use the site.
             </p>
 
@@ -61,7 +61,7 @@ function TermsPage() {
 
             <h2>Football predictions</h2>
             <p>
-              Predictions published on The Dispatch are opinion and analysis, not guarantees.
+              Predictions published on The Africa Daily Dispatch are opinion and analysis, not guarantees.
               See our{" "}
               <Link to="/disclaimer" className="text-[var(--brand)] underline">
                 Disclaimer

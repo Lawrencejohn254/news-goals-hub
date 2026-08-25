@@ -7,12 +7,12 @@ export const Route = createFileRoute("/disclaimer")({
   component: DisclaimerPage,
   head: () => {
     const url = absoluteUrl("/disclaimer");
-    const description = "Important information about news accuracy and football predictions on The Dispatch.";
+    const description = "Important information about news accuracy and football predictions on The Africa Daily Dispatch.";
     return {
       meta: [
-        { title: "Disclaimer — The Dispatch" },
+        { title: "Disclaimer — The Africa Daily Dispatch" },
         { name: "description", content: description },
-        { property: "og:title", content: "Disclaimer — The Dispatch" },
+        { property: "og:title", content: "Disclaimer — The Africa Daily Dispatch" },
         { property: "og:description", content: description },
         { property: "og:url", content: url },
       ],
@@ -45,7 +45,7 @@ function DisclaimerPage() {
 
             <h2>Football predictions</h2>
             <blockquote>
-              18+. Predictions published on The Dispatch are opinion and analysis, not
+              18+. Predictions published on The Africa Daily Dispatch are opinion and analysis, not
               guarantees of any outcome. Past results shown on this site (where available) are
               historical and do not predict future results. Please gamble responsibly.
             </blockquote>

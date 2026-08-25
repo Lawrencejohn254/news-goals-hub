@@ -7,12 +7,12 @@ export const Route = createFileRoute("/privacy-policy")({
   component: PrivacyPage,
   head: () => {
     const url = absoluteUrl("/privacy-policy");
-    const description = "How The Dispatch collects, stores and uses your information.";
+    const description = "How The Africa Daily Dispatch collects, stores and uses your information.";
     return {
       meta: [
-        { title: "Privacy Policy — The Dispatch" },
+        { title: "Privacy Policy — The Africa Daily Dispatch" },
         { name: "description", content: description },
-        { property: "og:title", content: "Privacy Policy — The Dispatch" },
+        { property: "og:title", content: "Privacy Policy — The Africa Daily Dispatch" },
         { property: "og:description", content: description },
         { property: "og:url", content: url },
       ],
@@ -34,7 +34,7 @@ function PrivacyPage() {
 
           <div className="article-prose mt-8">
             <p>
-              This policy explains what information The Dispatch collects and how it's used.
+              This policy explains what information The Africa Daily Dispatch collects and how it's used.
               We only describe services this website actually uses — nothing more.
             </p>
 
@@ -79,7 +79,7 @@ function PrivacyPage() {
 
             <h2>Advertising</h2>
             <p>
-              The Dispatch shows ads served by Google AdSense. Google and its advertising
+              The Africa Daily Dispatch shows ads served by Google AdSense. Google and its advertising
               partners use cookies, device identifiers, and similar technologies to serve ads
               on this site, measure how they perform, and — where permitted — personalize
               which ads you see based on your visits here and to other sites. We don't control

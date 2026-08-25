@@ -13,9 +13,9 @@ export const Route = createFileRoute("/search")({
   validateSearch: (s: Record<string, unknown>) => ({ q: typeof s.q === "string" ? s.q : "" }),
   head: () => ({
     meta: [
-      { title: "Search — The Dispatch" },
-      { name: "description", content: "Search news, analysis and football predictions from The Dispatch." },
-      { property: "og:title", content: "Search The Dispatch" },
+      { title: "Search — The Africa Daily Dispatch" },
+      { name: "description", content: "Search news, analysis and football predictions from The Africa Daily Dispatch." },
+      { property: "og:title", content: "Search The Africa Daily Dispatch" },
       { property: "og:description", content: "Find news stories, analysis and football predictions." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },

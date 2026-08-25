@@ -19,17 +19,17 @@ export const Route = createFileRoute("/category/$slug")({
     const name = cat?.name ?? cap(params.slug);
     const description =
       cat?.description?.trim() ||
-      `Latest ${name} news, analysis, and reporting from The Dispatch.`;
+      `Latest ${name} news, analysis, and reporting from The Africa Daily Dispatch.`;
     const path = `/category/${params.slug}`;
     const url = absoluteUrl(path);
 
     return {
       meta: [
-        { title: `${name} — The Dispatch` },
+        { title: `${name} — The Africa Daily Dispatch` },
         { name: "description", content: description },
         { property: "og:type", content: "website" },
-        { property: "og:site_name", content: "The Dispatch" },
-        { property: "og:title", content: `${name} — The Dispatch` },
+        { property: "og:site_name", content: "The Africa Daily Dispatch" },
+        { property: "og:title", content: `${name} — The Africa Daily Dispatch` },
         { property: "og:description", content: description },
         { property: "og:url", content: url },
       ],

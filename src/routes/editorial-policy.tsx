@@ -7,12 +7,12 @@ export const Route = createFileRoute("/editorial-policy")({
   component: EditorialPolicyPage,
   head: () => {
     const url = absoluteUrl("/editorial-policy");
-    const description = "How The Dispatch sources, verifies, and corrects its reporting.";
+    const description = "How The Africa Daily Dispatch sources, verifies, and corrects its reporting.";
     return {
       meta: [
-        { title: "Editorial Policy — The Dispatch" },
+        { title: "Editorial Policy — The Africa Daily Dispatch" },
         { name: "description", content: description },
-        { property: "og:title", content: "Editorial Policy — The Dispatch" },
+        { property: "og:title", content: "Editorial Policy — The Africa Daily Dispatch" },
         { property: "og:description", content: description },
         { property: "og:url", content: url },
       ],
@@ -35,7 +35,7 @@ function EditorialPolicyPage() {
             <h2>Editorial independence</h2>
             <p>
               Our reporting and editorial decisions are made independently of advertisers,
-              sponsors, and any business relationships The Dispatch may have. Advertising
+              sponsors, and any business relationships The Africa Daily Dispatch may have. Advertising
               content is clearly presented as such and never influences our news coverage.
             </p>
 
