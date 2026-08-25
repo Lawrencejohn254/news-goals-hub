@@ -9,9 +9,10 @@ import { ArticleCard } from "@/components/site/ArticleCard";
 import { formatDate } from "@/lib/format";
 import { Comments } from "@/components/site/Comments";
 import { AdSlot } from "@/components/site/AdSlot";
-import { logPageView } from "@/lib/site";
+import { logPageView, fetchSettings } from "@/lib/site";
 import { absoluteUrl } from "@/lib/site-url";
 import { ArticleBody } from "@/components/site/ArticleBody";
+import { ShareRow, FollowRow } from "@/components/site/SocialLinks";
 
 export const Route = createFileRoute("/article/$slug")({
   component: ArticlePage,
@@ -120,6 +121,13 @@ function ArticlePage() {
     queryFn: () => fetchPublishedArticles(4),
     enabled: !!q.data,
   });
+  // Controls whether view count / published date show at all — off by
+  // default until enabled in Admin -> Settings.
+  const settings = useQuery({ queryKey: ["site-settings"], queryFn: fetchSettings });
+  const displaySettings = settings.data as
+    | ({ show_published_date?: boolean; show_view_count?: boolean })
+    | null
+    | undefined;
 
   useEffect(() => {
     if (!q.data) return;
@@ -203,22 +211,35 @@ function ArticlePage() {
             </p>
           )}
 
-          {/* Byline — now shows the author's photo, not just their name */}
-          <div className="mt-6 flex flex-wrap items-center gap-3 border-y border-border py-4 text-sm text-muted-foreground">
-            <Link
-              to="/authors/$id"
-              params={{ id: a.author_id }}
-              className="flex items-center gap-2 hover:text-[var(--brand)]"
-            >
-              <AuthorAvatar name={authorName} avatarUrl={a.profiles?.avatar_url} size={32} />
-              <span className="font-semibold text-foreground">{authorName}</span>
-            </Link>
-            <span>·</span>
-            <span>{formatDate(a.published_at ?? a.created_at)}</span>
-            <span>·</span>
-            <span>{a.reading_time} min read</span>
-            <span>·</span>
-            <span>{a.view_count?.toLocaleString() ?? 0} views</span>
+         {/* Byline — now shows the author's photo, not just their name.
+              Published date and view count are hidden unless turned on in
+              Admin -> Settings (both default off). */}
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-y border-border py-4 text-sm text-muted-foreground">
+            <div className="flex flex-wrap items-center gap-3">
+              <Link
+                to="/authors/$id"
+                params={{ id: a.author_id }}
+                className="flex items-center gap-2 hover:text-[var(--brand)]"
+              >
+                <AuthorAvatar name={authorName} avatarUrl={a.profiles?.avatar_url} size={32} />
+                <span className="font-semibold text-foreground">{authorName}</span>
+              </Link>
+              {displaySettings?.show_published_date && (
+                <>
+                  <span>·</span>
+                  <span>{formatDate(a.published_at ?? a.created_at)}</span>
+                </>
+              )}
+              <span>·</span>
+              <span>{a.reading_time} min read</span>
+              {displaySettings?.show_view_count && (
+                <>
+                  <span>·</span>
+                  <span>{a.view_count?.toLocaleString() ?? 0} views</span>
+                </>
+              )}
+            </div>
+            <ShareRow url={absoluteUrl(`/article/${a.slug}`)} title={a.title} />
           </div>
 
           {a.featured_image && (
@@ -258,6 +279,17 @@ function ArticlePage() {
               )}
             </div>
           </div>
+
+          {settings.data && (
+            <div className="mt-6">
+              <FollowRow
+                facebookUrl={settings.data.facebook_url}
+                instagramUrl={settings.data.instagram_url}
+                twitterUrl={settings.data.twitter_url}
+                whatsappUrl={(settings.data as { whatsapp_url?: string | null }).whatsapp_url}
+              />
+            </div>
+          )}
 
           <AdSlot placement="article-bottom" className="my-10" />
 
