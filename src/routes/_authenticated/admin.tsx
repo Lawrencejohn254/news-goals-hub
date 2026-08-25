@@ -200,9 +200,14 @@ function AdminLayout() {
             <NavItem to="/admin/profile" icon={<UserCircle size={16} />}>
               My Profile
             </NavItem>
-            <NavItem to="/" icon={<Home size={16} />} target="_blank" rel="noopener noreferrer">
-              View site
-            </NavItem>
+            <a
+              href="https://africadailydispatch.com"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="flex items-center gap-2 rounded px-3 py-2 text-foreground hover:bg-muted"
+            >
+              <Home size={16} /> View site
+            </a>
 
             <button
               onClick={signOut}

@@ -27,7 +27,7 @@ type ExtraSettings = {
 type Draft = Omit<SiteSettings, "id" | "updated_at"> & ExtraSettings;
 
 const empty: Draft = {
-  site_name: "Dispatch",
+  site_name: "The Africa Daily Dispatch",
   tagline: "",
   description: "",
   logo_url: "",
