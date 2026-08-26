@@ -13,13 +13,15 @@ export function ArticleCard({
   const author = article.profiles?.display_name ?? "Staff";
 
   if (size === "hero") {
+    // Single stacked column — image, then everything flows naturally below
+    // it. The previous side-by-side layout locked the image to a fixed
+    // aspect ratio while the text column's height depended on the
+    // headline's length, so a long headline left a dead gap under the
+    // image that couldn't stretch to fill it. Stacking removes that
+    // mismatch entirely: there's nothing for the image to "not fill."
     return (
-      <Link
-        to="/article/$slug"
-        params={{ slug: article.slug }}
-        className="group grid gap-6 md:grid-cols-2"
-      >
-        <div className="aspect-[16/10] overflow-hidden bg-muted">
+      <Link to="/article/$slug" params={{ slug: article.slug }} className="group block">
+        <div className="aspect-[16/9] overflow-hidden bg-muted">
           {article.featured_image ? (
             <img
               src={article.featured_image}
@@ -32,7 +34,7 @@ export function ArticleCard({
             </div>
           )}
         </div>
-        <div className="flex flex-col justify-center">
+        <div className="mt-5">
           {cat && (
             <span
               className="mb-3 inline-block w-fit px-2 py-1 text-xs font-bold uppercase tracking-widest text-white"
@@ -41,15 +43,15 @@ export function ArticleCard({
               {cat.name}
             </span>
           )}
-          <h2 className="font-serif text-3xl font-black leading-tight text-[var(--ink)] group-hover:text-[var(--brand)] md:text-5xl">
+          <h2 className="font-serif text-3xl font-black leading-tight text-[var(--ink)] group-hover:text-[var(--brand)] md:text-4xl">
             {article.title}
           </h2>
           {article.excerpt && (
-            <p className="mt-4 text-base text-muted-foreground md:text-lg">
+            <p className="mt-3 text-base text-muted-foreground md:text-lg">
               {article.excerpt}
             </p>
           )}
-          <div className="mt-4 text-sm text-muted-foreground">
+          <div className="mt-3 text-sm text-muted-foreground">
             By <span className="font-semibold text-foreground">{author}</span> ·{" "}
             {formatDate(article.published_at)} · {article.reading_time} min read
           </div>
