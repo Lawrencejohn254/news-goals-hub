@@ -356,7 +356,7 @@ function PredictionsIndex() {
         <AdSlot placement="sidebar" className="mt-10" />
 
         <p className="mt-8 border-l-4 border-[var(--brand)] bg-muted/40 p-4 text-xs text-muted-foreground">
-          18+. Predictions are opinion and analysis, not financial advice. Please gamble responsibly.
+          Football analysis published on The Africa Daily Dispatch are opinion and analysis.
         </p>
       </main>
       <Footer />
