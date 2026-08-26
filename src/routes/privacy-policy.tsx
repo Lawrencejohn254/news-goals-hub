@@ -95,7 +95,7 @@ function PrivacyPage() {
               >
                 How Google uses information from sites that use our services
               </a>
-              . A full list of third-party ad technology providers that may serve ads on this
+               A full list of third-party ad technology providers that may serve ads on this
               site is published by Google at{" "}
               <a
                 href="https://support.google.com/adsense/answer/9012903"

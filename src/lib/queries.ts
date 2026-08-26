@@ -23,12 +23,18 @@ export async function fetchCategories() {
 }
 
 export async function fetchPublishedArticles(limit = 20, offset = 0) {
+  // Pure chronological order — newest published first, full stop. This
+  // previously sorted "pinned" articles ahead of everything else
+  // regardless of date, which is why the homepage could show an August 21
+  // article above an August 25 one: any article ever marked pinned jumped
+  // the queue. Removed so "Latest News" always means latest, and older
+  // articles fall away naturally (they're still reachable on their
+  // category page — nothing is deleted, just no longer on the homepage).
   const { data, error } = await supabase
     .from("articles")
     .select(ARTICLE_SELECT)
     .eq("status", "published")
     .lte("published_at", new Date().toISOString())
-    .order("is_pinned", { ascending: false })
     .order("published_at", { ascending: false })
     .range(offset, offset + limit - 1);
   if (error) throw error;
