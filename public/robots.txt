@@ -4,5 +4,6 @@ Allow: /
 Disallow: /admin
 Disallow: /auth
 Disallow: /search
+Disallow: /predictions
 
 Sitemap: https://africadailydispatch.com/sitemap.xml
