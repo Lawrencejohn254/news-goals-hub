@@ -47,7 +47,7 @@ function DisclaimerPage() {
             <blockquote>
               18+. Analysis published on The Africa Daily Dispatch are opinion and analysis, not
               guarantees of any outcome. Past results shown on this site (where available) are
-              historical and do not predict future results. Please gamble responsibly.
+              historical and do not predict future results.
             </blockquote>
             <p>
               Our football analysis are informational content based on publicly available
