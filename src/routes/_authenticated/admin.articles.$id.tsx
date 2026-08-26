@@ -27,6 +27,7 @@ function EditArticle() {
   const [featuredImage, setFeaturedImage] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [status, setStatus] = useState<"draft" | "published" | "scheduled" | "archived">("draft");
+  const [originalStatus, setOriginalStatus] = useState<typeof status | null>(null);
   const [isFeatured, setIsFeatured] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
 
@@ -46,6 +47,7 @@ function EditArticle() {
           setFeaturedImage(data.featured_image ?? "");
           setCategoryId(data.category_id ?? "");
           setStatus(data.status);
+          setOriginalStatus(data.status);
           setIsFeatured(data.is_featured);
           setIsPinned(data.is_pinned);
         }
@@ -69,15 +71,20 @@ function EditArticle() {
         is_pinned: isPinned,
         reading_time: readingTime(content),
         published_at:
-          s === "published"
-            ? new Date().toISOString()
+          s === "published" && originalStatus !== "published"
+            ? new Date().toISOString() // first time going live — stamp it
             : s === "draft"
-              ? null
-              : undefined,
+              ? null // pulled back to draft — clear it
+              : undefined, // already published and staying published (or
+                            // archived/scheduled) — omit the key entirely so
+                            // Supabase leaves the existing value untouched.
+                            // This is the actual fix: previously this branch
+                            // set "now" unconditionally on every save.
       })
       .eq("id", id);
     if (error) return toast.error(error.message);
     setStatus(s);
+    setOriginalStatus(s);
     toast.success("Saved");
   };
 
