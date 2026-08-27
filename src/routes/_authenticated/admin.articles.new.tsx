@@ -4,6 +4,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { slugify, readingTime } from "@/lib/format";
 import { RichTextEditor } from "@/components/site/RichTextEditor";
+import { resolveImageUrl } from "@/lib/image-url";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -163,7 +164,8 @@ export function ArticleForm(props: {
           id="img"
           value={props.featuredImage}
           onChange={(e) => props.setFeaturedImage(e.target.value)}
-          placeholder="https://…"
+          onBlur={(e) => props.setFeaturedImage(resolveImageUrl(e.target.value))}
+          placeholder="https://… (also accepts Google Drive share links)"
         />
         {props.featuredImage && (
           <img

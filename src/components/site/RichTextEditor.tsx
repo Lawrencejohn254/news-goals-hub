@@ -25,6 +25,7 @@ import {
   Minus,
 } from "lucide-react";
 import { ResizableImage } from "@/components/admin/ResizableImage";
+import { resolveImageUrl } from "@/lib/image-url";
 
 interface Props {
   value: string;
@@ -172,8 +173,8 @@ export function RichTextEditor({ value, onChange, placeholder = "Start writingâ€
         <button
           type="button"
           onClick={() => {
-            const url = prompt("Image URL");
-            if (url) editor.chain().focus().setImage({ src: url }).run();
+            const url = prompt("Image URL (also accepts Google Drive share links)");
+            if (url) editor.chain().focus().setImage({ src: resolveImageUrl(url) }).run();
           }}
           className={btn}
         >
