@@ -126,11 +126,9 @@ function HomePage() {
             <div className="lg:col-span-2">
               <ArticleCard article={hero} size="hero" />
             </div>
-            {/* h-full stretches this to match the hero's height (the grid
-                row is already as tall as the taller column by default) —
-                the border/background now visibly extends the full way down
-                instead of stopping right after the last list item. */}
-            <div className="flex h-full flex-col space-y-6 border border-border bg-background p-5">
+            {/* h-full still keeps this column matched to the hero's
+                height, just without a visible border/background around it. */}
+            <div className="flex h-full flex-col space-y-6">
               <h2 className="border-b-2 border-[var(--ink)] pb-2 font-serif text-lg font-bold uppercase tracking-wider">
                 Editor's Picks
               </h2>
