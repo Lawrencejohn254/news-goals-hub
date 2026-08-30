@@ -114,10 +114,9 @@ function MyProfilePage() {
           <textarea
             value={bio}
             onChange={(e) => setBio(e.target.value)}
-            rows={4}
-            maxLength={400}
+            rows={8}
             className="w-full border border-input bg-background px-3 py-2 text-sm"
-            placeholder="A short line about yourself…"
+            placeholder="Write your full author biography…"
           />
         </div>
 
