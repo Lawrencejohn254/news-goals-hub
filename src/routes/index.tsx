@@ -249,7 +249,7 @@ function HomePage() {
                 Daily Brief
               </h2>
               <p className="mb-3 text-sm text-white/80">
-                Top stories and football analysis, straight to your inbox every morning.
+                Top stories and football updates, straight to your inbox every morning.
               </p>
               <NewsletterForm source="homepage" variant="dark" />
             </div>
