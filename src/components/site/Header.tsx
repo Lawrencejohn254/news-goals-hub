@@ -57,12 +57,12 @@ export function Header() {
 
           <Link to="/" className="flex items-center gap-2">
             <span className="inline-block h-7 w-2 bg-[var(--brand)]" />
-            <span className="font-serif text-2xl font-black tracking-tight text-[var(--ink)] md:text-3xl">
+            <span className="font-serif text-3xl font-black tracking-tight text-[var(--ink)] md:text-4xl">
               The Africa Daily Dispatch
             </span>
           </Link>
 
-          <Link to="/search" aria-label="Search" className="p-2 hover:text-[var(--brand)]">
+          <Link to="/search" search={{ q: "" }} aria-label="Search" className="p-2 hover:text-[var(--brand)]">
             <Search size={20} />
           </Link>
         </div>

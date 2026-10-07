@@ -25,6 +25,7 @@ import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/
 import { Route as ArticleSlugRouteImport } from './routes/article.$slug'
 import { Route as AuthorsIdRouteImport } from './routes/authors.$id'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
+import { Route as MediaSplatRouteImport } from './routes/media.$'
 import { Route as PredictionsIndexRouteImport } from './routes/predictions.index'
 import { Route as PredictionsSlugRouteImport } from './routes/predictions.$slug'
 import { Route as TeamsSlugRouteImport } from './routes/teams.$slug'
@@ -39,6 +40,7 @@ import { Route as AuthenticatedAdminLeaguesRouteImport } from './routes/_authent
 import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin.media'
 import { Route as AuthenticatedAdminNewsletterRouteImport } from './routes/_authenticated/admin.newsletter'
 import { Route as AuthenticatedAdminPredictionsRouteImport } from './routes/_authenticated/admin.predictions'
+import { Route as AuthenticatedAdminProfileRouteImport } from './routes/_authenticated/admin.profile'
 import { Route as AuthenticatedAdminSettingsRouteImport } from './routes/_authenticated/admin.settings'
 import { Route as AuthenticatedAdminUsersRouteImport } from './routes/_authenticated/admin.users'
 import { Route as AuthenticatedAdminArticlesIndexRouteImport } from './routes/_authenticated/admin.articles.index'
@@ -129,6 +131,11 @@ const CategorySlugRoute = CategorySlugRouteImport.update({
   path: '/category/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const MediaSplatRoute = MediaSplatRouteImport.update({
+  id: '/media/$',
+  path: '/media/$',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const PredictionsIndexRoute = PredictionsIndexRouteImport.update({
   id: '/predictions/',
   path: '/predictions/',
@@ -207,6 +214,12 @@ const AuthenticatedAdminPredictionsRoute =
     path: '/predictions',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminProfileRoute =
+  AuthenticatedAdminProfileRouteImport.update({
+    id: '/profile',
+    path: '/profile',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminSettingsRoute =
   AuthenticatedAdminSettingsRouteImport.update({
     id: '/settings',
@@ -283,6 +296,7 @@ export interface FileRoutesByFullPath {
   '/article/$slug': typeof ArticleSlugRoute
   '/authors/$id': typeof AuthorsIdRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/media/$': typeof MediaSplatRoute
   '/predictions/$slug': typeof PredictionsSlugRoute
   '/teams/$slug': typeof TeamsSlugRoute
   '/predictions/': typeof PredictionsIndexRoute
@@ -296,6 +310,7 @@ export interface FileRoutesByFullPath {
   '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
   '/admin/predictions': typeof AuthenticatedAdminPredictionsRouteWithChildren
+  '/admin/profile': typeof AuthenticatedAdminProfileRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin/': typeof AuthenticatedAdminIndexRoute
@@ -323,6 +338,7 @@ export interface FileRoutesByTo {
   '/article/$slug': typeof ArticleSlugRoute
   '/authors/$id': typeof AuthorsIdRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/media/$': typeof MediaSplatRoute
   '/predictions/$slug': typeof PredictionsSlugRoute
   '/teams/$slug': typeof TeamsSlugRoute
   '/predictions': typeof PredictionsIndexRoute
@@ -334,6 +350,7 @@ export interface FileRoutesByTo {
   '/admin/leagues': typeof AuthenticatedAdminLeaguesRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
   '/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
+  '/admin/profile': typeof AuthenticatedAdminProfileRoute
   '/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/admin/users': typeof AuthenticatedAdminUsersRoute
   '/admin': typeof AuthenticatedAdminIndexRoute
@@ -364,6 +381,7 @@ export interface FileRoutesById {
   '/article/$slug': typeof ArticleSlugRoute
   '/authors/$id': typeof AuthorsIdRoute
   '/category/$slug': typeof CategorySlugRoute
+  '/media/$': typeof MediaSplatRoute
   '/predictions/$slug': typeof PredictionsSlugRoute
   '/teams/$slug': typeof TeamsSlugRoute
   '/predictions/': typeof PredictionsIndexRoute
@@ -377,6 +395,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/media': typeof AuthenticatedAdminMediaRoute
   '/_authenticated/admin/newsletter': typeof AuthenticatedAdminNewsletterRoute
   '/_authenticated/admin/predictions': typeof AuthenticatedAdminPredictionsRouteWithChildren
+  '/_authenticated/admin/profile': typeof AuthenticatedAdminProfileRoute
   '/_authenticated/admin/settings': typeof AuthenticatedAdminSettingsRoute
   '/_authenticated/admin/users': typeof AuthenticatedAdminUsersRoute
   '/_authenticated/admin/': typeof AuthenticatedAdminIndexRoute
@@ -407,6 +426,7 @@ export interface FileRouteTypes {
     | '/article/$slug'
     | '/authors/$id'
     | '/category/$slug'
+    | '/media/$'
     | '/predictions/$slug'
     | '/teams/$slug'
     | '/predictions/'
@@ -420,6 +440,7 @@ export interface FileRouteTypes {
     | '/admin/media'
     | '/admin/newsletter'
     | '/admin/predictions'
+    | '/admin/profile'
     | '/admin/settings'
     | '/admin/users'
     | '/admin/'
@@ -447,6 +468,7 @@ export interface FileRouteTypes {
     | '/article/$slug'
     | '/authors/$id'
     | '/category/$slug'
+    | '/media/$'
     | '/predictions/$slug'
     | '/teams/$slug'
     | '/predictions'
@@ -458,6 +480,7 @@ export interface FileRouteTypes {
     | '/admin/leagues'
     | '/admin/media'
     | '/admin/newsletter'
+    | '/admin/profile'
     | '/admin/settings'
     | '/admin/users'
     | '/admin'
@@ -487,6 +510,7 @@ export interface FileRouteTypes {
     | '/article/$slug'
     | '/authors/$id'
     | '/category/$slug'
+    | '/media/$'
     | '/predictions/$slug'
     | '/teams/$slug'
     | '/predictions/'
@@ -500,6 +524,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/media'
     | '/_authenticated/admin/newsletter'
     | '/_authenticated/admin/predictions'
+    | '/_authenticated/admin/profile'
     | '/_authenticated/admin/settings'
     | '/_authenticated/admin/users'
     | '/_authenticated/admin/'
@@ -529,6 +554,7 @@ export interface RootRouteChildren {
   ArticleSlugRoute: typeof ArticleSlugRoute
   AuthorsIdRoute: typeof AuthorsIdRoute
   CategorySlugRoute: typeof CategorySlugRoute
+  MediaSplatRoute: typeof MediaSplatRoute
   PredictionsSlugRoute: typeof PredictionsSlugRoute
   TeamsSlugRoute: typeof TeamsSlugRoute
   PredictionsIndexRoute: typeof PredictionsIndexRoute
@@ -649,6 +675,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof CategorySlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/media/$': {
+      id: '/media/$'
+      path: '/media/$'
+      fullPath: '/media/$'
+      preLoaderRoute: typeof MediaSplatRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/predictions/': {
       id: '/predictions/'
       path: '/predictions'
@@ -745,6 +778,13 @@ declare module '@tanstack/react-router' {
       path: '/predictions'
       fullPath: '/admin/predictions'
       preLoaderRoute: typeof AuthenticatedAdminPredictionsRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/profile': {
+      id: '/_authenticated/admin/profile'
+      path: '/profile'
+      fullPath: '/admin/profile'
+      preLoaderRoute: typeof AuthenticatedAdminProfileRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/settings': {
@@ -872,6 +912,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
   AuthenticatedAdminNewsletterRoute: typeof AuthenticatedAdminNewsletterRoute
   AuthenticatedAdminPredictionsRoute: typeof AuthenticatedAdminPredictionsRouteWithChildren
+  AuthenticatedAdminProfileRoute: typeof AuthenticatedAdminProfileRoute
   AuthenticatedAdminSettingsRoute: typeof AuthenticatedAdminSettingsRoute
   AuthenticatedAdminUsersRoute: typeof AuthenticatedAdminUsersRoute
   AuthenticatedAdminIndexRoute: typeof AuthenticatedAdminIndexRoute
@@ -889,6 +930,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminNewsletterRoute: AuthenticatedAdminNewsletterRoute,
   AuthenticatedAdminPredictionsRoute:
     AuthenticatedAdminPredictionsRouteWithChildren,
+  AuthenticatedAdminProfileRoute: AuthenticatedAdminProfileRoute,
   AuthenticatedAdminSettingsRoute: AuthenticatedAdminSettingsRoute,
   AuthenticatedAdminUsersRoute: AuthenticatedAdminUsersRoute,
   AuthenticatedAdminIndexRoute: AuthenticatedAdminIndexRoute,
@@ -924,6 +966,7 @@ const rootRouteChildren: RootRouteChildren = {
   ArticleSlugRoute: ArticleSlugRoute,
   AuthorsIdRoute: AuthorsIdRoute,
   CategorySlugRoute: CategorySlugRoute,
+  MediaSplatRoute: MediaSplatRoute,
   PredictionsSlugRoute: PredictionsSlugRoute,
   TeamsSlugRoute: TeamsSlugRoute,
   PredictionsIndexRoute: PredictionsIndexRoute,

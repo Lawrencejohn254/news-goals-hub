@@ -23,7 +23,7 @@ export const Route = createFileRoute("/")({
   loader: async () => {
     const [featured, latest, mostRead, trending, categories] = await Promise.all([
       fetchFeaturedArticles(5),
-      fetchPublishedArticles(13),
+      fetchPublishedArticles(40),
       fetchMostRead(5),
       fetchTrending(6),
       fetchCategories(),
@@ -45,7 +45,7 @@ function HomePage() {
   });
   const latest = useQuery({
     queryKey: ["latest"],
-    queryFn: () => fetchPublishedArticles(13),
+    queryFn: () => fetchPublishedArticles(40),
     initialData: loaderData.latest,
   });
   const mostRead = useQuery({
@@ -75,6 +75,20 @@ function HomePage() {
   const hero = latest.data?.[0];
   const featuredRest = (featured.data ?? []).filter((f) => f.id !== hero?.id).slice(0, 3);
   const latestList = (latest.data ?? []).filter((a) => a.id !== hero?.id);
+
+  // Top Stories column beside the lead (Nation-style).
+  const topStories = latestList.slice(0, 5);
+  const usedIds = new Set([hero?.id, ...topStories.map((a) => a.id)]);
+
+  // One block per category, built from the remaining articles.
+  const sections = (categories.data ?? [])
+    .map((c) => ({
+      category: c,
+      articles: latestList
+        .filter((a) => !usedIds.has(a.id) && a.categories?.id === c.id)
+        .slice(0, 4),
+    }))
+    .filter((s) => s.articles.length > 0);
 
   return (
     <div className="min-h-screen bg-background">
@@ -120,54 +134,80 @@ function HomePage() {
           <AdSlot placement="home-top" className="w-full max-w-4xl" />
         </div>
 
-        {/* Hero + featured */}
+                {/* Lead zone: lead story | top stories | most read */}
         {hero && (
-          <section className="mb-14 grid gap-10 lg:grid-cols-3">
-            <div className="lg:col-span-2">
+          <section className="mb-12 grid gap-8 lg:grid-cols-12">
+            <div className="lg:col-span-6">
               <ArticleCard article={hero} size="hero" />
             </div>
-            {/* h-full still keeps this column matched to the hero's
-                height, just without a visible border/background around it. */}
-            <div className="flex h-full flex-col space-y-6">
-              <h2 className="border-b-2 border-[var(--ink)] pb-2 font-serif text-lg font-bold uppercase tracking-wider">
-                Editor's Picks
+
+            <div className="lg:col-span-3 lg:border-l lg:border-border lg:pl-8">
+              <h2 className="mb-3 border-b-2 border-[var(--ink)] pb-2 font-serif text-sm font-bold uppercase tracking-wider">
+                Top Stories
               </h2>
-              {featuredRest.length > 0 ? (
-                featuredRest.map((a) => <ArticleCard key={a.id} article={a} size="sm" />)
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  No featured stories yet
-                </p>
-              )}
+              <div className="space-y-3">
+                {topStories.map((a) => (
+                  <ArticleCard key={a.id} article={a} size="sm" />
+                ))}
+              </div>
             </div>
+
+            <aside className="lg:col-span-3 lg:border-l lg:border-border lg:pl-8">
+              <h2 className="mb-3 border-b-2 border-[var(--brand)] pb-2 font-serif text-sm font-bold uppercase tracking-wider">
+                Most Read
+              </h2>
+              <ol className="space-y-4">
+                {(mostRead.data ?? []).map((a, i) => (
+                  <li key={a.id} className="flex gap-3">
+                    <span className="font-serif text-3xl font-black text-[var(--brand)]">
+                      {i + 1}
+                    </span>
+                    <Link
+                      to="/article/$slug"
+                      params={{ slug: a.slug }}
+                      className="font-serif text-sm font-bold leading-snug hover:text-[var(--brand)]"
+                    >
+                      {a.title}
+                    </Link>
+                  </li>
+                ))}
+              </ol>
+            </aside>
           </section>
         )}
 
-        {/* Latest grid */}
-        <section className="mb-14">
-          <h2 className="mb-6 border-b-2 border-[var(--ink)] pb-2 font-serif text-2xl font-bold uppercase tracking-wider">
-            Latest News
-          </h2>
-          {latest.isLoading ? (
-            <p className="text-muted-foreground">Loading…</p>
-          ) : latestList.length === 0 ? (
-            <div className="border border-dashed border-border p-8 text-center text-muted-foreground">
-              <p className="font-serif text-xl">No stories published yet.</p>
-              <p className="mt-2 text-sm">
-                <Link to="/auth" className="text-[var(--brand)] underline">
-                  Sign in
-                </Link>{" "}
-                and head to the admin dashboard to publish your first article.
-              </p>
-            </div>
-          ) : (
-            <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-              {latestList.map((a) => (
-                <ArticleCard key={a.id} article={a} />
-              ))}
-            </div>
-          )}
-        </section>
+                {/* One block per category */}
+        {latest.isLoading ? (
+          <p className="mb-14 text-muted-foreground">Loading…</p>
+        ) : sections.length === 0 ? (
+          <div className="mb-14 border border-dashed border-border p-8 text-center text-muted-foreground">
+            <p className="font-serif text-xl">No stories published yet.</p>
+          </div>
+        ) : (
+          <div className="mb-14 grid gap-x-10 gap-y-12 md:grid-cols-2 lg:grid-cols-3">
+            {sections.map(({ category, articles }) => (
+              <section key={category.id}>
+                <Link
+                  to="/category/$slug"
+                  params={{ slug: category.slug }}
+                  className="mb-4 flex items-center justify-between border-t-4 pt-2"
+                  style={{ borderColor: category.color }}
+                >
+                  <h2 className="font-serif text-lg font-bold uppercase tracking-wider">
+                    {category.name}
+                  </h2>
+                  <span className="text-xs font-semibold text-muted-foreground">More →</span>
+                </Link>
+                <ArticleCard article={articles[0]} />
+                <div className="mt-3">
+                  {articles.slice(1).map((a) => (
+                    <ArticleCard key={a.id} article={a} size="headline" />
+                  ))}
+                </div>
+              </section>
+            ))}
+          </div>
+        )}
 
         {/* Trending Now */}
         {(trending.data ?? []).length > 0 && (
@@ -189,59 +229,8 @@ function HomePage() {
         </div>
 
         {/* Two-col: categories & most read */}
-        <section className="grid gap-10 lg:grid-cols-3">
-          <div className="lg:col-span-2">
-            <h2 className="mb-6 border-b-2 border-[var(--ink)] pb-2 font-serif text-2xl font-bold uppercase tracking-wider">
-              Sections
-            </h2>
-            <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-              {(categories.data ?? []).map((c) => (
-                <Link
-                  key={c.id}
-                  to="/category/$slug"
-                  params={{ slug: c.slug }}
-                  className="group flex items-center justify-between border border-border bg-background p-4 transition-colors hover:bg-[var(--paper)]"
-                >
-                  <div>
-                    <span
-                      className="mb-1 block h-1 w-8"
-                      style={{ backgroundColor: c.color }}
-                    />
-                    <span className="font-serif text-lg font-bold group-hover:text-[var(--brand)]">
-                      {c.name}
-                    </span>
-                  </div>
-                  <span className="text-muted-foreground group-hover:text-[var(--brand)]">→</span>
-                </Link>
-              ))}
-            </div>
-          </div>
-          <aside className="space-y-10">
-            <div>
-              <h2 className="mb-6 border-b-2 border-[var(--ink)] pb-2 font-serif text-lg font-bold uppercase tracking-wider">
-                Most Read
-              </h2>
-              {(mostRead.data ?? []).length === 0 ? (
-                <p className="text-sm text-muted-foreground">Views will show up here.</p>
-              ) : (
-                <ol className="space-y-4">
-                  {(mostRead.data ?? []).map((a, i) => (
-                    <li key={a.id} className="flex gap-3">
-                      <span className="font-serif text-3xl font-black text-[var(--brand)]">
-                        {i + 1}
-                      </span>
-                      <Link
-                        to="/article/$slug"
-                        params={{ slug: a.slug }}
-                        className="font-serif text-sm font-bold leading-snug hover:text-[var(--brand)]"
-                      >
-                        {a.title}
-                      </Link>
-                    </li>
-                  ))}
-                </ol>
-              )}
-            </div>
+        <section className="grid gap-10 md:grid-cols-2">
+          <aside className="contents">
 
             {/* Newsletter signup */}
             <div className="border border-border bg-[var(--ink)] p-5">

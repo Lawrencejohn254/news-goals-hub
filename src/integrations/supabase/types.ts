@@ -268,6 +268,7 @@ export type Database = {
           id?: string
           is_tracked?: boolean
           logo_url?: string | null
+          predictions_enabled?: boolean
           name: string
           season?: string | null
           slug: string
@@ -281,6 +282,7 @@ export type Database = {
           id?: string
           is_tracked?: boolean
           logo_url?: string | null
+          predictions_enabled?: boolean
           name?: string
           season?: string | null
           slug?: string
@@ -596,6 +598,7 @@ export type Database = {
           id: number
           instagram_url: string | null
           logo_url: string | null
+          predictions_enabled: boolean
           site_name: string
           tagline: string | null
           twitter_url: string | null
@@ -611,6 +614,7 @@ export type Database = {
           id?: number
           instagram_url?: string | null
           logo_url?: string | null
+          predictions_enabled?: boolean
           site_name?: string
           tagline?: string | null
           twitter_url?: string | null
@@ -626,6 +630,7 @@ export type Database = {
           id?: number
           instagram_url?: string | null
           logo_url?: string | null
+          predictions_enabled?: boolean
           site_name?: string
           tagline?: string | null
           twitter_url?: string | null

@@ -1,13 +1,13 @@
 import { Link } from "@tanstack/react-router";
 import type { ArticleWithMeta } from "@/lib/queries";
-import { formatDate } from "@/lib/format";
+import { formatDate, relativeDate } from "@/lib/format";
 
 export function ArticleCard({
   article,
   size = "md",
 }: {
   article: ArticleWithMeta;
-  size?: "sm" | "md" | "lg" | "hero";
+  size?: "sm" | "md" | "lg" | "hero" | "headline";
 }) {
   const cat = article.categories;
   const author = article.profiles?.display_name ?? "Staff";
@@ -55,6 +55,23 @@ export function ArticleCard({
             By <span className="font-semibold text-foreground">{author}</span> ·{" "}
             {formatDate(article.published_at)} · {article.reading_time} min read
           </div>
+        </div>
+      </Link>
+    );
+  }
+
+  if (size === "headline") {
+    return (
+      <Link
+        to="/article/$slug"
+        params={{ slug: article.slug }}
+        className="group block border-b border-border py-3 last:border-b-0"
+      >
+        <h3 className="font-serif text-base font-bold leading-snug text-[var(--ink)] group-hover:text-[var(--brand)]">
+          {article.title}
+        </h3>
+        <div className="mt-1 text-xs text-muted-foreground">
+          {relativeDate(article.published_at)}
         </div>
       </Link>
     );
