@@ -78,7 +78,12 @@ function HomePage() {
 
   // Top Stories column beside the lead (Nation-style).
   const topStories = latestList.slice(0, 5);
-  const usedIds = new Set([hero?.id, ...topStories.map((a) => a.id)]);
+  const belowHero = latestList.slice(5, 7);
+  const usedIds = new Set([
+    hero?.id,
+    ...topStories.map((a) => a.id),
+    ...belowHero.map((a) => a.id),
+  ]);
 
   // One block per category, built from the remaining articles.
   const sections = (categories.data ?? [])
@@ -101,29 +106,16 @@ function HomePage() {
           <span className="shrink-0 bg-[var(--ink)] px-2 py-1 text-xs font-bold uppercase tracking-widest">
             Breaking
           </span>
-          <div className="flex-1 overflow-hidden whitespace-nowrap">
-            <div className="marquee inline-block">
-              {(latest.data ?? []).slice(0, 6).map((a) => (
-                <Link
-                  key={a.id}
-                  to="/article/$slug"
-                  params={{ slug: a.slug }}
-                  className="mr-10 text-sm font-medium hover:underline"
-                >
-                  ● {a.title}
-                </Link>
-              ))}
-              {(latest.data ?? []).slice(0, 6).map((a) => (
-                <Link
-                  key={`d-${a.id}`}
-                  to="/article/$slug"
-                  params={{ slug: a.slug }}
-                  className="mr-10 text-sm font-medium hover:underline"
-                >
-                  ● {a.title}
-                </Link>
-              ))}
-            </div>
+                    <div className="min-w-0 flex-1">
+            {latest.data?.[0] && (
+              <Link
+                to="/article/$slug"
+                params={{ slug: latest.data[0].slug }}
+                className="block truncate text-sm font-semibold hover:underline"
+              >
+                {latest.data[0].title}
+              </Link>
+            )}
           </div>
         </div>
       </div>
@@ -137,12 +129,19 @@ function HomePage() {
                 {/* Lead zone: lead story | top stories | most read */}
         {hero && (
           <section className="mb-12 grid gap-8 lg:grid-cols-12">
-            <div className="lg:col-span-6">
+            <div className="flex flex-col gap-6 lg:col-span-6">
               <ArticleCard article={hero} size="hero" />
+              {belowHero.length > 0 && (
+                <div className="grid gap-6 sm:grid-cols-2">
+                  {belowHero.map((a) => (
+                    <ArticleCard key={a.id} article={a} size="sm" />
+                  ))}
+                </div>
+              )}
             </div>
 
             <div className="lg:col-span-3 lg:border-l lg:border-border lg:pl-8">
-              <h2 className="mb-3 border-b-2 border-[var(--ink)] pb-2 font-serif text-sm font-bold uppercase tracking-wider">
+              <h2 className="mb-3 border-l-4 border-[var(--brand)] pl-3 font-serif text-sm font-bold uppercase tracking-wider">
                 Top Stories
               </h2>
               <div className="space-y-3">
@@ -153,7 +152,7 @@ function HomePage() {
             </div>
 
             <aside className="lg:col-span-3 lg:border-l lg:border-border lg:pl-8">
-              <h2 className="mb-3 border-b-2 border-[var(--brand)] pb-2 font-serif text-sm font-bold uppercase tracking-wider">
+              <h2 className="mb-3 border-l-4 border-[var(--brand)] pl-3 font-serif text-sm font-bold uppercase tracking-wider">
                 Most Read
               </h2>
               <ol className="space-y-4">
@@ -213,7 +212,7 @@ function HomePage() {
         {(trending.data ?? []).length > 0 && (
           <section className="mb-14">
             <h2 className="mb-6 border-b-2 border-[var(--brand)] pb-2 font-serif text-2xl font-bold uppercase tracking-wider">
-              🔥 Trending Now
+               Trending Now
             </h2>
             <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
               {(trending.data ?? []).map((a) => (

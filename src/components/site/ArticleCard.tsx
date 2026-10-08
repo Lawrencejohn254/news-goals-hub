@@ -12,48 +12,39 @@ export function ArticleCard({
   const cat = article.categories;
   const author = article.profiles?.display_name ?? "Staff";
 
-  if (size === "hero") {
-    // Single stacked column — image, then everything flows naturally below
-    // it. The previous side-by-side layout locked the image to a fixed
-    // aspect ratio while the text column's height depended on the
-    // headline's length, so a long headline left a dead gap under the
-    // image that couldn't stretch to fill it. Stacking removes that
-    // mismatch entirely: there's nothing for the image to "not fill."
+    if (size === "hero") {
     return (
-      <Link to="/article/$slug" params={{ slug: article.slug }} className="group block">
-        <div className="aspect-[16/9] overflow-hidden bg-muted">
-          {article.featured_image ? (
+      <Link
+        to="/article/$slug"
+        params={{ slug: article.slug }}
+        className="group relative block min-h-[22rem] flex-1 overflow-hidden bg-[var(--ink)]"
+      >
+        <div className="absolute inset-0">
+          {article.featured_image && (
             <img
               src={article.featured_image}
               alt={article.title}
-              className="h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
+              className="h-full w-full object-cover transition-transform duration-500 group-hover:scale-[1.03]"
             />
-          ) : (
-            <div className="flex h-full items-center justify-center text-muted-foreground">
-              <span className="font-serif text-4xl">📰</span>
-            </div>
           )}
         </div>
-        <div className="mt-5">
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent" />
+        <div className="absolute inset-x-0 bottom-0 p-5 md:p-8">
           {cat && (
-            <span
-              className="mb-3 inline-block w-fit px-2 py-1 text-xs font-bold uppercase tracking-widest text-white"
-              style={{ backgroundColor: cat.color }}
-            >
+            <span className="mb-3 inline-block bg-[var(--brand)] px-2 py-1 text-xs font-extrabold uppercase tracking-widest text-white">
               {cat.name}
             </span>
           )}
-          <h2 className="font-serif text-3xl font-black leading-tight text-[var(--ink)] group-hover:text-[var(--brand)] md:text-4xl">
+          <h2 className="text-2xl font-extrabold leading-tight text-white md:text-3xl">
             {article.title}
           </h2>
           {article.excerpt && (
-            <p className="mt-3 text-base text-muted-foreground md:text-lg">
+            <p className="mt-3 hidden line-clamp-2 text-base text-white/80 md:block">
               {article.excerpt}
             </p>
           )}
-          <div className="mt-3 text-sm text-muted-foreground">
-            By <span className="font-semibold text-foreground">{author}</span> ·{" "}
-            {formatDate(article.published_at)} · {article.reading_time} min read
+          <div className="mt-3 text-xs font-semibold uppercase tracking-wide text-white/70">
+            {relativeDate(article.published_at)}
           </div>
         </div>
       </Link>
@@ -137,7 +128,7 @@ export function ArticleCard({
           {cat.name}
         </span>
       )}
-      <h3 className="mt-1 font-serif text-xl font-bold leading-snug text-[var(--ink)] group-hover:text-[var(--brand)]">
+      <h3 className="mt-1 text-lg font-extrabold leading-tight text-[var(--ink)] group-hover:text-[var(--brand)]">
         {article.title}
       </h3>
       {article.excerpt && (

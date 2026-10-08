@@ -56,7 +56,6 @@ export function Header() {
           </button>
 
           <Link to="/" className="flex items-center gap-2">
-            <span className="inline-block h-7 w-2 bg-[var(--brand)]" />
             <span className="font-serif text-3xl font-black tracking-tight text-[var(--ink)] md:text-4xl">
               The Africa Daily Dispatch
             </span>
