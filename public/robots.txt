@@ -7,3 +7,4 @@ Disallow: /search
 Disallow: /predictions
 
 Sitemap: https://africadailydispatch.com/sitemap.xml
+Sitemap: https://africadailydispatch.com/news-sitemap.xml

@@ -166,9 +166,11 @@ function ArticlePage() {
     author: {
       "@type": "Person",
       name: authorName,
+      url: absoluteUrl(`/authors/${a.author_id}`),
     },
     publisher: {
       "@type": "Organization",
+      url: absoluteUrl("/"),
       name: "The Africa Daily Dispatch",
     },
     mainEntityOfPage: {

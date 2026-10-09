@@ -16,6 +16,7 @@ import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ContactRouteImport } from './routes/contact'
 import { Route as DisclaimerRouteImport } from './routes/disclaimer'
 import { Route as EditorialPolicyRouteImport } from './routes/editorial-policy'
+import { Route as NewsSitemapDotxmlRouteImport } from './routes/news-sitemap[.]xml'
 import { Route as PrivacyPolicyRouteImport } from './routes/privacy-policy'
 import { Route as RssDotxmlRouteImport } from './routes/rss[.]xml'
 import { Route as SearchRouteImport } from './routes/search'
@@ -84,6 +85,11 @@ const DisclaimerRoute = DisclaimerRouteImport.update({
 const EditorialPolicyRoute = EditorialPolicyRouteImport.update({
   id: '/editorial-policy',
   path: '/editorial-policy',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const NewsSitemapDotxmlRoute = NewsSitemapDotxmlRouteImport.update({
+  id: '/news-sitemap.xml',
+  path: '/news-sitemap.xml',
   getParentRoute: () => rootRouteImport,
 } as any)
 const PrivacyPolicyRoute = PrivacyPolicyRouteImport.update({
@@ -287,6 +293,7 @@ export interface FileRoutesByFullPath {
   '/contact': typeof ContactRoute
   '/disclaimer': typeof DisclaimerRoute
   '/editorial-policy': typeof EditorialPolicyRoute
+  '/news-sitemap.xml': typeof NewsSitemapDotxmlRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/rss.xml': typeof RssDotxmlRoute
   '/search': typeof SearchRoute
@@ -330,6 +337,7 @@ export interface FileRoutesByTo {
   '/contact': typeof ContactRoute
   '/disclaimer': typeof DisclaimerRoute
   '/editorial-policy': typeof EditorialPolicyRoute
+  '/news-sitemap.xml': typeof NewsSitemapDotxmlRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/rss.xml': typeof RssDotxmlRoute
   '/search': typeof SearchRoute
@@ -372,6 +380,7 @@ export interface FileRoutesById {
   '/contact': typeof ContactRoute
   '/disclaimer': typeof DisclaimerRoute
   '/editorial-policy': typeof EditorialPolicyRoute
+  '/news-sitemap.xml': typeof NewsSitemapDotxmlRoute
   '/privacy-policy': typeof PrivacyPolicyRoute
   '/rss.xml': typeof RssDotxmlRoute
   '/search': typeof SearchRoute
@@ -417,6 +426,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/disclaimer'
     | '/editorial-policy'
+    | '/news-sitemap.xml'
     | '/privacy-policy'
     | '/rss.xml'
     | '/search'
@@ -460,6 +470,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/disclaimer'
     | '/editorial-policy'
+    | '/news-sitemap.xml'
     | '/privacy-policy'
     | '/rss.xml'
     | '/search'
@@ -501,6 +512,7 @@ export interface FileRouteTypes {
     | '/contact'
     | '/disclaimer'
     | '/editorial-policy'
+    | '/news-sitemap.xml'
     | '/privacy-policy'
     | '/rss.xml'
     | '/search'
@@ -546,6 +558,7 @@ export interface RootRouteChildren {
   ContactRoute: typeof ContactRoute
   DisclaimerRoute: typeof DisclaimerRoute
   EditorialPolicyRoute: typeof EditorialPolicyRoute
+  NewsSitemapDotxmlRoute: typeof NewsSitemapDotxmlRoute
   PrivacyPolicyRoute: typeof PrivacyPolicyRoute
   RssDotxmlRoute: typeof RssDotxmlRoute
   SearchRoute: typeof SearchRoute
@@ -610,6 +623,13 @@ declare module '@tanstack/react-router' {
       path: '/editorial-policy'
       fullPath: '/editorial-policy'
       preLoaderRoute: typeof EditorialPolicyRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/news-sitemap.xml': {
+      id: '/news-sitemap.xml'
+      path: '/news-sitemap.xml'
+      fullPath: '/news-sitemap.xml'
+      preLoaderRoute: typeof NewsSitemapDotxmlRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/privacy-policy': {
@@ -958,6 +978,7 @@ const rootRouteChildren: RootRouteChildren = {
   ContactRoute: ContactRoute,
   DisclaimerRoute: DisclaimerRoute,
   EditorialPolicyRoute: EditorialPolicyRoute,
+  NewsSitemapDotxmlRoute: NewsSitemapDotxmlRoute,
   PrivacyPolicyRoute: PrivacyPolicyRoute,
   RssDotxmlRoute: RssDotxmlRoute,
   SearchRoute: SearchRoute,

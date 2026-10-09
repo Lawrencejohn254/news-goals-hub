@@ -80,6 +80,8 @@ export function ArticleCard({
             <img
               src={article.featured_image}
               alt={article.title}
+              loading="lazy"
+              decoding="async"
               className="h-full w-full object-cover"
             />
           </div>
@@ -112,6 +114,8 @@ export function ArticleCard({
           <img
             src={article.featured_image}
             alt={article.title}
+            loading="lazy"
+            decoding="async"
             className="h-full w-full object-cover transition-transform group-hover:scale-[1.02]"
           />
         ) : (

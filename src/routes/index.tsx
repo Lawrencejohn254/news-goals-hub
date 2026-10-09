@@ -14,6 +14,7 @@ import { ArticleCard } from "@/components/site/ArticleCard";
 import { AdSlot } from "@/components/site/AdSlot";
 import { NewsletterForm } from "@/components/site/NewsletterForm";
 import { Link } from "@tanstack/react-router";
+import { absoluteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/")({
   // Fetch the homepage's content on the server before first paint. Without
@@ -31,6 +32,23 @@ export const Route = createFileRoute("/")({
     ]);
     return { featured, latest, mostRead, trending, categories };
   },
+  head: () => ({
+    meta: [
+      { title: "The Africa Daily Dispatch — Latest News, Politics, Business & Sport" },
+      {
+        name: "description",
+        content:
+          "Independent reporting on politics, business, technology and sport, plus expert football analysis.",
+      },
+      { property: "og:title", content: "The Africa Daily Dispatch" },
+      {
+        property: "og:description",
+        content: "Independent reporting on politics, business, technology and sport.",
+      },
+      { property: "og:url", content: absoluteUrl("/") },
+    ],
+    links: [{ rel: "canonical", href: absoluteUrl("/") }],
+  }),
   component: HomePage,
 });
 

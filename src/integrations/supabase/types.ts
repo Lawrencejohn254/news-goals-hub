@@ -602,6 +602,8 @@ export type Database = {
           instagram_url: string | null
           logo_url: string | null
           predictions_enabled: boolean
+          show_published_date: boolean
+          show_view_count: boolean
           site_name: string
           tagline: string | null
           twitter_url: string | null
@@ -618,6 +620,8 @@ export type Database = {
           instagram_url?: string | null
           logo_url?: string | null
           predictions_enabled?: boolean
+          show_published_date?: boolean
+          show_view_count?: boolean
           site_name?: string
           tagline?: string | null
           twitter_url?: string | null
@@ -634,6 +638,8 @@ export type Database = {
           instagram_url?: string | null
           logo_url?: string | null
           predictions_enabled?: boolean
+          show_published_date?: boolean
+          show_view_count?: boolean
           site_name?: string
           tagline?: string | null
           twitter_url?: string | null
