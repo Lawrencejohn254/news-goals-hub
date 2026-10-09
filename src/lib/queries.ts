@@ -54,6 +54,19 @@ export async function fetchFeaturedArticles(limit = 5) {
   return (data ?? []) as unknown as ArticleWithMeta[];
 }
 
+export async function fetchBreaking(limit = 8) {
+  const { data, error } = await supabase
+    .from("articles")
+    .select(ARTICLE_SELECT)
+    .eq("status", "published")
+    .eq("is_breaking", true)
+    .lte("published_at", new Date().toISOString())
+    .order("published_at", { ascending: false })
+    .limit(limit);
+  if (error) throw error;
+  return (data ?? []) as unknown as ArticleWithMeta[];
+}
+
 export async function fetchMostRead(limit = 5) {
   const { data, error } = await supabase
     .from("articles")

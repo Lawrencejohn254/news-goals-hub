@@ -102,6 +102,7 @@ export type Database = {
           featured_image: string | null
           id: string
           is_featured: boolean
+          is_breaking: boolean
           is_pinned: boolean
           published_at: string | null
           reading_time: number
@@ -123,6 +124,7 @@ export type Database = {
           featured_image?: string | null
           id?: string
           is_featured?: boolean
+          is_breaking?: boolean
           is_pinned?: boolean
           published_at?: string | null
           reading_time?: number
@@ -144,6 +146,7 @@ export type Database = {
           featured_image?: string | null
           id?: string
           is_featured?: boolean
+          is_breaking?: boolean
           is_pinned?: boolean
           published_at?: string | null
           reading_time?: number

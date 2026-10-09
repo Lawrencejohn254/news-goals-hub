@@ -30,6 +30,7 @@ function EditArticle() {
   const [originalStatus, setOriginalStatus] = useState<typeof status | null>(null);
   const [isFeatured, setIsFeatured] = useState(false);
   const [isPinned, setIsPinned] = useState(false);
+  const [isBreaking, setIsBreaking] = useState(false);
 
   useEffect(() => {
     supabase
@@ -50,6 +51,7 @@ function EditArticle() {
           setOriginalStatus(data.status);
           setIsFeatured(data.is_featured);
           setIsPinned(data.is_pinned);
+          setIsBreaking(data.is_breaking);
         }
         setLoading(false);
       });
@@ -69,6 +71,7 @@ function EditArticle() {
         status: s,
         is_featured: isFeatured,
         is_pinned: isPinned,
+        is_breaking: isBreaking,
         reading_time: readingTime(content),
         published_at:
           s === "published" && originalStatus !== "published"
@@ -132,6 +135,10 @@ function EditArticle() {
         <div className="flex items-center gap-3">
           <Switch id="pin" checked={isPinned} onCheckedChange={setIsPinned} />
           <Label htmlFor="pin">Pinned to top of feed</Label>
+        </div>
+        <div className="flex items-center gap-3">
+          <Switch id="brk" checked={isBreaking} onCheckedChange={setIsBreaking} />
+          <Label htmlFor="brk">Breaking (scrolls in the red ribbon)</Label>
         </div>
       </div>
 

@@ -2,6 +2,7 @@ import { createFileRoute } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import {
   fetchCategories,
+  fetchBreaking,
   fetchFeaturedArticles,
   fetchMostRead,
   fetchPublishedArticles,
@@ -64,6 +65,8 @@ function HomePage() {
     initialData: loaderData.categories,
   });
 
+  const breaking = useQuery({ queryKey: ["breaking"], queryFn: () => fetchBreaking(8) });
+
   // Hero is always the single most recently published article — never a
   // manually "featured" one that could be older. Previously this picked
   // featured.data[0] first and then blindly sliced latest.data[0] off the
@@ -99,26 +102,32 @@ function HomePage() {
     <div className="min-h-screen bg-background">
       <Header />
 
-      {/* Breaking ticker — width now matches the rest of the page's content
-          container instead of stretching full browser width */}
-      <div className="container-page mt-4">
-        <div className="flex items-center gap-4 border border-border bg-[var(--brand)] px-4 py-2 text-white overflow-hidden">
-          <span className="shrink-0 bg-[var(--ink)] px-2 py-1 text-xs font-bold uppercase tracking-widest">
-            Breaking
-          </span>
-                    <div className="min-w-0 flex-1">
-            {latest.data?.[0] && (
-              <Link
-                to="/article/$slug"
-                params={{ slug: latest.data[0].slug }}
-                className="block truncate text-sm font-semibold hover:underline"
-              >
-                {latest.data[0].title}
-              </Link>
-            )}
+            {/* Breaking ribbon: only articles marked "Breaking" in the admin */}
+      {(breaking.data ?? []).length > 0 && (
+        <div className="container-page mt-4">
+          <div className="flex items-center gap-4 overflow-hidden border border-border bg-[var(--brand)] px-4 py-2 text-white">
+            <span className="shrink-0 bg-[var(--ink)] px-2 py-1 text-xs font-bold uppercase tracking-widest">
+              Breaking
+            </span>
+            <div className="flex-1 overflow-hidden whitespace-nowrap">
+              <div className="marquee inline-block">
+                {[0, 1, 2, 3].map((copy) =>
+                  (breaking.data ?? []).map((a) => (
+                    <Link
+                      key={`${copy}-${a.id}`}
+                      to="/article/$slug"
+                      params={{ slug: a.slug }}
+                      className="mr-10 text-sm font-medium hover:underline"
+                    >
+                      ● {a.title}
+                    </Link>
+                  )),
+                )}
+              </div>
+            </div>
           </div>
         </div>
-      </div>
+      )}
 
       <main className="container-page pb-10 pt-6">
         {/* Top banner ad */}
