@@ -195,6 +195,7 @@ export function RichTextEditor({ value, onChange, placeholder = "Start writingâ€
 
   return (
     <div className="relative border border-border bg-background">
+      <div className="sticky top-0 z-30 bg-background shadow-sm">
       <div className="flex flex-wrap items-center gap-1 border-b border-border p-2">
         {/* Font family */}
         <select
@@ -356,6 +357,8 @@ export function RichTextEditor({ value, onChange, placeholder = "Start writingâ€
           ))}
         </div>
       )}
+
+      </div>
 
       <DragHandle editor={editor}>
         <div className="flex cursor-grab items-center rounded bg-muted p-1 text-muted-foreground hover:bg-[var(--brand)] hover:text-white active:cursor-grabbing">
