@@ -6,7 +6,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ArticleCard } from "@/components/site/ArticleCard";
-import { formatDate } from "@/lib/format";
+import { formatDateTime } from "@/lib/format";
 import { Comments } from "@/components/site/Comments";
 import { PreferredSource } from "@/components/site/PreferredSource";
 import { AdSlot } from "@/components/site/AdSlot";
@@ -223,12 +223,10 @@ function ArticlePage() {
                 <AuthorAvatar name={authorName} avatarUrl={a.profiles?.avatar_url} size={32} />
                 <span className="font-semibold text-foreground">{authorName}</span>
               </Link>
-              {settings.data?.show_published_date && (
-                <>
-                  <span>·</span>
-                  <span>{formatDate(a.published_at ?? a.created_at)}</span>
-                </>
-              )}
+              <span>·</span>
+              <time dateTime={a.published_at ?? a.created_at}>
+                {formatDateTime(a.published_at ?? a.created_at)}
+              </time>
               <span>·</span>
               <span>{a.reading_time} min read</span>
               {settings.data?.show_view_count && (

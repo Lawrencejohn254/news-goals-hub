@@ -1,6 +1,5 @@
 import { Link } from "@tanstack/react-router";
 import type { ArticleWithMeta } from "@/lib/queries";
-import { formatDate, relativeDate } from "@/lib/format";
 
 export function ArticleCard({
   article,
@@ -10,7 +9,7 @@ export function ArticleCard({
   size?: "sm" | "md" | "lg" | "hero" | "headline";
 }) {
   const cat = article.categories;
-  const author = article.profiles?.display_name ?? "Staff";
+  
 
     if (size === "hero") {
     return (
@@ -43,9 +42,7 @@ export function ArticleCard({
               {article.excerpt}
             </p>
           )}
-          <div className="mt-3 text-xs font-semibold uppercase tracking-wide text-white/70">
-            {relativeDate(article.published_at)}
-          </div>
+          
         </div>
       </Link>
     );
@@ -61,9 +58,7 @@ export function ArticleCard({
         <h3 className="font-serif text-base font-bold leading-snug text-[var(--ink)] group-hover:text-[var(--brand)]">
           {article.title}
         </h3>
-        <div className="mt-1 text-xs text-muted-foreground">
-          {relativeDate(article.published_at)}
-        </div>
+        
       </Link>
     );
   }
@@ -140,9 +135,7 @@ export function ArticleCard({
           {article.excerpt}
         </p>
       )}
-      <div className="mt-2 text-xs text-muted-foreground">
-        {author} · {formatDate(article.published_at)}
-      </div>
+      
     </Link>
   );
 }

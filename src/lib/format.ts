@@ -19,6 +19,24 @@ export function formatDate(input: string | Date | null | undefined): string {
   return d.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
 }
 
+export function formatDateTime(input: string | Date | null | undefined): string {
+  if (!input) return "";
+  const d = typeof input === "string" ? new Date(input) : input;
+  const date = d.toLocaleDateString("en-GB", {
+    day: "numeric",
+    month: "long",
+    year: "numeric",
+    timeZone: "Africa/Nairobi",
+  });
+  const time = d.toLocaleTimeString("en-GB", {
+    hour: "numeric",
+    minute: "2-digit",
+    hour12: true,
+    timeZone: "Africa/Nairobi",
+  });
+  return `${date}, ${time} EAT`;
+}
+
 export function relativeDate(input: string | Date | null | undefined): string {
   if (!input) return "";
   const d = typeof input === "string" ? new Date(input) : input;
