@@ -13,6 +13,7 @@ import { Footer } from "@/components/site/Footer";
 import { ArticleCard } from "@/components/site/ArticleCard";
 import { AdSlot } from "@/components/site/AdSlot";
 import { NewsletterForm } from "@/components/site/NewsletterForm";
+import { PreferredSource } from "@/components/site/PreferredSource";
 import { Link } from "@tanstack/react-router";
 import { absoluteUrl } from "@/lib/site-url";
 
@@ -202,7 +203,9 @@ function HomePage() {
           </section>
         )}
 
-                {/* One block per category */}
+                <PreferredSource className="mb-12" />
+
+        {/* One block per category */}
         {latest.isLoading ? (
           <p className="mb-14 text-muted-foreground">Loading…</p>
         ) : sections.length === 0 ? (

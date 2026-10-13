@@ -8,6 +8,7 @@ import { Footer } from "@/components/site/Footer";
 import { ArticleCard } from "@/components/site/ArticleCard";
 import { formatDate } from "@/lib/format";
 import { Comments } from "@/components/site/Comments";
+import { PreferredSource } from "@/components/site/PreferredSource";
 import { AdSlot } from "@/components/site/AdSlot";
 import { logPageView, fetchSettings } from "@/lib/site";
 import { absoluteUrl } from "@/lib/site-url";
@@ -290,6 +291,8 @@ function ArticlePage() {
           )}
 
           <AdSlot placement="article-bottom" className="my-10" />
+
+          <PreferredSource className="my-8" />
 
           <Comments articleId={a.id} />
         </article>
