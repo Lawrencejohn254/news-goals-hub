@@ -9,7 +9,7 @@ type Parsed =
 
 function parseVideoUrl(url: string): Parsed {
   const yt = url.match(/(?:youtube\.com\/(?:watch\?v=|embed\/|shorts\/)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
-  if (yt) return { type: "youtube", embedUrl: `https://www.youtube.com/embed/${yt[1]}` };
+  if (yt) return { type: "youtube", embedUrl: `https://www.youtube-nocookie.com/embed/${yt[1]}` };
 
   const vimeo = url.match(/vimeo\.com\/(?:video\/)?(\d+)/);
   if (vimeo) return { type: "vimeo", embedUrl: `https://player.vimeo.com/video/${vimeo[1]}` };
@@ -19,12 +19,31 @@ function parseVideoUrl(url: string): Parsed {
   return { type: "unknown" };
 }
 
-function VideoView({ node }: NodeViewProps) {
+function VideoView({ node, updateAttributes }: NodeViewProps) {
   const src = node.attrs.src as string;
   const parsed = parseVideoUrl(src);
 
   return (
-    <NodeViewWrapper className="my-6" data-drag-handle>
+    <NodeViewWrapper
+      className="group relative mx-auto my-6"
+      style={{ maxWidth: `${node.attrs.width ?? 100}%` }}
+      data-drag-handle
+    >
+      <div className="absolute left-1 top-1 z-10 flex gap-1 opacity-40 transition-opacity group-hover:opacity-100">
+        {[50, 75, 100].map((p) => (
+          <button
+            key={p}
+            type="button"
+            onMouseDown={(e) => {
+              e.preventDefault();
+              updateAttributes({ width: p });
+            }}
+            className={`rounded bg-[var(--ink)]/80 px-2 py-0.5 text-[10px] text-white ${(node.attrs.width ?? 100) === p ? "bg-[var(--brand)]" : ""}`}
+          >
+            {p}%
+          </button>
+        ))}
+      </div>
       {parsed.type === "youtube" || parsed.type === "vimeo" ? (
         <div className="video-embed-frame">
           <iframe
@@ -61,6 +80,7 @@ export const VideoEmbed = Node.create({
   addAttributes() {
     return {
       src: { default: null },
+      width: { default: 100 },
     };
   },
 
@@ -68,7 +88,10 @@ export const VideoEmbed = Node.create({
     return [
       {
         tag: "div[data-video-embed]",
-        getAttrs: (el) => ({ src: (el as HTMLElement).getAttribute("data-src") }),
+        getAttrs: (el) => ({
+          src: (el as HTMLElement).getAttribute("data-src"),
+          width: Number((el as HTMLElement).getAttribute("data-width")) || 100,
+        }),
       },
     ];
   },
@@ -76,7 +99,13 @@ export const VideoEmbed = Node.create({
   renderHTML({ HTMLAttributes }) {
     const src = (HTMLAttributes.src as string) ?? "";
     const parsed = parseVideoUrl(src);
-    const wrapperAttrs = mergeAttributes({ "data-video-embed": "", "data-src": src });
+    const width = Number(HTMLAttributes.width) || 100;
+    const wrapperAttrs = mergeAttributes({
+      "data-video-embed": "",
+      "data-src": src,
+      "data-width": String(width),
+      style: `max-width:${width}%;margin-left:auto;margin-right:auto`,
+    });
 
     if (parsed.type === "youtube" || parsed.type === "vimeo") {
       return [

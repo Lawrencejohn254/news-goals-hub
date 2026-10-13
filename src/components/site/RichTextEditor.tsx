@@ -5,7 +5,7 @@ import Link from "@tiptap/extension-link";
 import TextAlign from "@tiptap/extension-text-align";
 import { TextStyleKit } from "@tiptap/extension-text-style";
 import { DragHandle } from "@tiptap/extension-drag-handle-react";
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import {
   Bold,
   Italic,
@@ -23,9 +23,16 @@ import {
   AlignRight,
   GripVertical,
   Minus,
+  Video,
+  Upload,
+  Table as TableIcon,
 } from "lucide-react";
 import { ResizableImage } from "@/components/admin/ResizableImage";
 import { resolveImageUrl } from "@/lib/image-url";
+import { VideoEmbed } from "@/components/admin/VideoEmbed";
+import { uploadMedia, mediaUrl } from "@/lib/site";
+import type { EditorView } from "@tiptap/pm/view";
+import { TableKit } from "@tiptap/extension-table";
 
 interface Props {
   value: string;
@@ -45,16 +52,60 @@ const FONT_FAMILIES = [
   { label: "Monospace", value: "'Courier New', monospace" },
 ];
 
+// Uploads dropped or pasted image and video files to the media library,
+// then inserts them at the drop position.
+async function uploadAndInsert(view: EditorView, files: File[], startPos: number) {
+  let pos = startPos;
+  for (const file of files) {
+    const isVideo = file.type.startsWith("video/");
+    if (isVideo && file.size > 50 * 1024 * 1024) {
+      alert(`${file.name} is over 50 MB. Upload it to YouTube and paste the link instead.`);
+      continue;
+    }
+    try {
+      const item = await uploadMedia(file);
+      const type = isVideo ? view.state.schema.nodes.videoEmbed : view.state.schema.nodes.image;
+      if (!type) continue;
+      const node = type.create({ src: mediaUrl(item.path) });
+      const at = Math.min(pos, view.state.doc.content.size);
+      view.dispatch(view.state.tr.insert(at, node));
+      pos = at + node.nodeSize;
+    } catch (err) {
+      alert(err instanceof Error ? err.message : "Upload failed");
+    }
+  }
+}
+
+const isMediaFile = (f: File) => f.type.startsWith("image/") || f.type.startsWith("video/");
+
+// Keeps pasted colors, but drops solid black text and white backgrounds
+// (Word and web pages add these everywhere, and they fight dark mode).
+function cleanPastedHtml(html: string) {
+  return html
+    .replace(
+      /(^|[;"'\s])color:\s*(#000000|#000|black|windowtext|rgb\(\s*0\s*,\s*0\s*,\s*0\s*\))\s*;?/gi,
+      "$1",
+    )
+    .replace(
+      /background(-color)?:\s*(#ffffff|#fff|white|window|transparent|rgb\(\s*255\s*,\s*255\s*,\s*255\s*\))\s*;?/gi,
+      "",
+    );
+}
+
 // Cycled through by the Aâˆ’ / A+ buttons rather than a free-form input â€”
 // simpler UI, and keeps sizes consistent across an article.
 const FONT_SIZES = [12, 14, 16, 18, 20, 24, 28, 32, 40];
 const DEFAULT_SIZE = 16;
 
 export function RichTextEditor({ value, onChange, placeholder = "Start writingâ€¦" }: Props) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploadingVideo, setUploadingVideo] = useState(false);
   const editor = useEditor({
     extensions: [
       StarterKit,
       ResizableImage.configure({ inline: false }),
+      VideoEmbed,
+      TableKit.configure({ table: { resizable: true } }),
       Link.configure({ openOnClick: false, HTMLAttributes: { rel: "noopener" } }),
       TextAlign.configure({ types: ["heading", "paragraph"] }),
       TextStyleKit.configure({
@@ -63,8 +114,6 @@ export function RichTextEditor({ value, onChange, placeholder = "Start writingâ€
         // the toolbar lean.
         fontFamily: { types: ["textStyle"] },
         fontSize: { types: ["textStyle"] },
-        color: false,
-        backgroundColor: false,
         lineHeight: false,
       }),
     ],
@@ -74,9 +123,33 @@ export function RichTextEditor({ value, onChange, placeholder = "Start writingâ€
         class: "tiptap article-prose",
         "data-placeholder": placeholder,
       },
+      transformPastedHTML(html) {
+        return cleanPastedHtml(html);
+      },
+      handleDrop(view, event) {
+        const files = Array.from(event.dataTransfer?.files ?? []).filter(isMediaFile);
+        if (!files.length) return false;
+        event.preventDefault();
+        const pos =
+          view.posAtCoords({ left: event.clientX, top: event.clientY })?.pos ??
+          view.state.selection.from;
+        void uploadAndInsert(view, files, pos);
+        return true;
+      },
+      handlePaste(view, event) {
+        // Copies from Word, Excel and web pages include a picture of the
+        // selection next to the real text. Let formatted text paste normally.
+        if (event.clipboardData?.types.includes("text/html")) return false;
+        const files = Array.from(event.clipboardData?.files ?? []).filter(isMediaFile);
+        if (!files.length) return false;
+        event.preventDefault();
+        void uploadAndInsert(view, files, view.state.selection.from);
+        return true;
+      },
     },
     onUpdate: ({ editor }) => onChange(editor.getHTML()),
     immediatelyRender: false,
+    shouldRerenderOnTransaction: true,
   });
 
   useEffect(() => {
@@ -101,6 +174,19 @@ export function RichTextEditor({ value, onChange, placeholder = "Start writingâ€
     const nextIndex = Math.min(FONT_SIZES.length - 1, Math.max(0, nearestIndex + dir));
     editor.chain().focus().setFontSize(`${FONT_SIZES[nextIndex]}px`).run();
   };
+
+  const tableActions: [string, () => void][] = [
+    ["Row above", () => editor.chain().focus().addRowBefore().run()],
+    ["Row below", () => editor.chain().focus().addRowAfter().run()],
+    ["Column left", () => editor.chain().focus().addColumnBefore().run()],
+    ["Column right", () => editor.chain().focus().addColumnAfter().run()],
+    ["Delete row", () => editor.chain().focus().deleteRow().run()],
+    ["Delete column", () => editor.chain().focus().deleteColumn().run()],
+    ["Header row on/off", () => editor.chain().focus().toggleHeaderRow().run()],
+    ["Merge cells", () => editor.chain().focus().mergeCells().run()],
+    ["Split cell", () => editor.chain().focus().splitCell().run()],
+    ["Delete table", () => editor.chain().focus().deleteTable().run()],
+  ];
 
   const promptForLink = () => {
     const url = prompt("Link URL");
@@ -180,6 +266,70 @@ export function RichTextEditor({ value, onChange, placeholder = "Start writingâ€
         >
           <ImageIcon size={16} />
         </button>
+        <button
+          type="button"
+          title="Embed a video link (YouTube, Vimeo or .mp4)"
+          onClick={() => {
+            const url = prompt("Video link (YouTube, Vimeo, or a direct .mp4 link)");
+            if (url?.trim()) {
+              editor
+                .chain()
+                .focus()
+                .insertContent({ type: "videoEmbed", attrs: { src: url.trim() } })
+                .run();
+            }
+          }}
+          className={btn}
+        >
+          <Video size={16} />
+        </button>
+        <button
+          type="button"
+          title="Upload a video file (MP4 or WebM, up to 50 MB)"
+          disabled={uploadingVideo}
+          onClick={() => fileRef.current?.click()}
+          className={btn}
+        >
+          <Upload size={16} />
+        </button>
+        <input
+          ref={fileRef}
+          type="file"
+          accept="video/mp4,video/webm"
+          className="hidden"
+          onChange={async (e) => {
+            const file = e.target.files?.[0];
+            e.target.value = "";
+            if (!file) return;
+            if (file.size > 50 * 1024 * 1024) {
+              alert("That video is over 50 MB. Upload it to YouTube and paste the link instead.");
+              return;
+            }
+            setUploadingVideo(true);
+            try {
+              const item = await uploadMedia(file);
+              editor
+                .chain()
+                .focus()
+                .insertContent({ type: "videoEmbed", attrs: { src: mediaUrl(item.path) } })
+                .run();
+            } catch (err) {
+              alert(err instanceof Error ? err.message : "Upload failed");
+            } finally {
+              setUploadingVideo(false);
+            }
+          }}
+        />
+        <button
+          type="button"
+          title="Insert a table"
+          onClick={() =>
+            editor.chain().focus().insertTable({ rows: 3, cols: 3, withHeaderRow: true }).run()
+          }
+          className={btn}
+        >
+          <TableIcon size={16} />
+        </button>
         <span className="mx-1 h-5 w-px bg-border" />
         <button type="button" onClick={() => editor.chain().focus().undo().run()} className={btn}><Undo size={16}/></button>
         <button type="button" onClick={() => editor.chain().focus().redo().run()} className={btn}><Redo size={16}/></button>
@@ -187,6 +337,25 @@ export function RichTextEditor({ value, onChange, placeholder = "Start writingâ€
           Drag the handle to move blocks Â· hover an image to align/resize it
         </span>
       </div>
+
+      {editor.isActive("table") && (
+        <div className="flex flex-wrap items-center gap-1 border-b border-border bg-muted/40 p-2 text-xs">
+          <span className="mr-1 font-semibold">Table:</span>
+          {tableActions.map(([label, run]) => (
+            <button
+              key={label}
+              type="button"
+              onMouseDown={(e) => {
+                e.preventDefault();
+                run();
+              }}
+              className="rounded border border-border bg-background px-2 py-1 hover:bg-muted"
+            >
+              {label}
+            </button>
+          ))}
+        </div>
+      )}
 
       <DragHandle editor={editor}>
         <div className="flex cursor-grab items-center rounded bg-muted p-1 text-muted-foreground hover:bg-[var(--brand)] hover:text-white active:cursor-grabbing">

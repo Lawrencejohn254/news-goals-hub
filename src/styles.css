@@ -161,6 +161,9 @@
   color: var(--color-muted-foreground);
 }
 .article-prose img { border-radius: var(--radius); margin: 1.25em 0; max-width: 100%; height: auto; }
+.article-prose img[data-align="left"] { display: block; margin-left: 0; margin-right: auto; }
+.article-prose img[data-align="center"] { display: block; margin-left: auto; margin-right: auto; }
+.article-prose img[data-align="right"] { display: block; margin-left: auto; margin-right: 0; }
 .article-prose code {
   background: var(--color-muted);
   padding: 0.15em 0.35em;
@@ -179,6 +182,54 @@
   overflow-x: auto;
   max-width: 100%;
 }
+
+/* Embedded videos (YouTube / Vimeo / uploaded files) */
+.video-embed-frame {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+}
+.video-embed-frame iframe {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  border: 0;
+}
+.article-prose video,
+[data-video-embed] video {
+  width: 100%;
+  height: auto;
+  border-radius: var(--radius);
+}
+[data-video-embed] {
+  margin: 1.5em 0;
+}
+
+/* Tables */
+.article-prose table { border-collapse: collapse; margin: 1.25em 0; }
+.article-prose th,
+.article-prose td {
+  border: 1px solid var(--border);
+  padding: 0.5rem 0.75rem;
+  vertical-align: top;
+  min-width: 3rem;
+  position: relative;
+}
+.article-prose th { background: var(--muted); font-weight: 700; text-align: left; }
+.article-prose td p,
+.article-prose th p { margin: 0; }
+.tiptap .selectedCell { background: color-mix(in oklab, var(--brand) 15%, transparent); }
+.tiptap .column-resize-handle {
+  position: absolute;
+  right: -2px;
+  top: 0;
+  bottom: -2px;
+  width: 4px;
+  background: var(--brand);
+  pointer-events: none;
+}
+.tiptap.resize-cursor { cursor: col-resize; }
 
 /* TipTap editor */
 .tiptap {
