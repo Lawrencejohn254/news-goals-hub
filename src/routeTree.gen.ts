@@ -42,6 +42,7 @@ import { Route as AuthenticatedAdminArticlesRouteImport } from './routes/_authen
 import { Route as AuthenticatedAdminCampaignsRouteImport } from './routes/_authenticated/admin.campaigns'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
 import { Route as AuthenticatedAdminCommentsRouteImport } from './routes/_authenticated/admin.comments'
+import { Route as AuthenticatedAdminCountdownRouteImport } from './routes/_authenticated/admin.countdown'
 import { Route as AuthenticatedAdminFootballRouteImport } from './routes/_authenticated/admin.football'
 import { Route as AuthenticatedAdminLeaguesRouteImport } from './routes/_authenticated/admin.leagues'
 import { Route as AuthenticatedAdminMediaRouteImport } from './routes/_authenticated/admin.media'
@@ -229,6 +230,12 @@ const AuthenticatedAdminCommentsRoute =
     path: '/comments',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
+const AuthenticatedAdminCountdownRoute =
+  AuthenticatedAdminCountdownRouteImport.update({
+    id: '/countdown',
+    path: '/countdown',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminFootballRoute =
   AuthenticatedAdminFootballRouteImport.update({
     id: '/football',
@@ -356,6 +363,7 @@ export interface FileRoutesByFullPath {
   '/admin/campaigns': typeof AuthenticatedAdminCampaignsRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/comments': typeof AuthenticatedAdminCommentsRoute
+  '/admin/countdown': typeof AuthenticatedAdminCountdownRoute
   '/admin/football': typeof AuthenticatedAdminFootballRoute
   '/admin/leagues': typeof AuthenticatedAdminLeaguesRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
@@ -404,6 +412,7 @@ export interface FileRoutesByTo {
   '/admin/campaigns': typeof AuthenticatedAdminCampaignsRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/comments': typeof AuthenticatedAdminCommentsRoute
+  '/admin/countdown': typeof AuthenticatedAdminCountdownRoute
   '/admin/football': typeof AuthenticatedAdminFootballRoute
   '/admin/leagues': typeof AuthenticatedAdminLeaguesRoute
   '/admin/media': typeof AuthenticatedAdminMediaRoute
@@ -455,6 +464,7 @@ export interface FileRoutesById {
   '/_authenticated/admin/campaigns': typeof AuthenticatedAdminCampaignsRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/comments': typeof AuthenticatedAdminCommentsRoute
+  '/_authenticated/admin/countdown': typeof AuthenticatedAdminCountdownRoute
   '/_authenticated/admin/football': typeof AuthenticatedAdminFootballRoute
   '/_authenticated/admin/leagues': typeof AuthenticatedAdminLeaguesRoute
   '/_authenticated/admin/media': typeof AuthenticatedAdminMediaRoute
@@ -507,6 +517,7 @@ export interface FileRouteTypes {
     | '/admin/campaigns'
     | '/admin/categories'
     | '/admin/comments'
+    | '/admin/countdown'
     | '/admin/football'
     | '/admin/leagues'
     | '/admin/media'
@@ -555,6 +566,7 @@ export interface FileRouteTypes {
     | '/admin/campaigns'
     | '/admin/categories'
     | '/admin/comments'
+    | '/admin/countdown'
     | '/admin/football'
     | '/admin/leagues'
     | '/admin/media'
@@ -605,6 +617,7 @@ export interface FileRouteTypes {
     | '/_authenticated/admin/campaigns'
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/comments'
+    | '/_authenticated/admin/countdown'
     | '/_authenticated/admin/football'
     | '/_authenticated/admin/leagues'
     | '/_authenticated/admin/media'
@@ -885,6 +898,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminCommentsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
+    '/_authenticated/admin/countdown': {
+      id: '/_authenticated/admin/countdown'
+      path: '/countdown'
+      fullPath: '/admin/countdown'
+      preLoaderRoute: typeof AuthenticatedAdminCountdownRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
     '/_authenticated/admin/football': {
       id: '/_authenticated/admin/football'
       path: '/football'
@@ -1049,6 +1069,7 @@ interface AuthenticatedAdminRouteChildren {
   AuthenticatedAdminCampaignsRoute: typeof AuthenticatedAdminCampaignsRoute
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
   AuthenticatedAdminCommentsRoute: typeof AuthenticatedAdminCommentsRoute
+  AuthenticatedAdminCountdownRoute: typeof AuthenticatedAdminCountdownRoute
   AuthenticatedAdminFootballRoute: typeof AuthenticatedAdminFootballRoute
   AuthenticatedAdminLeaguesRoute: typeof AuthenticatedAdminLeaguesRoute
   AuthenticatedAdminMediaRoute: typeof AuthenticatedAdminMediaRoute
@@ -1068,6 +1089,7 @@ const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
   AuthenticatedAdminCampaignsRoute: AuthenticatedAdminCampaignsRoute,
   AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
   AuthenticatedAdminCommentsRoute: AuthenticatedAdminCommentsRoute,
+  AuthenticatedAdminCountdownRoute: AuthenticatedAdminCountdownRoute,
   AuthenticatedAdminFootballRoute: AuthenticatedAdminFootballRoute,
   AuthenticatedAdminLeaguesRoute: AuthenticatedAdminLeaguesRoute,
   AuthenticatedAdminMediaRoute: AuthenticatedAdminMediaRoute,

@@ -4,8 +4,20 @@ import { useQuery } from "@tanstack/react-query";
 import { Search, Menu, X } from "lucide-react";
 import { fetchCategories } from "@/lib/queries";
 import { fetchSettings } from "@/lib/site";
+import { ElectionCountdown } from "@/components/site/ElectionCountdown";
 
+// The countdown sits just below the masthead/nav bar, as a sibling of the
+// <header> element (not inside it) so the sticky nav behaves exactly as before.
 export function Header() {
+  return (
+    <>
+      <HeaderBar />
+      <ElectionCountdown />
+    </>
+  );
+}
+
+function HeaderBar() {
   const [open, setOpen] = useState(false);
   const [now, setNow] = useState(new Date());
 

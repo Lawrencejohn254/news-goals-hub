@@ -244,3 +244,33 @@
   height: 0;
   pointer-events: none;
 }
+
+/* Election countdown */
+.cd-persp { perspective: 700px; }
+
+@keyframes cd-flip {
+  0%   { transform: rotateX(-90deg); opacity: 0; }
+  60%  { opacity: 1; }
+  100% { transform: rotateX(0deg); opacity: 1; }
+}
+@keyframes cd-slide {
+  from { transform: translateY(-55%); opacity: 0; }
+  to   { transform: translateY(0); opacity: 1; }
+}
+@keyframes cd-wave {
+  0%, 100% { transform: perspective(600px) rotateY(-12deg) rotateZ(-1.5deg); }
+  50%      { transform: perspective(600px) rotateY(12deg) rotateZ(1.5deg); }
+}
+@keyframes cd-glow {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 1; }
+}
+
+.cd-num-flip  { animation: cd-flip 0.55s cubic-bezier(0.2, 0.8, 0.2, 1) both; transform-origin: 50% 0%; }
+.cd-num-slide { animation: cd-slide 0.45s cubic-bezier(0.2, 0.8, 0.2, 1) both; }
+.cd-flag-wave { animation: cd-wave 5s ease-in-out infinite; transform-origin: left center; }
+.cd-glow      { animation: cd-glow 1s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .cd-num-flip, .cd-num-slide, .cd-flag-wave, .cd-glow { animation: none; }
+}

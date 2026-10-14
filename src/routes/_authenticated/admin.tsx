@@ -20,6 +20,7 @@ import {
   ArrowLeft,
   UserCircle,
   ShieldAlert,
+  Timer,
 } from "lucide-react";
 import { useQueryClient } from "@tanstack/react-query";
 import { useStaffRoles, type StaffRole } from "@/hooks/useStaffRoles";
@@ -47,6 +48,7 @@ const SECTION_ACCESS: { prefix: string; roles: StaffRole[] }[] = [
   { prefix: "/admin/ads", roles: ADMIN_UP },
   { prefix: "/admin/newsletter", roles: ALL_STAFF },
   { prefix: "/admin/analytics", roles: EDITOR_UP },
+  { prefix: "/admin/countdown", roles: ADMIN_UP },
   { prefix: "/admin/settings", roles: ADMIN_UP },
   { prefix: "/admin/profile", roles: ALL_STAFF },
   { prefix: "/admin", roles: ALL_STAFF }, // dashboard root — exact match only, checked below
@@ -189,6 +191,11 @@ function AdminLayout() {
             {canSee(EDITOR_UP) && (
               <NavItem to="/admin/analytics" icon={<BarChart3 size={16} />}>
                 Analytics
+              </NavItem>
+            )}
+            {canSee(ADMIN_UP) && (
+              <NavItem to="/admin/countdown" icon={<Timer size={16} />}>
+                Election countdown
               </NavItem>
             )}
             {canSee(ADMIN_UP) && (
