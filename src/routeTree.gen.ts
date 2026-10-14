@@ -23,17 +23,22 @@ import { Route as SearchRouteImport } from './routes/search'
 import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as ApiAdEventRouteImport } from './routes/api.ad-event'
 import { Route as ArticleSlugRouteImport } from './routes/article.$slug'
 import { Route as AuthorsIdRouteImport } from './routes/authors.$id'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
 import { Route as MediaSplatRouteImport } from './routes/media.$'
 import { Route as PredictionsIndexRouteImport } from './routes/predictions.index'
 import { Route as PredictionsSlugRouteImport } from './routes/predictions.$slug'
+import { Route as RAdIdRouteImport } from './routes/r.$adId'
+import { Route as ReportTokenRouteImport } from './routes/report.$token'
 import { Route as TeamsSlugRouteImport } from './routes/teams.$slug'
 import { Route as AuthenticatedAdminIndexRouteImport } from './routes/_authenticated/admin.index'
+import { Route as AuthenticatedAdminAdStatsRouteImport } from './routes/_authenticated/admin.ad-stats'
 import { Route as AuthenticatedAdminAdsRouteImport } from './routes/_authenticated/admin.ads'
 import { Route as AuthenticatedAdminAnalyticsRouteImport } from './routes/_authenticated/admin.analytics'
 import { Route as AuthenticatedAdminArticlesRouteImport } from './routes/_authenticated/admin.articles'
+import { Route as AuthenticatedAdminCampaignsRouteImport } from './routes/_authenticated/admin.campaigns'
 import { Route as AuthenticatedAdminCategoriesRouteImport } from './routes/_authenticated/admin.categories'
 import { Route as AuthenticatedAdminCommentsRouteImport } from './routes/_authenticated/admin.comments'
 import { Route as AuthenticatedAdminFootballRouteImport } from './routes/_authenticated/admin.football'
@@ -122,6 +127,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const ApiAdEventRoute = ApiAdEventRouteImport.update({
+  id: '/api/ad-event',
+  path: '/api/ad-event',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const ArticleSlugRoute = ArticleSlugRouteImport.update({
   id: '/article/$slug',
   path: '/article/$slug',
@@ -152,6 +162,16 @@ const PredictionsSlugRoute = PredictionsSlugRouteImport.update({
   path: '/predictions/$slug',
   getParentRoute: () => rootRouteImport,
 } as any)
+const RAdIdRoute = RAdIdRouteImport.update({
+  id: '/r/$adId',
+  path: '/r/$adId',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ReportTokenRoute = ReportTokenRouteImport.update({
+  id: '/report/$token',
+  path: '/report/$token',
+  getParentRoute: () => rootRouteImport,
+} as any)
 const TeamsSlugRoute = TeamsSlugRouteImport.update({
   id: '/teams/$slug',
   path: '/teams/$slug',
@@ -162,6 +182,12 @@ const AuthenticatedAdminIndexRoute = AuthenticatedAdminIndexRouteImport.update({
   path: '/',
   getParentRoute: () => AuthenticatedAdminRoute,
 } as any)
+const AuthenticatedAdminAdStatsRoute =
+  AuthenticatedAdminAdStatsRouteImport.update({
+    id: '/ad-stats',
+    path: '/ad-stats',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
 const AuthenticatedAdminAdsRoute = AuthenticatedAdminAdsRouteImport.update({
   id: '/ads',
   path: '/ads',
@@ -177,6 +203,12 @@ const AuthenticatedAdminArticlesRoute =
   AuthenticatedAdminArticlesRouteImport.update({
     id: '/articles',
     path: '/articles',
+    getParentRoute: () => AuthenticatedAdminRoute,
+  } as any)
+const AuthenticatedAdminCampaignsRoute =
+  AuthenticatedAdminCampaignsRouteImport.update({
+    id: '/campaigns',
+    path: '/campaigns',
     getParentRoute: () => AuthenticatedAdminRoute,
   } as any)
 const AuthenticatedAdminCategoriesRoute =
@@ -300,16 +332,21 @@ export interface FileRoutesByFullPath {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/api/ad-event': typeof ApiAdEventRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/authors/$id': typeof AuthorsIdRoute
   '/category/$slug': typeof CategorySlugRoute
   '/media/$': typeof MediaSplatRoute
   '/predictions/$slug': typeof PredictionsSlugRoute
+  '/r/$adId': typeof RAdIdRoute
+  '/report/$token': typeof ReportTokenRoute
   '/teams/$slug': typeof TeamsSlugRoute
   '/predictions/': typeof PredictionsIndexRoute
+  '/admin/ad-stats': typeof AuthenticatedAdminAdStatsRoute
   '/admin/ads': typeof AuthenticatedAdminAdsRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/admin/articles': typeof AuthenticatedAdminArticlesRouteWithChildren
+  '/admin/campaigns': typeof AuthenticatedAdminCampaignsRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/admin/football': typeof AuthenticatedAdminFootballRoute
@@ -343,15 +380,20 @@ export interface FileRoutesByTo {
   '/search': typeof SearchRoute
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
+  '/api/ad-event': typeof ApiAdEventRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/authors/$id': typeof AuthorsIdRoute
   '/category/$slug': typeof CategorySlugRoute
   '/media/$': typeof MediaSplatRoute
   '/predictions/$slug': typeof PredictionsSlugRoute
+  '/r/$adId': typeof RAdIdRoute
+  '/report/$token': typeof ReportTokenRoute
   '/teams/$slug': typeof TeamsSlugRoute
   '/predictions': typeof PredictionsIndexRoute
+  '/admin/ad-stats': typeof AuthenticatedAdminAdStatsRoute
   '/admin/ads': typeof AuthenticatedAdminAdsRoute
   '/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
+  '/admin/campaigns': typeof AuthenticatedAdminCampaignsRoute
   '/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/admin/football': typeof AuthenticatedAdminFootballRoute
@@ -387,16 +429,21 @@ export interface FileRoutesById {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
+  '/api/ad-event': typeof ApiAdEventRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/authors/$id': typeof AuthorsIdRoute
   '/category/$slug': typeof CategorySlugRoute
   '/media/$': typeof MediaSplatRoute
   '/predictions/$slug': typeof PredictionsSlugRoute
+  '/r/$adId': typeof RAdIdRoute
+  '/report/$token': typeof ReportTokenRoute
   '/teams/$slug': typeof TeamsSlugRoute
   '/predictions/': typeof PredictionsIndexRoute
+  '/_authenticated/admin/ad-stats': typeof AuthenticatedAdminAdStatsRoute
   '/_authenticated/admin/ads': typeof AuthenticatedAdminAdsRoute
   '/_authenticated/admin/analytics': typeof AuthenticatedAdminAnalyticsRoute
   '/_authenticated/admin/articles': typeof AuthenticatedAdminArticlesRouteWithChildren
+  '/_authenticated/admin/campaigns': typeof AuthenticatedAdminCampaignsRoute
   '/_authenticated/admin/categories': typeof AuthenticatedAdminCategoriesRoute
   '/_authenticated/admin/comments': typeof AuthenticatedAdminCommentsRoute
   '/_authenticated/admin/football': typeof AuthenticatedAdminFootballRoute
@@ -433,16 +480,21 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/admin'
+    | '/api/ad-event'
     | '/article/$slug'
     | '/authors/$id'
     | '/category/$slug'
     | '/media/$'
     | '/predictions/$slug'
+    | '/r/$adId'
+    | '/report/$token'
     | '/teams/$slug'
     | '/predictions/'
+    | '/admin/ad-stats'
     | '/admin/ads'
     | '/admin/analytics'
     | '/admin/articles'
+    | '/admin/campaigns'
     | '/admin/categories'
     | '/admin/comments'
     | '/admin/football'
@@ -476,15 +528,20 @@ export interface FileRouteTypes {
     | '/search'
     | '/sitemap.xml'
     | '/terms'
+    | '/api/ad-event'
     | '/article/$slug'
     | '/authors/$id'
     | '/category/$slug'
     | '/media/$'
     | '/predictions/$slug'
+    | '/r/$adId'
+    | '/report/$token'
     | '/teams/$slug'
     | '/predictions'
+    | '/admin/ad-stats'
     | '/admin/ads'
     | '/admin/analytics'
+    | '/admin/campaigns'
     | '/admin/categories'
     | '/admin/comments'
     | '/admin/football'
@@ -519,16 +576,21 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/_authenticated/admin'
+    | '/api/ad-event'
     | '/article/$slug'
     | '/authors/$id'
     | '/category/$slug'
     | '/media/$'
     | '/predictions/$slug'
+    | '/r/$adId'
+    | '/report/$token'
     | '/teams/$slug'
     | '/predictions/'
+    | '/_authenticated/admin/ad-stats'
     | '/_authenticated/admin/ads'
     | '/_authenticated/admin/analytics'
     | '/_authenticated/admin/articles'
+    | '/_authenticated/admin/campaigns'
     | '/_authenticated/admin/categories'
     | '/_authenticated/admin/comments'
     | '/_authenticated/admin/football'
@@ -564,11 +626,14 @@ export interface RootRouteChildren {
   SearchRoute: typeof SearchRoute
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
+  ApiAdEventRoute: typeof ApiAdEventRoute
   ArticleSlugRoute: typeof ArticleSlugRoute
   AuthorsIdRoute: typeof AuthorsIdRoute
   CategorySlugRoute: typeof CategorySlugRoute
   MediaSplatRoute: typeof MediaSplatRoute
   PredictionsSlugRoute: typeof PredictionsSlugRoute
+  RAdIdRoute: typeof RAdIdRoute
+  ReportTokenRoute: typeof ReportTokenRoute
   TeamsSlugRoute: typeof TeamsSlugRoute
   PredictionsIndexRoute: typeof PredictionsIndexRoute
   ApiPublicHooksFootballSyncRoute: typeof ApiPublicHooksFootballSyncRoute
@@ -674,6 +739,13 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/api/ad-event': {
+      id: '/api/ad-event'
+      path: '/api/ad-event'
+      fullPath: '/api/ad-event'
+      preLoaderRoute: typeof ApiAdEventRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/article/$slug': {
       id: '/article/$slug'
       path: '/article/$slug'
@@ -716,6 +788,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof PredictionsSlugRouteImport
       parentRoute: typeof rootRouteImport
     }
+    '/r/$adId': {
+      id: '/r/$adId'
+      path: '/r/$adId'
+      fullPath: '/r/$adId'
+      preLoaderRoute: typeof RAdIdRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/report/$token': {
+      id: '/report/$token'
+      path: '/report/$token'
+      fullPath: '/report/$token'
+      preLoaderRoute: typeof ReportTokenRouteImport
+      parentRoute: typeof rootRouteImport
+    }
     '/teams/$slug': {
       id: '/teams/$slug'
       path: '/teams/$slug'
@@ -728,6 +814,13 @@ declare module '@tanstack/react-router' {
       path: '/'
       fullPath: '/admin/'
       preLoaderRoute: typeof AuthenticatedAdminIndexRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/ad-stats': {
+      id: '/_authenticated/admin/ad-stats'
+      path: '/ad-stats'
+      fullPath: '/admin/ad-stats'
+      preLoaderRoute: typeof AuthenticatedAdminAdStatsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/ads': {
@@ -749,6 +842,13 @@ declare module '@tanstack/react-router' {
       path: '/articles'
       fullPath: '/admin/articles'
       preLoaderRoute: typeof AuthenticatedAdminArticlesRouteImport
+      parentRoute: typeof AuthenticatedAdminRoute
+    }
+    '/_authenticated/admin/campaigns': {
+      id: '/_authenticated/admin/campaigns'
+      path: '/campaigns'
+      fullPath: '/admin/campaigns'
+      preLoaderRoute: typeof AuthenticatedAdminCampaignsRouteImport
       parentRoute: typeof AuthenticatedAdminRoute
     }
     '/_authenticated/admin/categories': {
@@ -922,9 +1022,11 @@ const AuthenticatedAdminPredictionsRouteWithChildren =
   )
 
 interface AuthenticatedAdminRouteChildren {
+  AuthenticatedAdminAdStatsRoute: typeof AuthenticatedAdminAdStatsRoute
   AuthenticatedAdminAdsRoute: typeof AuthenticatedAdminAdsRoute
   AuthenticatedAdminAnalyticsRoute: typeof AuthenticatedAdminAnalyticsRoute
   AuthenticatedAdminArticlesRoute: typeof AuthenticatedAdminArticlesRouteWithChildren
+  AuthenticatedAdminCampaignsRoute: typeof AuthenticatedAdminCampaignsRoute
   AuthenticatedAdminCategoriesRoute: typeof AuthenticatedAdminCategoriesRoute
   AuthenticatedAdminCommentsRoute: typeof AuthenticatedAdminCommentsRoute
   AuthenticatedAdminFootballRoute: typeof AuthenticatedAdminFootballRoute
@@ -939,9 +1041,11 @@ interface AuthenticatedAdminRouteChildren {
 }
 
 const AuthenticatedAdminRouteChildren: AuthenticatedAdminRouteChildren = {
+  AuthenticatedAdminAdStatsRoute: AuthenticatedAdminAdStatsRoute,
   AuthenticatedAdminAdsRoute: AuthenticatedAdminAdsRoute,
   AuthenticatedAdminAnalyticsRoute: AuthenticatedAdminAnalyticsRoute,
   AuthenticatedAdminArticlesRoute: AuthenticatedAdminArticlesRouteWithChildren,
+  AuthenticatedAdminCampaignsRoute: AuthenticatedAdminCampaignsRoute,
   AuthenticatedAdminCategoriesRoute: AuthenticatedAdminCategoriesRoute,
   AuthenticatedAdminCommentsRoute: AuthenticatedAdminCommentsRoute,
   AuthenticatedAdminFootballRoute: AuthenticatedAdminFootballRoute,
@@ -984,11 +1088,14 @@ const rootRouteChildren: RootRouteChildren = {
   SearchRoute: SearchRoute,
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
+  ApiAdEventRoute: ApiAdEventRoute,
   ArticleSlugRoute: ArticleSlugRoute,
   AuthorsIdRoute: AuthorsIdRoute,
   CategorySlugRoute: CategorySlugRoute,
   MediaSplatRoute: MediaSplatRoute,
   PredictionsSlugRoute: PredictionsSlugRoute,
+  RAdIdRoute: RAdIdRoute,
+  ReportTokenRoute: ReportTokenRoute,
   TeamsSlugRoute: TeamsSlugRoute,
   PredictionsIndexRoute: PredictionsIndexRoute,
   ApiPublicHooksFootballSyncRoute: ApiPublicHooksFootballSyncRoute,

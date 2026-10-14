@@ -1,7 +1,8 @@
-import { createFileRoute } from "@tanstack/react-router";
+import { createFileRoute, Link } from "@tanstack/react-router";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { supabase } from "@/integrations/supabase/client";
+import { db } from "@/lib/db";
 import { AD_PLACEMENTS, type Ad } from "@/lib/site";
 import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
@@ -30,9 +31,16 @@ export const Route = createFileRoute("/_authenticated/admin/ads")({
 
 type AdRow = Ad & { status?: string | null };
 
+type CampaignOption = {
+  id: string;
+  name: string;
+  advertisers: { name: string } | null;
+};
+
 const emptyAd = {
   name: "",
   placement: AD_PLACEMENTS[0] as string,
+  campaign_id: "",
   save_as: "active" as "draft" | "active",
   image_url: "",
   target_url: "",
@@ -90,6 +98,18 @@ function AdsAdmin() {
         .order("created_at", { ascending: false });
       if (error) throw error;
       return data ?? [];
+    },
+  });
+
+  const campaignsQ = useQuery({
+    queryKey: ["admin", "campaign-options"],
+    queryFn: async () => {
+      const { data, error } = await db
+        .from("campaigns")
+        .select("id, name, advertisers(name)")
+        .order("created_at", { ascending: false });
+      if (error) throw error;
+      return (data ?? []) as unknown as CampaignOption[];
     },
   });
 
@@ -169,8 +189,10 @@ function AdsAdmin() {
       const startsISO = nairobiInputToISO(form.starts_at);
       const endsISO = nairobiInputToISO(form.ends_at);
 
-      const { error } = await supabase.from("ads").insert({
+      // Uses the untyped client so the new status / campaign_id columns never cause type errors.
+      const { error } = await db.from("ads").insert({
         name: form.name.trim(),
+        campaign_id: form.campaign_id || null,
         placement: form.placement,
         image_url: imageUrl,
         target_url: form.target_url.trim() || null,
@@ -179,7 +201,7 @@ function AdsAdmin() {
         ends_at: endsISO,
         status: form.save_as === "draft" ? "draft" : publishStatus(startsISO),
       });
-      if (error) throw error;
+      if (error) throw new Error(error.message);
 
       toast.success(form.save_as === "draft" ? "Draft saved" : "Ad created");
       setForm(emptyAd);
@@ -196,7 +218,7 @@ function AdsAdmin() {
     const current = effectiveStatus(ad);
     const next: AdStatus =
       current === "active" || current === "scheduled" ? "paused" : publishStatus(ad.starts_at);
-    const { error } = await supabase.from("ads").update({ status: next }).eq("id", ad.id);
+    const { error } = await db.from("ads").update({ status: next }).eq("id", ad.id);
     if (error) return toast.error(error.message);
     refresh();
   };
@@ -214,7 +236,17 @@ function AdsAdmin() {
 
   return (
     <div>
-      <h1 className="mb-6 font-serif text-3xl font-black">Ads</h1>
+      <div className="mb-6 flex flex-wrap items-center justify-between gap-3">
+        <h1 className="font-serif text-3xl font-black">Ads</h1>
+        <div className="flex items-center gap-4">
+          <Link to="/admin/ad-stats" className="text-sm underline">
+            View stats →
+          </Link>
+          <Link to="/admin/campaigns" className="text-sm underline">
+            Campaigns →
+          </Link>
+        </div>
+      </div>
 
       <div className="mb-8 grid gap-3 border border-border bg-background p-4 md:grid-cols-2">
         <div>
@@ -282,6 +314,23 @@ function AdsAdmin() {
             onChange={(e) => set({ target_url: e.target.value })}
             placeholder="https://advertiser.com/landing-page"
           />
+        </div>
+
+        <div className="md:col-span-2">
+          <Label>Campaign (optional)</Label>
+          <select
+            value={form.campaign_id}
+            onChange={(e) => set({ campaign_id: e.target.value })}
+            className="h-10 w-full border border-input bg-background px-3 text-sm"
+          >
+            <option value="">No campaign</option>
+            {(campaignsQ.data ?? []).map((c) => (
+              <option key={c.id} value={c.id}>
+                {c.advertisers?.name ? `${c.advertisers.name} — ` : ""}
+                {c.name}
+              </option>
+            ))}
+          </select>
         </div>
 
         <div>
