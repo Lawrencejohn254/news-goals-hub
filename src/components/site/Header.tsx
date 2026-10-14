@@ -6,13 +6,17 @@ import { fetchCategories } from "@/lib/queries";
 import { fetchSettings } from "@/lib/site";
 import { ElectionCountdown } from "@/components/site/ElectionCountdown";
 
-// The countdown sits just below the masthead/nav bar, as a sibling of the
-// <header> element (not inside it) so the sticky nav behaves exactly as before.
+// On wide screens the countdown lives inside the masthead row (between the
+// site name and the search icon, see HeaderBar). Below 1024px there is no
+// room there, so it drops into a slim strip right under the header instead.
 export function Header() {
   return (
     <>
       <HeaderBar />
-      <ElectionCountdown />
+      <ElectionCountdown
+        size="sm"
+        wrapperClassName="container-page flex justify-center py-2 lg:hidden"
+      />
     </>
   );
 }
@@ -72,6 +76,8 @@ function HeaderBar() {
               The Africa Daily Dispatch
             </span>
           </Link>
+
+          <ElectionCountdown wrapperClassName="hidden lg:block" />
 
           <Link to="/search" search={{ q: "" }} aria-label="Search" className="p-2 hover:text-[var(--brand)]">
             <Search size={20} />

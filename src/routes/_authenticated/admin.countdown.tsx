@@ -192,8 +192,16 @@ function CountdownAdmin() {
       )}
 
       <section className="mb-6 border border-border bg-background p-5">
-        <h2 className="mb-3 font-serif text-lg font-bold">Live preview</h2>
-        <ElectionCountdownView settings={previewSettings} />
+        <h2 className="mb-1 font-serif text-lg font-bold">Live preview</h2>
+        <p className="mb-3 text-xs text-muted-foreground">
+          Shown in the masthead, between the site name and the search icon.
+        </p>
+        <div className="flex items-center justify-between gap-4 overflow-x-auto border border-border bg-background p-3">
+          <span className="shrink-0 font-serif text-3xl font-black tracking-tight">
+            The Africa Daily Dispatch
+          </span>
+          <ElectionCountdownView settings={previewSettings} />
+        </div>
       </section>
 
       <section className="mb-6 space-y-3 border border-border bg-background p-5">
@@ -211,7 +219,7 @@ function CountdownAdmin() {
           <div>
             <p className="text-sm font-semibold">Show on every page</p>
             <p className="text-xs text-muted-foreground">
-              Off = homepage only. On = under the masthead on all public pages.
+              Off = homepage only. On = in the masthead on all public pages.
             </p>
           </div>
           <Switch
@@ -224,21 +232,12 @@ function CountdownAdmin() {
       <section className="mb-6 grid gap-4 border border-border bg-background p-5 md:grid-cols-2">
         <h2 className="font-serif text-lg font-bold md:col-span-2">Content</h2>
         <div>
-          <Label htmlFor="cd-title">Title</Label>
+          <Label htmlFor="cd-title">Name (hover text &amp; screen readers only)</Label>
           <Input
             id="cd-title"
             value={draft.title}
             maxLength={80}
             onChange={(e) => set({ title: e.target.value })}
-          />
-        </div>
-        <div>
-          <Label htmlFor="cd-subtitle">Subtitle</Label>
-          <Input
-            id="cd-subtitle"
-            value={draft.subtitle}
-            maxLength={140}
-            onChange={(e) => set({ subtitle: e.target.value })}
           />
         </div>
         <div>
@@ -284,22 +283,6 @@ function CountdownAdmin() {
             <option value="none">No flag</option>
           </select>
         </div>
-        <div>
-          <Label htmlFor="cd-flag-pos">Flag position</Label>
-          <select
-            id="cd-flag-pos"
-            className={selectClass}
-            value={draft.flag_position}
-            onChange={(e) =>
-              set({ flag_position: e.target.value as ElectionCountdownSettings["flag_position"] })
-            }
-          >
-            <option value="sides">On both sides of the title</option>
-            <option value="left">Left of the title</option>
-            <option value="above">Above the title</option>
-          </select>
-        </div>
-
         {(draft.flag_mode === "kenya" || draft.flag_mode === "stripes") && (
           <>
             <ColorField

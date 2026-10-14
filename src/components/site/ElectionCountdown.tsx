@@ -77,12 +77,10 @@ function StripesFlag({ c1, c2, c3 }: { c1: string; c2: string; c3: string }) {
 function Flag({
   s,
   size,
-  delay = 0,
   animated,
 }: {
   s: ElectionCountdownSettings;
   size: string;
-  delay?: number;
   animated: boolean;
 }) {
   if (s.flag_mode === "none") return null;
@@ -90,11 +88,8 @@ function Flag({
     return null;
   }
   return (
-    <div
-      className={`shrink-0 ${size} ${animated ? "cd-flag-wave" : ""}`}
-      style={{ animationDelay: `${delay}s` }}
-    >
-      <div className="aspect-[3/2] w-full overflow-hidden rounded-[3px] shadow-[0_8px_24px_rgba(0,0,0,0.45)] ring-1 ring-white/20">
+    <div className={`shrink-0 ${size} ${animated ? "cd-flag-wave" : ""}`}>
+      <div className="aspect-[3/2] w-full overflow-hidden rounded-[2px] shadow-[0_3px_8px_rgba(0,0,0,0.4)] ring-1 ring-white/20">
         {s.flag_mode === "kenya" && (
           <KenyaFlag c1={s.flag_color_1} c2={s.flag_color_2} c3={s.flag_color_3} />
         )}
@@ -102,180 +97,131 @@ function Flag({
           <StripesFlag c1={s.flag_color_1} c2={s.flag_color_2} c3={s.flag_color_3} />
         )}
         {s.flag_mode === "image" && s.flag_image_url && (
-          <img
-            src={s.flag_image_url}
-            alt=""
-            className="h-full w-full object-cover"
-            loading="lazy"
-          />
+          <img src={s.flag_image_url} alt="" className="h-full w-full object-cover" />
         )}
       </div>
     </div>
   );
 }
 
-/* ---------------------------------------------------------------- tiles */
+/* ---------------------------------------------------------------- units */
 
-function Tile({
+type Size = "md" | "sm";
+
+function Unit({
   value,
   label,
-  pad,
   animation,
+  size,
   live,
 }: {
   value: number | null;
   label: string;
-  pad: number;
   animation: CountdownAnimation;
+  size: Size;
   live?: boolean;
 }) {
-  const text = value === null ? "--" : String(value).padStart(pad, "0");
+  const text = value === null ? "--" : String(value).padStart(2, "0");
   const anim = animation === "flip" ? "cd-num-flip" : animation === "slide" ? "cd-num-slide" : "";
   return (
-    <div className="min-w-0" aria-hidden="true">
-      <div
-        className="cd-persp relative flex h-[clamp(4.5rem,17vw,9.5rem)] items-center justify-center overflow-hidden rounded-md ring-1 ring-white/10 shadow-[0_10px_30px_rgba(0,0,0,0.35)]"
-        style={{ background: "var(--cd-tile)", color: "var(--cd-tile-text)" }}
+    <div
+      aria-hidden="true"
+      className="cd-persp relative flex items-baseline gap-1 overflow-hidden rounded px-1.5 pb-1.5 pt-1 ring-1 ring-white/10 sm:px-2"
+      style={{ background: "var(--cd-tile)", color: "var(--cd-tile-text)" }}
+    >
+      <span
+        key={text}
+        className={`${anim} block font-black leading-none tabular-nums tracking-tight ${
+          size === "sm" ? "text-[1.7rem]" : "text-[2.15rem]"
+        }`}
       >
-        {/* soft highlight on the top half, like a flip-clock card */}
-        <span className="pointer-events-none absolute inset-x-0 top-0 h-1/2 bg-gradient-to-b from-white/[0.08] to-transparent" />
-        {/* centre split + side notches — drawn BEFORE the number so the digits
-            sit on top of the line instead of looking struck through */}
-        <span className="pointer-events-none absolute inset-x-0 top-1/2 h-px bg-black/40" />
-        <span className="pointer-events-none absolute left-0 top-1/2 h-2 w-1 -translate-y-1/2 rounded-r bg-black/60" />
-        <span className="pointer-events-none absolute right-0 top-1/2 h-2 w-1 -translate-y-1/2 rounded-l bg-black/60" />
-        <span
-          key={text}
-          className={`${anim} relative block font-black leading-none tabular-nums tracking-tight text-[clamp(2.1rem,9.5vw,6rem)]`}
-        >
-          {text}
-        </span>
-        {/* accent underline — pulses on the seconds tile */}
-        <span
-          className={`absolute inset-x-0 bottom-0 h-[3px] ${live ? "cd-glow" : ""}`}
-          style={{ background: "var(--cd-accent)" }}
-        />
-      </div>
-      <p
-        className="mt-2 text-[0.62rem] font-semibold uppercase tracking-[0.18em] opacity-75 sm:text-xs md:mt-3 md:text-sm md:tracking-[0.25em]"
-        style={{ color: "var(--cd-text)" }}
-      >
-        {label}
-      </p>
+        {text}
+      </span>
+      <span className="text-[0.55rem] font-bold uppercase tracking-wider opacity-70">{label}</span>
+      {/* accent underline — pulses on the seconds unit */}
+      <span
+        className={`absolute inset-x-0 bottom-0 h-[2px] ${live ? "cd-glow" : ""}`}
+        style={{ background: "var(--cd-accent)" }}
+      />
     </div>
   );
 }
 
 /* ----------------------------------------------------------------- view */
 
-/** Pure presentation — used by the site and by the admin live preview. */
-export function ElectionCountdownView({ settings: s }: { settings: ElectionCountdownSettings }) {
+/**
+ * Compact countdown strip: small flag + big numbers with one-letter labels.
+ * Built to sit in the masthead row; also used by the admin live preview.
+ */
+export function ElectionCountdownView({
+  settings: s,
+  size = "md",
+}: {
+  settings: ElectionCountdownSettings;
+  size?: Size;
+}) {
   const now = useNow();
   const target = new Date(s.target_at).getTime();
   const r = now === null || Number.isNaN(target) ? null : splitRemaining(target - now);
   const animated = s.animation !== "none";
 
   const style = {
-    "--cd-from": s.bg_from,
-    "--cd-to": s.bg_to,
     "--cd-accent": s.accent,
     "--cd-tile": s.tile_bg,
     "--cd-tile-text": s.tile_text,
-    "--cd-text": s.text_color,
     background: `linear-gradient(135deg, ${s.bg_from}, ${s.bg_to})`,
     color: s.text_color,
   } as CSSProperties;
-
-  const flagSize =
-    s.flag_position === "above" ? "w-20 sm:w-24 md:w-28" : "w-12 sm:w-20 md:w-32 lg:w-40";
-  const flagA = <Flag s={s} size={flagSize} animated={animated} />;
-  const flagB = <Flag s={s} size={flagSize} animated={animated} delay={-2.5} />;
 
   const stripe =
     s.flag_mode === "kenya" || s.flag_mode === "stripes"
       ? [s.flag_color_1, s.flag_color_2, s.flag_color_3]
       : [s.accent, s.accent, s.accent];
 
-  const titleBlock = (
-    <div className="min-w-0 text-center">
-      <p
-        className="mb-1 text-[0.65rem] font-bold uppercase tracking-[0.3em] md:mb-2 md:text-sm"
-        style={{ color: "var(--cd-accent)" }}
-      >
-        {s.subtitle}
-      </p>
-      <h2 className="font-serif text-2xl font-black uppercase leading-[1.05] tracking-tight sm:text-4xl md:text-6xl">
-        {s.title}
-      </h2>
-    </div>
-  );
-
   return (
-    <section
-      className="relative overflow-hidden rounded-md shadow-sm ring-1 ring-black/10"
+    <div
+      role="group"
+      aria-label={s.title}
+      title={`${s.title} — ${formatEat(s.target_at)} (EAT)`}
+      className="relative inline-flex items-center gap-1.5 overflow-hidden rounded-md px-1.5 pb-1.5 pt-2 shadow-sm ring-1 ring-black/10 sm:gap-2 sm:px-2"
       style={style}
-      aria-label={`${s.title} countdown`}
     >
-      {/* tri-colour strip across the top */}
-      <div className="flex h-1.5 w-full">
+      {/* tri-colour strip along the top edge */}
+      <div className="absolute inset-x-0 top-0 flex h-[3px]">
         {stripe.map((c, i) => (
           <span key={i} className="h-full flex-1" style={{ background: c }} />
         ))}
       </div>
 
-      <div className="px-4 py-7 text-center sm:px-8 md:py-12">
-        {s.flag_position === "above" ? (
-          <div className="flex flex-col items-center gap-4 md:gap-5">
-            {flagA}
-            {titleBlock}
-          </div>
-        ) : s.flag_position === "left" ? (
-          <div className="flex items-center justify-center gap-4 md:gap-8">
-            {flagA}
-            {titleBlock}
-          </div>
-        ) : (
-          <div className="flex items-center justify-center gap-3 sm:gap-6 md:gap-10">
-            {flagA}
-            {titleBlock}
-            {flagB}
-          </div>
-        )}
+      <Flag s={s} size={size === "sm" ? "w-7" : "w-9"} animated={animated} />
 
-        {r?.over ? (
-          <p
-            className="mx-auto mt-8 max-w-3xl font-serif text-3xl font-black uppercase leading-tight tracking-tight md:mt-12 md:text-6xl"
-            style={{ color: "var(--cd-accent)" }}
-          >
-            {s.ended_message}
-          </p>
-        ) : (
-          <>
-            <p className="sr-only">
-              {r
-                ? `${r.days} days, ${r.hours} hours and ${r.minutes} minutes until ${s.title}`
-                : `Countdown to ${s.title}`}
-            </p>
-            <div className="mx-auto mt-7 grid max-w-4xl grid-cols-4 gap-2 sm:gap-4 md:mt-12 md:gap-6">
-              <Tile value={r ? r.days : null} label="Days" pad={2} animation={s.animation} />
-              <Tile value={r ? r.hours : null} label="Hours" pad={2} animation={s.animation} />
-              <Tile value={r ? r.minutes : null} label="Mins" pad={2} animation={s.animation} />
-              <Tile
-                value={r ? r.seconds : null}
-                label="Secs"
-                pad={2}
-                animation={s.animation}
-                live={animated}
-              />
-            </div>
-          </>
-        )}
-
-        <p className="mt-6 text-xs font-medium opacity-80 sm:text-sm md:mt-9 md:text-base">
-          {formatEat(s.target_at)} <span className="opacity-70">(EAT)</span>
+      {r?.over ? (
+        <p
+          className="px-2 text-sm font-black uppercase leading-tight tracking-tight sm:text-base"
+          style={{ color: "var(--cd-accent)" }}
+        >
+          {s.ended_message}
         </p>
-      </div>
-    </section>
+      ) : (
+        <>
+          <p className="sr-only">
+            {r
+              ? `${r.days} days, ${r.hours} hours and ${r.minutes} minutes until ${s.title}`
+              : `Countdown to ${s.title}`}
+          </p>
+          <Unit value={r ? r.days : null} label="d" animation={s.animation} size={size} />
+          <Unit value={r ? r.hours : null} label="h" animation={s.animation} size={size} />
+          <Unit value={r ? r.minutes : null} label="m" animation={s.animation} size={size} />
+          <Unit
+            value={r ? r.seconds : null}
+            label="s"
+            animation={s.animation}
+            size={size}
+            live={animated}
+          />
+        </>
+      )}
+    </div>
   );
 }
 
@@ -285,8 +231,16 @@ export function ElectionCountdownView({ settings: s }: { settings: ElectionCount
  * Site-facing component. Renders nothing unless the admin has switched the
  * countdown on — and nothing at all (no error, no layout shift) if the
  * settings table isn't there yet or the request fails.
+ * `wrapperClassName` is only applied when the countdown is visible, so a
+ * hidden countdown never leaves behind an empty padded box.
  */
-export function ElectionCountdown() {
+export function ElectionCountdown({
+  size = "md",
+  wrapperClassName,
+}: {
+  size?: Size;
+  wrapperClassName?: string;
+}) {
   const pathname = useRouterState({ select: (st) => st.location.pathname });
   const q = useQuery({
     queryKey: ["election-countdown"],
@@ -298,8 +252,8 @@ export function ElectionCountdown() {
   if (!s || !s.is_enabled) return null;
   if (!s.show_on_all_pages && pathname !== "/") return null;
   return (
-    <div className="container-page mt-6 md:mt-10">
-      <ElectionCountdownView settings={s} />
+    <div className={wrapperClassName}>
+      <ElectionCountdownView settings={s} size={size} />
     </div>
   );
 }
