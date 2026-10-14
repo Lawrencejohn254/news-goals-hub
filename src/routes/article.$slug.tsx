@@ -1,7 +1,7 @@
 import { createFileRoute, Link, notFound } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { useEffect } from "react";
-import { fetchArticleBySlug, fetchPublishedArticles } from "@/lib/queries";
+import { fetchArticleBySlug, fetchRelatedArticles } from "@/lib/queries";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
@@ -25,7 +25,10 @@ export const Route = createFileRoute("/article/$slug")({
   // the generic fallback title.
   loader: async ({ params }) => {
     const article = await fetchArticleBySlug(params.slug);
-    return { article };
+    const related = article
+      ? await fetchRelatedArticles(article.category_id, article.id, article.published_at, 6)
+      : [];
+    return { article, related };
   },
   head: ({ loaderData, params }) => {
     const a = loaderData?.article;
@@ -107,7 +110,7 @@ function AuthorAvatar({
 
 function ArticlePage() {
   const { slug } = Route.useParams();
-  const { article: loaderArticle } = Route.useLoaderData();
+  const { article: loaderArticle, related: loaderRelated } = Route.useLoaderData();
 
   // Seed with the server-fetched article for an instant first paint, then
   // let React Query take over for live client-side behavior (view count
@@ -118,8 +121,12 @@ function ArticlePage() {
     initialData: loaderArticle,
   });
   const related = useQuery({
-    queryKey: ["related", q.data?.category_id],
-    queryFn: () => fetchPublishedArticles(4),
+    queryKey: ["related", slug],
+    queryFn: () =>
+      q.data
+        ? fetchRelatedArticles(q.data.category_id, q.data.id, q.data.published_at, 6)
+        : Promise.resolve([]),
+    initialData: loaderRelated,
     enabled: !!q.data,
   });
   // Controls whether view count / published date show at all — off by
@@ -305,7 +312,7 @@ function ArticlePage() {
             <div className="grid gap-8 md:grid-cols-3">
               {related.data
                 .filter((r) => r.id !== a.id)
-                .slice(0, 3)
+                .slice(0, 6)
                 .map((r) => (
                   <ArticleCard key={r.id} article={r} />
                 ))}

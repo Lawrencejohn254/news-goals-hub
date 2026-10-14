@@ -98,6 +98,42 @@ export async function fetchTrending(limit = 6, windowDays = 7) {
   return (data ?? []) as unknown as ArticleWithMeta[];
 }
 
+export async function fetchRelatedArticles(
+  categoryId: string | null,
+  excludeId: string,
+  publishedAt: string | null,
+  limit = 6,
+) {
+  const now = new Date().toISOString();
+  let query = supabase
+    .from("articles")
+    .select(ARTICLE_SELECT)
+    .eq("status", "published")
+    .lte("published_at", now)
+    .neq("id", excludeId)
+    .order("published_at", { ascending: false })
+    .limit(limit);
+  if (categoryId) query = query.eq("category_id", categoryId);
+  if (publishedAt) query = query.lt("published_at", publishedAt);
+  const { data, error } = await query;
+  if (error) throw error;
+  const items = (data ?? []) as unknown as ArticleWithMeta[];
+  if (items.length >= 4) return items;
+
+  // Not enough older stories in this section: top up with the newest overall.
+  const { data: more } = await supabase
+    .from("articles")
+    .select(ARTICLE_SELECT)
+    .eq("status", "published")
+    .lte("published_at", now)
+    .neq("id", excludeId)
+    .order("published_at", { ascending: false })
+    .limit(limit);
+  const seen = new Set(items.map((a) => a.id));
+  const extra = ((more ?? []) as unknown as ArticleWithMeta[]).filter((a) => !seen.has(a.id));
+  return [...items, ...extra].slice(0, limit);
+}
+
 export async function fetchArticleBySlug(slug: string) {
   const { data, error } = await supabase
     .from("articles")
@@ -108,7 +144,7 @@ export async function fetchArticleBySlug(slug: string) {
   return data as unknown as ArticleWithMeta | null;
 }
 
-export async function fetchArticlesByCategory(categorySlug: string, limit = 30) {
+export async function fetchArticlesByCategory(categorySlug: string, limit = 100) {
   const { data: cat } = await supabase
     .from("categories")
     .select("id,name,slug,color,description")

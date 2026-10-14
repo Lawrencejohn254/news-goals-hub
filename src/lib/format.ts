@@ -1,11 +1,14 @@
 export function slugify(input: string): string {
-  return input
+  const slug = input
     .toLowerCase()
     .trim()
     .replace(/[^\w\s-]/g, "")
     .replace(/\s+/g, "-")
-    .replace(/-+/g, "-")
-    .slice(0, 80);
+    .replace(/-+/g, "-");
+  if (slug.length <= 80) return slug.replace(/^-+|-+$/g, "");
+  const cut = slug.slice(0, 80);
+  const lastDash = cut.lastIndexOf("-");
+  return (lastDash > 40 ? cut.slice(0, lastDash) : cut).replace(/^-+|-+$/g, "");
 }
 
 export function readingTime(text: string): number {
