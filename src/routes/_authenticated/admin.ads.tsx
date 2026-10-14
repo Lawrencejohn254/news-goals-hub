@@ -29,13 +29,29 @@ export const Route = createFileRoute("/_authenticated/admin/ads")({
   component: AdsAdmin,
 });
 
-type AdRow = Ad & { status?: string | null };
+type AdRow = Ad & {
+  status?: string | null;
+  weight?: number | null;
+  target_countries?: string[] | null;
+  target_devices?: string[] | null;
+  target_sections?: string[] | null;
+  frequency_cap?: number | null;
+  is_fallback?: boolean | null;
+};
 
 type CampaignOption = {
   id: string;
   name: string;
   advertisers: { name: string } | null;
 };
+
+const DEVICES = ["mobile", "tablet", "desktop"] as const;
+
+const COUNTRY_PRESETS: { label: string; codes: string }[] = [
+  { label: "East Africa", codes: "KE, UG, TZ, RW, BI, SS, ET" },
+  { label: "West Africa", codes: "NG, GH, SN, CI, SL, LR, GM" },
+  { label: "Southern Africa", codes: "ZA, ZM, ZW, BW, NA, MW, MZ" },
+];
 
 const emptyAd = {
   name: "",
@@ -47,6 +63,12 @@ const emptyAd = {
   html_code: "",
   starts_at: "",
   ends_at: "",
+  weight: "1",
+  countries: "",
+  devices: [] as string[],
+  sections: "",
+  frequency_cap: "",
+  is_fallback: false,
 };
 
 const STATUS_STYLES: Record<AdStatus, string> = {
@@ -64,6 +86,20 @@ function isHttpUrl(v: string) {
   } catch {
     return false;
   }
+}
+
+const parseCsv = (v: string) =>
+  [...new Set(v.split(",").map((s) => s.trim()).filter(Boolean))];
+
+function targetingSummary(a: AdRow): string {
+  const parts: string[] = [];
+  if (a.is_fallback) parts.push("fallback");
+  if (a.target_countries?.length) parts.push(a.target_countries.join(", "));
+  if (a.target_devices?.length) parts.push(a.target_devices.join("/"));
+  if (a.target_sections?.length) parts.push(`sections: ${a.target_sections.join(", ")}`);
+  if (a.weight && a.weight > 1) parts.push(`weight ${a.weight}`);
+  if (a.frequency_cap) parts.push(`max ${a.frequency_cap}/day`);
+  return parts.join(" · ");
 }
 
 function AdsAdmin() {
@@ -144,6 +180,9 @@ function AdsAdmin() {
     }
   };
 
+  const toggleDevice = (d: string) =>
+    set({ devices: form.devices.includes(d) ? form.devices.filter((x) => x !== d) : [...form.devices, d] });
+
   const validate = (): string | null => {
     if (!form.name.trim()) return "Give the ad a name";
 
@@ -165,6 +204,21 @@ function AdsAdmin() {
     const end = nairobiInputToISO(form.ends_at);
     if (end && new Date(end) < new Date() && form.save_as === "active") return "End date is already in the past";
     if (start && end && new Date(end) <= new Date(start)) return "End date must be after the start date";
+
+    const weight = Number(form.weight);
+    if (!Number.isInteger(weight) || weight < 1 || weight > 100) return "Weight must be a whole number from 1 to 100";
+
+    if (form.frequency_cap.trim()) {
+      const cap = Number(form.frequency_cap);
+      if (!Number.isInteger(cap) || cap < 1) return "Frequency cap must be a whole number of 1 or more";
+    }
+
+    const bad = parseCsv(form.countries).find((c) => !/^[A-Za-z]{2}$/.test(c));
+    if (bad) return `"${bad}" is not a 2-letter country code (use codes like KE, NG, GH)`;
+
+    const badSection = parseCsv(form.sections).find((s) => !/^[A-Za-z0-9_-]+$/.test(s));
+    if (badSection) return `"${badSection}" is not a valid section slug (letters, numbers, - and _ only)`;
+
     return null;
   };
 
@@ -188,8 +242,10 @@ function AdsAdmin() {
 
       const startsISO = nairobiInputToISO(form.starts_at);
       const endsISO = nairobiInputToISO(form.ends_at);
+      const countries = parseCsv(form.countries).map((c) => c.toUpperCase());
+      const sections = parseCsv(form.sections).map((s) => s.toLowerCase());
 
-      // Uses the untyped client so the new status / campaign_id columns never cause type errors.
+      // Uses the untyped client so newer columns never cause type errors.
       const { error } = await db.from("ads").insert({
         name: form.name.trim(),
         campaign_id: form.campaign_id || null,
@@ -200,6 +256,12 @@ function AdsAdmin() {
         starts_at: startsISO,
         ends_at: endsISO,
         status: form.save_as === "draft" ? "draft" : publishStatus(startsISO),
+        weight: Number(form.weight),
+        target_countries: countries.length ? countries : null,
+        target_devices: form.devices.length ? form.devices : null,
+        target_sections: sections.length ? sections : null,
+        frequency_cap: form.frequency_cap.trim() ? Number(form.frequency_cap) : null,
+        is_fallback: form.is_fallback,
       });
       if (error) throw new Error(error.message);
 
@@ -352,6 +414,109 @@ function AdsAdmin() {
           <p className="mt-1 text-xs text-muted-foreground">Leave empty to run until paused.</p>
         </div>
 
+        {/* Delivery & targeting */}
+        <div className="border-t border-border pt-3 md:col-span-2">
+          <p className="text-sm font-medium">Delivery &amp; targeting</p>
+          <p className="text-xs text-muted-foreground">
+            Leave targeting empty to show the ad to everyone. An ad with targeting is skipped when that detail is
+            unknown for the visitor.
+          </p>
+        </div>
+
+        <div className="md:col-span-2">
+          <Label>Countries</Label>
+          <Input
+            value={form.countries}
+            onChange={(e) => set({ countries: e.target.value })}
+            placeholder="KE, UG, TZ (2-letter codes, empty = everywhere)"
+          />
+          <div className="mt-1 flex flex-wrap gap-2">
+            {COUNTRY_PRESETS.map((p) => (
+              <button
+                key={p.label}
+                type="button"
+                onClick={() => set({ countries: p.codes })}
+                className="border border-input px-2 py-0.5 text-xs text-muted-foreground hover:bg-muted"
+              >
+                {p.label}
+              </button>
+            ))}
+            <button
+              type="button"
+              onClick={() => set({ countries: "" })}
+              className="px-2 py-0.5 text-xs text-muted-foreground underline"
+            >
+              Clear
+            </button>
+          </div>
+        </div>
+
+        <div>
+          <Label>Devices</Label>
+          <div className="flex h-10 items-center gap-4 text-sm">
+            {DEVICES.map((d) => (
+              <label key={d} className="flex items-center gap-1.5">
+                <input type="checkbox" checked={form.devices.includes(d)} onChange={() => toggleDevice(d)} />
+                {d}
+              </label>
+            ))}
+          </div>
+          <p className="text-xs text-muted-foreground">None ticked = all devices.</p>
+        </div>
+
+        <div>
+          <Label>Site sections</Label>
+          <Input
+            value={form.sections}
+            onChange={(e) => set({ sections: e.target.value })}
+            placeholder="politics, business, sports (category slugs)"
+          />
+        </div>
+
+        <div>
+          <Label>Weight (1–100)</Label>
+          <Input
+            type="number"
+            min="1"
+            max="100"
+            step="1"
+            value={form.weight}
+            onChange={(e) => set({ weight: e.target.value })}
+          />
+          <p className="mt-1 text-xs text-muted-foreground">
+            When ads compete for a slot, weight 3 shows about 3x as often as weight 1.
+          </p>
+        </div>
+
+        <div>
+          <Label>Max views per visitor per day</Label>
+          <Input
+            type="number"
+            min="1"
+            step="1"
+            value={form.frequency_cap}
+            onChange={(e) => set({ frequency_cap: e.target.value })}
+            placeholder="No limit"
+          />
+        </div>
+
+        <div className="md:col-span-2">
+          <label className="flex items-start gap-2 text-sm">
+            <input
+              type="checkbox"
+              className="mt-1"
+              checked={form.is_fallback}
+              onChange={(e) => set({ is_fallback: e.target.checked })}
+            />
+            <span>
+              Fallback ad
+              <span className="block text-xs text-muted-foreground">
+                Only shown when no paid ad is eligible for the slot (use for house ads, such as your newsletter).
+              </span>
+            </span>
+          </label>
+        </div>
+
         <div className="md:col-span-2">
           <Label>Or custom HTML</Label>
           <textarea
@@ -416,9 +581,13 @@ function AdsAdmin() {
             {rows.map((a) => {
               const status = effectiveStatus(a);
               const running = status === "active" || status === "scheduled";
+              const summary = targetingSummary(a);
               return (
                 <tr key={a.id} className="border-b border-border last:border-b-0">
-                  <td className="p-3 font-medium">{a.name}</td>
+                  <td className="p-3">
+                    <div className="font-medium">{a.name}</div>
+                    {summary && <div className="text-xs text-muted-foreground">{summary}</div>}
+                  </td>
                   <td className="p-3">
                     <span className={`rounded px-2 py-0.5 text-xs ${STATUS_STYLES[status]}`}>{status}</span>
                   </td>

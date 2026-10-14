@@ -1,7 +1,16 @@
-import { useEffect, useMemo, useRef } from "react";
+import { useEffect, useRef } from "react";
 import { useQuery } from "@tanstack/react-query";
-import { supabase } from "@/integrations/supabase/client";
+import { useRouterState } from "@tanstack/react-router";
 import { getPlacementSpec } from "@/lib/ad-placements";
+
+type ServedAd = {
+  id: string;
+  name: string;
+  image_url: string | null;
+  html_code: string | null;
+  target_url: string | null;
+  is_fallback: boolean;
+};
 
 function getSessionId(): string | null {
   try {
@@ -68,38 +77,37 @@ function useViewableImpression(ref: React.RefObject<HTMLElement | null>, adId: s
   }, [ref, adId]);
 }
 
-type Props = { placement: string; className?: string };
+type Props = {
+  placement: string;
+  /** Site section / category slug (e.g. "politics"). Used for section targeting. */
+  section?: string;
+  className?: string;
+};
 
-export function TrackedAdSlot({ placement, className }: Props) {
+export function TrackedAdSlot({ placement, section, className }: Props) {
   const spec = getPlacementSpec(placement);
   const maxW = spec.desktop?.w ?? 970;
   const height = spec.desktop?.h ?? 250;
   const ref = useRef<HTMLElement>(null);
+  const pathname = useRouterState({ select: (s) => s.location.pathname });
 
-  const { data, isLoading } = useQuery({
-    queryKey: ["ad-slot", placement],
-    staleTime: 5 * 60 * 1000,
-    queryFn: async () => {
-      const { data, error } = await supabase
-        .from("ads")
-        .select("id, name, image_url, html_code, target_url, starts_at, ends_at")
-        .eq("placement", placement)
-        .eq("is_active", true);
-      if (error) throw error;
-      const now = Date.now();
-      return (data ?? []).filter(
-        (a) =>
-          (!a.starts_at || new Date(a.starts_at).getTime() <= now) &&
-          (!a.ends_at || new Date(a.ends_at).getTime() >= now),
-      );
+  // The server decides which ad to show (targeting, rotation, caps, fallback).
+  // Keyed by page so each new page view gets a fresh pick.
+  const { data: ad, isLoading } = useQuery({
+    queryKey: ["ad-serve", placement, section ?? "", pathname],
+    staleTime: Infinity,
+    gcTime: 60_000,
+    retry: false,
+    refetchOnWindowFocus: false,
+    queryFn: async (): Promise<ServedAd | null> => {
+      const params = new URLSearchParams({ placement });
+      if (section) params.set("section", section);
+      const res = await fetch(`/api/ad-serve?${params.toString()}`);
+      if (!res.ok) return null;
+      const json = (await res.json()) as { ad: ServedAd | null };
+      return json.ad ?? null;
     },
   });
-
-  // Simple random pick for now. Weighted rotation comes in Phase 4.
-  const ad = useMemo(
-    () => (data && data.length ? data[Math.floor(Math.random() * data.length)] : null),
-    [data],
-  );
 
   useViewableImpression(ref, ad?.id);
 

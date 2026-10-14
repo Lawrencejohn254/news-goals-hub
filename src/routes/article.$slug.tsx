@@ -9,7 +9,7 @@ import { ArticleCard } from "@/components/site/ArticleCard";
 import { formatDateTime } from "@/lib/format";
 import { Comments } from "@/components/site/Comments";
 import { PreferredSource } from "@/components/site/PreferredSource";
-import { AdSlot } from "@/components/site/AdSlot";
+import { TrackedAdSlot } from "@/components/TrackedAdSlot";
 import { logPageView, fetchSettings } from "@/lib/site";
 import { absoluteUrl } from "@/lib/site-url";
 import { ArticleBody } from "@/components/site/ArticleBody";
@@ -254,7 +254,7 @@ function ArticlePage() {
             />
           )}
 
-          <AdSlot placement="article-inline" className="my-8" />
+          <TrackedAdSlot placement="article-inline" section={cat?.slug} className="my-8" />
 
           <ArticleBody html={a.content} />
 
@@ -295,7 +295,7 @@ function ArticlePage() {
             </div>
           )}
 
-          <AdSlot placement="article-bottom" className="my-10" />
+          <TrackedAdSlot placement="article-bottom" section={cat?.slug} className="my-10" />
 
           <PreferredSource className="my-8" />
 

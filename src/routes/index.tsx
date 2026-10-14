@@ -11,7 +11,7 @@ import {
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
 import { ArticleCard } from "@/components/site/ArticleCard";
-import { AdSlot } from "@/components/site/AdSlot";
+import { TrackedAdSlot } from "@/components/TrackedAdSlot";
 import { NewsletterForm } from "@/components/site/NewsletterForm";
 import { PreferredSource } from "@/components/site/PreferredSource";
 import { Link } from "@tanstack/react-router";
@@ -151,7 +151,7 @@ function HomePage() {
       <main className="container-page pb-10 pt-6">
         {/* Top banner ad */}
         <div className="mb-10 flex justify-center">
-          <AdSlot placement="home-top" className="w-full max-w-4xl" />
+          <TrackedAdSlot placement="home-top" className="w-full max-w-4xl" />
         </div>
 
                 {/* Lead zone: lead story | top stories | most read */}
@@ -254,7 +254,7 @@ function HomePage() {
 
         {/* Mid-page ad */}
         <div className="mb-14 flex justify-center">
-          <AdSlot placement="home-mid" className="w-full max-w-4xl" />
+          <TrackedAdSlot placement="home-mid" className="w-full max-w-4xl" />
         </div>
 
         {/* Two-col: categories & most read */}
@@ -273,7 +273,7 @@ function HomePage() {
             </div>
 
             {/* Sidebar ad */}
-            <AdSlot placement="sidebar" />
+            <TrackedAdSlot placement="sidebar" />
           </aside>
         </section>
       </main>

@@ -24,6 +24,7 @@ import { Route as SitemapDotxmlRouteImport } from './routes/sitemap[.]xml'
 import { Route as TermsRouteImport } from './routes/terms'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
 import { Route as ApiAdEventRouteImport } from './routes/api.ad-event'
+import { Route as ApiAdServeRouteImport } from './routes/api.ad-serve'
 import { Route as ArticleSlugRouteImport } from './routes/article.$slug'
 import { Route as AuthorsIdRouteImport } from './routes/authors.$id'
 import { Route as CategorySlugRouteImport } from './routes/category.$slug'
@@ -130,6 +131,11 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
 const ApiAdEventRoute = ApiAdEventRouteImport.update({
   id: '/api/ad-event',
   path: '/api/ad-event',
+  getParentRoute: () => rootRouteImport,
+} as any)
+const ApiAdServeRoute = ApiAdServeRouteImport.update({
+  id: '/api/ad-serve',
+  path: '/api/ad-serve',
   getParentRoute: () => rootRouteImport,
 } as any)
 const ArticleSlugRoute = ArticleSlugRouteImport.update({
@@ -333,6 +339,7 @@ export interface FileRoutesByFullPath {
   '/terms': typeof TermsRoute
   '/admin': typeof AuthenticatedAdminRouteWithChildren
   '/api/ad-event': typeof ApiAdEventRoute
+  '/api/ad-serve': typeof ApiAdServeRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/authors/$id': typeof AuthorsIdRoute
   '/category/$slug': typeof CategorySlugRoute
@@ -381,6 +388,7 @@ export interface FileRoutesByTo {
   '/sitemap.xml': typeof SitemapDotxmlRoute
   '/terms': typeof TermsRoute
   '/api/ad-event': typeof ApiAdEventRoute
+  '/api/ad-serve': typeof ApiAdServeRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/authors/$id': typeof AuthorsIdRoute
   '/category/$slug': typeof CategorySlugRoute
@@ -430,6 +438,7 @@ export interface FileRoutesById {
   '/terms': typeof TermsRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRouteWithChildren
   '/api/ad-event': typeof ApiAdEventRoute
+  '/api/ad-serve': typeof ApiAdServeRoute
   '/article/$slug': typeof ArticleSlugRoute
   '/authors/$id': typeof AuthorsIdRoute
   '/category/$slug': typeof CategorySlugRoute
@@ -481,6 +490,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/admin'
     | '/api/ad-event'
+    | '/api/ad-serve'
     | '/article/$slug'
     | '/authors/$id'
     | '/category/$slug'
@@ -529,6 +539,7 @@ export interface FileRouteTypes {
     | '/sitemap.xml'
     | '/terms'
     | '/api/ad-event'
+    | '/api/ad-serve'
     | '/article/$slug'
     | '/authors/$id'
     | '/category/$slug'
@@ -577,6 +588,7 @@ export interface FileRouteTypes {
     | '/terms'
     | '/_authenticated/admin'
     | '/api/ad-event'
+    | '/api/ad-serve'
     | '/article/$slug'
     | '/authors/$id'
     | '/category/$slug'
@@ -627,6 +639,7 @@ export interface RootRouteChildren {
   SitemapDotxmlRoute: typeof SitemapDotxmlRoute
   TermsRoute: typeof TermsRoute
   ApiAdEventRoute: typeof ApiAdEventRoute
+  ApiAdServeRoute: typeof ApiAdServeRoute
   ArticleSlugRoute: typeof ArticleSlugRoute
   AuthorsIdRoute: typeof AuthorsIdRoute
   CategorySlugRoute: typeof CategorySlugRoute
@@ -744,6 +757,13 @@ declare module '@tanstack/react-router' {
       path: '/api/ad-event'
       fullPath: '/api/ad-event'
       preLoaderRoute: typeof ApiAdEventRouteImport
+      parentRoute: typeof rootRouteImport
+    }
+    '/api/ad-serve': {
+      id: '/api/ad-serve'
+      path: '/api/ad-serve'
+      fullPath: '/api/ad-serve'
+      preLoaderRoute: typeof ApiAdServeRouteImport
       parentRoute: typeof rootRouteImport
     }
     '/article/$slug': {
@@ -1089,6 +1109,7 @@ const rootRouteChildren: RootRouteChildren = {
   SitemapDotxmlRoute: SitemapDotxmlRoute,
   TermsRoute: TermsRoute,
   ApiAdEventRoute: ApiAdEventRoute,
+  ApiAdServeRoute: ApiAdServeRoute,
   ArticleSlugRoute: ArticleSlugRoute,
   AuthorsIdRoute: AuthorsIdRoute,
   CategorySlugRoute: CategorySlugRoute,

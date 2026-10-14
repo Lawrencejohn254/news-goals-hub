@@ -180,7 +180,7 @@ function TeamPage() {
           />
         </div>
 
-        <AdSlot placement="home-top" className="mt-8" />
+        <TrackedAdSlot placement="home-top" className="mt-8" />
 
         <section className="mt-10">
           <h2 className="bg-[var(--ink)] px-3 py-2 font-serif text-lg font-bold uppercase text-white">

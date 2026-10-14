@@ -207,7 +207,7 @@ function PredictionsIndex() {
           </span>
         </div>
 
-        <AdSlot placement="home-top" className="mt-6" />
+        <TrackedAdSlot placement="home-top" className="mt-6" />
 
         {preds.isLoading && <p className="mt-8 text-muted-foreground">Loading Analysis…</p>}
         {!preds.isLoading && visible.length === 0 && (
@@ -353,7 +353,7 @@ function PredictionsIndex() {
           ))}
         </div>
 
-        <AdSlot placement="sidebar" className="mt-10" />
+        <TrackedAdSlot placement="sidebar" className="mt-10" />
 
         <p className="mt-8 border-l-4 border-[var(--brand)] bg-muted/40 p-4 text-xs text-muted-foreground">
           Football analysis published on The Africa Daily Dispatch are opinion and analysis.

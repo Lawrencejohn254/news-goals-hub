@@ -154,7 +154,7 @@ function PredictionPage() {
 
           <section className="article-prose mt-8" dangerouslySetInnerHTML={{ __html: p.analysis }} />
 
-          <AdSlot placement="article-inline" className="my-8" />
+          <TrackedAdSlot placement="article-inline" className="my-8" />
 
           <div className="mt-8 grid gap-6 md:grid-cols-2">
             {p.home_form && <Panel title={`${m?.home_team?.name ?? "Home"} form`} body={p.home_form} />}
