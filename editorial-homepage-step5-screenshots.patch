@@ -1,0 +1,690 @@
+diff --git a/src/components/site/editorial/ArticleMeta.tsx b/src/components/site/editorial/ArticleMeta.tsx
+index cb38eb5..0c783ce 100644
+--- a/src/components/site/editorial/ArticleMeta.tsx
++++ b/src/components/site/editorial/ArticleMeta.tsx
+@@ -26,11 +26,7 @@ export function ArticleMeta({
+     <div
+       className={`relative z-10 flex flex-wrap items-center gap-x-3 gap-y-1 font-sans text-[11px] leading-none ${className}`}
+     >
+-      {category && (
+-        <span className="font-bold uppercase tracking-wider text-[var(--ed-accent)]">
+-          {category}
+-        </span>
+-      )}
++      {category && <span className="font-bold text-[var(--ed-text)]">{category}</span>}
+       {time && publishedAt && (
+         <time dateTime={publishedAt} className="text-[var(--ed-muted)]">
+           {time}
+@@ -41,7 +37,7 @@ export function ArticleMeta({
+           type="button"
+           onClick={onListen}
+           aria-label={`Listen to this story${category ? ` (${category})` : ""}`}
+-          className="inline-flex items-center gap-1 rounded-sm border border-[var(--ed-line)] px-1.5 py-1 font-semibold text-[var(--ed-text)] hover:border-[var(--ed-accent)] hover:text-[var(--ed-accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ed-accent)]"
++          className="ml-auto inline-flex items-center gap-1 rounded-sm border border-[var(--ed-line)] px-1.5 py-1 font-semibold text-[var(--ed-text)] hover:border-[var(--ed-accent)] hover:text-[var(--ed-accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ed-accent)]"
+         >
+           <Headphones className="h-3 w-3" aria-hidden="true" />
+           Listen
+diff --git a/src/components/site/editorial/CategorySection.tsx b/src/components/site/editorial/CategorySection.tsx
+index 57d0b21..bf12e1a 100644
+--- a/src/components/site/editorial/CategorySection.tsx
++++ b/src/components/site/editorial/CategorySection.tsx
+@@ -3,7 +3,7 @@ import { Link } from "@tanstack/react-router";
+ import { CardStack, CompactThumbCard, LeadCard, TextLinkCard } from "./cards";
+ import type { EditorialStory } from "./types";
+ 
+-export type CategoryLayout = "africa" | "politics" | "standard";
++export type CategoryLayout = "africa" | "politics" | "counties" | "opinion" | "standard";
+ 
+ /** Column wrapper: adds the divider line (horizontal when stacked, vertical when side by side). */
+ function Col({ children, divided = false }: { children: ReactNode; divided?: boolean }) {
+@@ -22,29 +22,35 @@ function Col({ children, divided = false }: { children: ReactNode; divided?: boo
+ 
+ type SectionCategory = { name: string; slug: string };
+ 
++/** A small link shown in the header row instead of "All [Category] →" (e.g. "Coast"). */
++export type SubLink = { label: string; slug: string };
++
++/** Lead (text left, big image right) beside a text-only list. */
++const leadBesideList = ([lead, ...rest]: EditorialStory[]): ReactNode => (
++  <div className="grid grid-cols-1 gap-8 min-[900px]:grid-cols-[2fr_1fr] min-[900px]:gap-0">
++    <Col>{lead && <LeadCard story={lead} headingLevel={3} imagePosition="right" />}</Col>
++    {rest.length > 0 && (
++      <Col divided>
++        <CardStack>
++          {rest.map((s) => (
++            <TextLinkCard key={s.id} story={s} headingLevel={4} />
++          ))}
++        </CardStack>
++      </Col>
++    )}
++  </div>
++);
++
+ /**
+  * Each layout turns an ordered list of stories into markup. The first story is
+  * the lead; the rest fill the remaining slots. Adding a section style means
+  * adding one entry here and one value to CategoryLayout.
+  */
+ const LAYOUTS: Record<CategoryLayout, (stories: EditorialStory[]) => ReactNode> = {
+-  /** Lead (text left, image right) beside a text-only list. */
+-  africa: ([lead, ...rest]) => (
+-    <div className="grid grid-cols-1 gap-8 min-[900px]:grid-cols-[2fr_1fr] min-[900px]:gap-0">
+-      <div className="min-w-0 min-[900px]:pr-6">
+-        {lead && <LeadCard story={lead} headingLevel={3} imagePosition="right" />}
+-      </div>
+-      {rest.length > 0 && (
+-        <div className="min-w-0 border-t border-[var(--ed-line)] pt-6 min-[900px]:border-l min-[900px]:border-t-0 min-[900px]:pl-6 min-[900px]:pt-0">
+-          <CardStack>
+-            {rest.map((s) => (
+-              <TextLinkCard key={s.id} story={s} headingLevel={4} />
+-            ))}
+-          </CardStack>
+-        </div>
+-      )}
+-    </div>
+-  ),
++  africa: leadBesideList,
++
++  /** Same shape as Africa; kept as its own key so opinion can diverge later. */
++  opinion: leadBesideList,
+ 
+   /** Lead (image on top) | compact thumbs | text-only links. */
+   politics: ([lead, ...rest]) => {
+@@ -79,6 +85,50 @@ const LAYOUTS: Record<CategoryLayout, (stories: EditorialStory[]) => ReactNode>
+     );
+   },
+ 
++  /** Three equal columns: thumbs (image left) | text links | text links. No lead. */
++  counties: (stories) => {
++    const thumbs = stories.slice(0, 4);
++    const rest = stories.slice(4);
++    const half = Math.ceil(rest.length / 2);
++    const colA = rest.slice(0, half);
++    const colB = rest.slice(half);
++    return (
++      <div className="grid grid-cols-1 gap-8 min-[900px]:grid-cols-3 min-[900px]:gap-0">
++        <Col>
++          <CardStack>
++            {thumbs.map((s) => (
++              <CompactThumbCard
++                key={s.id}
++                story={s}
++                headingLevel={3}
++                imageSide="left"
++                ratio="4/3"
++              />
++            ))}
++          </CardStack>
++        </Col>
++        {colA.length > 0 && (
++          <Col divided>
++            <CardStack>
++              {colA.map((s) => (
++                <TextLinkCard key={s.id} story={s} headingLevel={4} />
++              ))}
++            </CardStack>
++          </Col>
++        )}
++        {colB.length > 0 && (
++          <Col divided>
++            <CardStack>
++              {colB.map((s) => (
++                <TextLinkCard key={s.id} story={s} headingLevel={4} />
++              ))}
++            </CardStack>
++          </Col>
++        )}
++      </div>
++    );
++  },
++
+   /** Generic fallback for any other category: lead (image on top) beside compact thumbs. */
+   standard: ([lead, ...rest]) => (
+     <div className="grid grid-cols-1 gap-8 min-[900px]:grid-cols-[1.4fr_1fr] min-[900px]:gap-0">
+@@ -96,19 +146,25 @@ const LAYOUTS: Record<CategoryLayout, (stories: EditorialStory[]) => ReactNode>
+   ),
+ };
+ 
++const linkClass =
++  "font-sans text-xs font-semibold hover:text-[var(--ed-accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ed-accent)]";
++
+ /**
+- * Category block: header row (red uppercase label + "All [Category] →") and a
+- * grid chosen by `layout`. Renders nothing when there are no stories.
++ * Category block: header row (red uppercase label + "All [Category] →", or a
++ * row of sub-links) and a grid chosen by `layout`. Renders nothing when there
++ * are no stories.
+  */
+ export function CategorySection({
+   category,
+   stories,
+   layout,
++  subLinks,
+   className = "",
+ }: {
+   category: SectionCategory;
+   stories: EditorialStory[];
+   layout: CategoryLayout;
++  subLinks?: SubLink[];
+   className?: string;
+ }) {
+   if (stories.length === 0) return null;
+@@ -116,20 +172,31 @@ export function CategorySection({
+ 
+   return (
+     <section aria-labelledby={headingId} className={className}>
+-      <div className="mb-4 flex items-baseline justify-between gap-4 border-b border-[var(--ed-line)] pb-2">
++      <div className="mb-4 flex flex-wrap items-baseline justify-between gap-x-4 gap-y-2 border-b border-[var(--ed-line)] pb-2">
+         <h2
+           id={headingId}
+           className="font-sans text-sm font-extrabold uppercase tracking-wider text-[var(--ed-accent)]"
+         >
+           {category.name}
+         </h2>
+-        <Link
+-          to="/category/$slug"
+-          params={{ slug: category.slug }}
+-          className="font-sans text-xs font-semibold hover:text-[var(--ed-accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ed-accent)]"
+-        >
+-          All {category.name} <span aria-hidden="true">→</span>
+-        </Link>
++        {subLinks && subLinks.length > 0 ? (
++          <nav aria-label={`${category.name} sections`} className="flex flex-wrap gap-x-4 gap-y-1">
++            {subLinks.map((l) => (
++              <Link
++                key={l.slug}
++                to="/category/$slug"
++                params={{ slug: l.slug }}
++                className={linkClass}
++              >
++                {l.label}
++              </Link>
++            ))}
++          </nav>
++        ) : (
++          <Link to="/category/$slug" params={{ slug: category.slug }} className={linkClass}>
++            All {category.name} <span aria-hidden="true">→</span>
++          </Link>
++        )}
+       </div>
+       {LAYOUTS[layout](stories)}
+     </section>
+diff --git a/src/components/site/editorial/EditorialPreview.tsx b/src/components/site/editorial/EditorialPreview.tsx
+index c60f780..c8ef91a 100644
+--- a/src/components/site/editorial/EditorialPreview.tsx
++++ b/src/components/site/editorial/EditorialPreview.tsx
+@@ -1,73 +1,78 @@
+-import {
+-  CardStack,
+-  CompactThumbCard,
+-  HeadlineSummaryCard,
+-  LeadCard,
+-  MediaRowCard,
+-  SponsoredCard,
+-  TextLinkCard,
+-} from "./cards";
+-import { DUMMY_STORIES as s } from "./dummy";
+ import { CategorySection } from "./CategorySection";
++import { DUMMY_MANY as m, DUMMY_STORIES as s } from "./dummy";
+ import { TopSection } from "./TopSection";
+ 
+ /**
+- * Temporary showcase of every card variant with dummy data, for visual review
+- * during the build. Not mounted anywhere yet; removed once the real homepage
+- * is wired up.
++ * Temporary showcase of the editorial layouts with dummy data, for visual
++ * review during the build. Not mounted anywhere yet; removed once the real
++ * homepage is wired up.
+  */
+ export function EditorialPreview() {
++  const rule = <hr className="my-10 border-[var(--ed-line)]" />;
+   return (
+     <div className="editorial">
+       <div className="container-page py-8">
+         <TopSection
+-          lead={s[0]}
+-          headlineSummary={[s[1]]}
+-          mediaRows={[s[2]]}
+-          compactThumbs={[s[3]]}
+-          textLinks={[s[4]]}
++          hero={s[0]}
++          heroThumbs={[m[0], m[1], m[2]]}
++          blocks={[
++            { type: "lead", story: m[3] },
++            { type: "pair", stories: [m[4], m[5]], variant: "headline" },
++            { type: "pair", stories: [m[6], m[7]], variant: "thumb" },
++            { type: "text", story: m[8] },
++            { type: "lead", story: m[9] },
++            { type: "media", story: m[10] },
++          ]}
+           video={s[2]}
+-          live={[s[0], s[1], s[3]]}
+-          latest={[s[1], s[3], s[4]]}
+-          brandBook={[s[5]]}
++          live={[m[11], m[12], m[13]]}
++          latest={[m[14], m[15], m[0], m[1]]}
++          brandBook={[s[5], { ...s[5], id: "dummy-6b", sponsor_name: "Example Fund" }]}
+         />
+ 
+-        <hr className="my-10 border-[var(--ed-line)]" />
+-
++        {rule}
+         <CategorySection
+           category={{ name: "Africa", slug: "africa" }}
+-          stories={[s[2], s[1], s[3], s[4]]}
++          stories={m.slice(0, 5)}
+           layout="africa"
+         />
+ 
+-        <hr className="my-10 border-[var(--ed-line)]" />
+-
++        {rule}
+         <CategorySection
+           category={{ name: "Politics", slug: "politics" }}
+-          stories={[s[0], s[3], s[2], s[1], s[4], s[5]]}
++          stories={m.slice(0, 9)}
+           layout="politics"
+         />
+ 
+-        <hr className="my-10 border-[var(--ed-line)]" />
++        {rule}
++        <CategorySection
++          category={{ name: "Counties", slug: "counties" }}
++          stories={m}
++          layout="counties"
++          subLinks={[
++            { label: "Nairobi Metro", slug: "nairobi" },
++            { label: "Coast", slug: "coast" },
++            { label: "Mountain", slug: "mountain" },
++            { label: "Rift Valley", slug: "rift-valley" },
++          ]}
++        />
+ 
++        {rule}
++        <CategorySection
++          category={{ name: "Opinion", slug: "opinion" }}
++          stories={m.slice(0, 5)}
++          layout="opinion"
++          subLinks={[
++            { label: "Editorials", slug: "editorials" },
++            { label: "Columnists", slug: "columnists" },
++          ]}
++        />
++
++        {rule}
+         <CategorySection
+           category={{ name: "Sport", slug: "sport" }}
+-          stories={[s[3], s[2], s[1]]}
++          stories={m.slice(0, 4)}
+           layout="standard"
+         />
+-
+-        <hr className="my-10 border-[var(--ed-line)]" />
+-
+-        <div className="max-w-xl">
+-          <CardStack>
+-            <LeadCard story={s[0]} />
+-            <HeadlineSummaryCard story={s[1]} />
+-            <MediaRowCard story={s[2]} />
+-            <CompactThumbCard story={s[3]} />
+-            <TextLinkCard story={s[4]} />
+-            <SponsoredCard story={s[5]} />
+-          </CardStack>
+-        </div>
+       </div>
+     </div>
+   );
+diff --git a/src/components/site/editorial/TopSection.tsx b/src/components/site/editorial/TopSection.tsx
+index 0546e35..787c87c 100644
+--- a/src/components/site/editorial/TopSection.tsx
++++ b/src/components/site/editorial/TopSection.tsx
+@@ -1,3 +1,4 @@
++import type { ReactNode } from "react";
+ import {
+   CardStack,
+   CompactThumbCard,
+@@ -9,13 +10,22 @@ import {
+ import { BrandBookList, LatestList, LiveUpdatesBox, RailVideo } from "./rail";
+ import type { EditorialStory } from "./types";
+ 
++/**
++ * One block in the left column. The homepage picks which blocks appear and in
++ * what order, so the rhythm (lead, pair, lead, text row...) is data, not markup.
++ */
++export type TopBlock =
++  | { type: "lead"; story: EditorialStory }
++  | { type: "pair"; stories: EditorialStory[]; variant?: "headline" | "thumb" }
++  | { type: "media"; story: EditorialStory }
++  | { type: "text"; story: EditorialStory };
++
+ export type TopSectionProps = {
+-  /** Left column, top to bottom. Missing slots are simply skipped. */
+-  lead?: EditorialStory;
+-  headlineSummary?: EditorialStory[];
+-  mediaRows?: EditorialStory[];
+-  compactThumbs?: EditorialStory[];
+-  textLinks?: EditorialStory[];
++  /** Full-width band: lead (text left, big image) beside a column of thumbs. */
++  hero?: EditorialStory;
++  heroThumbs?: EditorialStory[];
++  /** Left column under the band. */
++  blocks?: TopBlock[];
+   /** Right rail. */
+   video?: EditorialStory;
+   live?: EditorialStory[];
+@@ -23,16 +33,60 @@ export type TopSectionProps = {
+   brandBook?: EditorialStory[];
+ };
+ 
++/** Two cards side by side with a thin vertical divider; stacks on small screens. */
++function Pair({
++  stories,
++  variant = "headline",
++}: {
++  stories: EditorialStory[];
++  variant?: "headline" | "thumb";
++}) {
++  const cell = (s: EditorialStory): ReactNode =>
++    variant === "thumb" ? (
++      <CompactThumbCard story={s} headingLevel={3} />
++    ) : (
++      <HeadlineSummaryCard story={s} headingLevel={3} />
++    );
++  return (
++    <div className="grid grid-cols-1 gap-4 sm:grid-cols-2 sm:gap-0">
++      {stories.slice(0, 2).map((s, i) => (
++        <div
++          key={s.id}
++          className={
++            i === 0
++              ? "min-w-0 sm:pr-4"
++              : "min-w-0 border-t border-[var(--ed-line)] pt-4 sm:border-l sm:border-t-0 sm:pl-4 sm:pt-0"
++          }
++        >
++          {cell(s)}
++        </div>
++      ))}
++    </div>
++  );
++}
++
++function renderBlock(b: TopBlock): ReactNode {
++  switch (b.type) {
++    case "lead":
++      return <LeadCard story={b.story} headingLevel={2} imagePosition="right" />;
++    case "pair":
++      return <Pair stories={b.stories} variant={b.variant} />;
++    case "media":
++      return <MediaRowCard story={b.story} />;
++    case "text":
++      return <TextLinkCard story={b.story} />;
++  }
++}
++
+ /**
+- * Top of the homepage: ~2fr / 1fr with a vertical divider. Both columns stack
+- * into one under 900px (left column first, then the rail with a top divider).
++ * Top of the homepage. Band 1 (full width): hero lead + thumbs column, split
++ * ~2fr / 1fr. Band 2: left column of blocks + right rail, split ~2fr / 1fr.
++ * Everything collapses to one column under 900px.
+  */
+ export function TopSection({
+-  lead,
+-  headlineSummary = [],
+-  mediaRows = [],
+-  compactThumbs = [],
+-  textLinks = [],
++  hero,
++  heroThumbs = [],
++  blocks = [],
+   video,
+   live = [],
+   latest = [],
+@@ -41,39 +95,45 @@ export function TopSection({
+   const hasRail = video || live.length || latest.length || brandBook.length;
+ 
+   return (
+-    <section
+-      aria-label="Top stories"
+-      className="grid grid-cols-1 gap-8 min-[900px]:grid-cols-[2fr_1fr] min-[900px]:gap-0"
+-    >
+-      <div className="min-w-0 min-[900px]:pr-6">
+-        <CardStack>
+-          {lead && <LeadCard story={lead} headingLevel={2} imagePosition="right" />}
+-          {headlineSummary.map((s) => (
+-            <HeadlineSummaryCard key={s.id} story={s} />
+-          ))}
+-          {mediaRows.map((s) => (
+-            <MediaRowCard key={s.id} story={s} />
+-          ))}
+-          {compactThumbs.map((s) => (
+-            <CompactThumbCard key={s.id} story={s} />
+-          ))}
+-          {textLinks.map((s) => (
+-            <TextLinkCard key={s.id} story={s} />
+-          ))}
+-        </CardStack>
+-      </div>
+-
+-      {hasRail && (
+-        <aside
+-          aria-label="More from the newsroom"
+-          className="flex min-w-0 flex-col gap-8 border-t border-[var(--ed-line)] pt-8 min-[900px]:border-l min-[900px]:border-t-0 min-[900px]:pl-6 min-[900px]:pt-0"
+-        >
+-          {video && <RailVideo story={video} />}
+-          <LiveUpdatesBox stories={live} />
+-          <LatestList stories={latest} />
+-          <BrandBookList stories={brandBook} />
+-        </aside>
++    <div aria-label="Top stories" role="region" className="flex flex-col gap-8">
++      {hero && (
++        <div className="grid grid-cols-1 gap-8 border-b border-[var(--ed-line)] pb-8 min-[900px]:grid-cols-[2fr_1fr] min-[900px]:gap-0">
++          <div className="min-w-0 min-[900px]:pr-6">
++            <LeadCard story={hero} headingLevel={1} imagePosition="right" />
++          </div>
++          {heroThumbs.length > 0 && (
++            <div className="min-w-0 border-t border-[var(--ed-line)] pt-6 min-[900px]:border-l min-[900px]:border-t-0 min-[900px]:pl-6 min-[900px]:pt-0">
++              <CardStack>
++                {heroThumbs.map((s) => (
++                  <CompactThumbCard key={s.id} story={s} imageSide="left" ratio="4/3" />
++                ))}
++              </CardStack>
++            </div>
++          )}
++        </div>
+       )}
+-    </section>
++
++      <div className="grid grid-cols-1 gap-8 min-[900px]:grid-cols-[2fr_1fr] min-[900px]:gap-0">
++        <div className="min-w-0 min-[900px]:pr-6">
++          <CardStack>
++            {blocks.map((b, i) => (
++              <div key={i}>{renderBlock(b)}</div>
++            ))}
++          </CardStack>
++        </div>
++
++        {hasRail && (
++          <aside
++            aria-label="More from the newsroom"
++            className="flex min-w-0 flex-col gap-8 border-t border-[var(--ed-line)] pt-8 min-[900px]:border-l min-[900px]:border-t-0 min-[900px]:pl-6 min-[900px]:pt-0"
++          >
++            {video && <RailVideo story={video} />}
++            <LiveUpdatesBox stories={live} />
++            <LatestList stories={latest} />
++            <BrandBookList stories={brandBook} />
++          </aside>
++        )}
++      </div>
++    </div>
+   );
+ }
+diff --git a/src/components/site/editorial/cards.tsx b/src/components/site/editorial/cards.tsx
+index 4bdb4a3..21dfda6 100644
+--- a/src/components/site/editorial/cards.tsx
++++ b/src/components/site/editorial/cards.tsx
+@@ -15,12 +15,13 @@ function EdImage({
+   eager = false,
+ }: {
+   story: EditorialStory;
+-  ratio: "16/9" | "1/1";
++  ratio: "16/9" | "4/3" | "1/1";
+   className?: string;
+   eager?: boolean;
+ }) {
+   const [failed, setFailed] = useState(false);
+-  const aspect = ratio === "16/9" ? "aspect-video" : "aspect-square";
++  const aspect =
++    ratio === "16/9" ? "aspect-video" : ratio === "4/3" ? "aspect-[4/3]" : "aspect-square";
+   return (
+     <div className={`${aspect} overflow-hidden bg-[var(--ed-surface)] ${className}`}>
+       {story.featured_image && !failed && (
+@@ -135,7 +136,7 @@ export function LeadCard({
+   const beside = imagePosition === "right";
+   return (
+     <article
+-      className={`relative ${beside ? "grid gap-4 md:grid-cols-2 md:gap-6" : "flex flex-col gap-3"} ${className}`}
++      className={`relative ${beside ? "grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] md:gap-6" : "flex flex-col gap-3"} ${className}`}
+     >
+       {!beside && <EdImage story={story} ratio="16/9" eager />}
+       <div className="flex min-w-0 flex-col gap-2">
+@@ -190,10 +191,23 @@ export function MediaRowCard({ story, headingLevel = 3, onListen, className = ""
+   );
+ }
+ 
+-/** Small headline with a small square thumbnail. */
+-export function CompactThumbCard({ story, headingLevel = 3, onListen, className = "" }: CardProps) {
++/**
++ * Small headline with a small thumbnail. Square by default; `ratio="4/3"` gives
++ * the wider thumb used in the hero column and county lists. `imageSide="left"`
++ * moves the image visually (DOM order stays text-first for screen readers).
++ */
++export function CompactThumbCard({
++  story,
++  headingLevel = 3,
++  onListen,
++  className = "",
++  imageSide = "right",
++  ratio = "1/1",
++}: CardProps & { imageSide?: "left" | "right"; ratio?: "1/1" | "4/3" }) {
+   return (
+-    <article className={`relative flex items-start gap-3 ${className}`}>
++    <article
++      className={`relative flex items-start gap-3 ${imageSide === "left" ? "flex-row-reverse" : ""} ${className}`}
++    >
+       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+         <Headline
+           story={story}
+@@ -202,7 +216,11 @@ export function CompactThumbCard({ story, headingLevel = 3, onListen, className
+         />
+         <Meta story={story} onListen={onListen} />
+       </div>
+-      <EdImage story={story} ratio="1/1" className="w-20 shrink-0" />
++      <EdImage
++        story={story}
++        ratio={ratio}
++        className={`shrink-0 ${ratio === "4/3" ? "w-24 sm:w-28" : "w-20"}`}
++      />
+     </article>
+   );
+ }
+@@ -226,14 +244,14 @@ export function SponsoredCard({ story, headingLevel = 3, className = "" }: CardP
+   return (
+     <article className={`relative flex items-start gap-3 ${className}`}>
+       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
+-        <p className="font-sans text-[11px] font-bold uppercase leading-none tracking-wider text-[var(--ed-muted)]">
+-          {story.sponsor_name ? `Sponsored by ${story.sponsor_name}` : "Sponsored"}
+-        </p>
+         <Headline
+           story={story}
+           as={`h${headingLevel}` as ElementType}
+           className="text-base font-semibold leading-snug"
+         />
++        <p className="font-sans text-[11px] leading-none text-[var(--ed-muted)]">
++          {story.sponsor_name ? `Sponsored by ${story.sponsor_name}` : "Sponsored"}
++        </p>
+       </div>
+       <EdImage story={story} ratio="1/1" className="w-20 shrink-0" />
+     </article>
+diff --git a/src/components/site/editorial/dummy.ts b/src/components/site/editorial/dummy.ts
+index 911b932..ad4707e 100644
+--- a/src/components/site/editorial/dummy.ts
++++ b/src/components/site/editorial/dummy.ts
+@@ -31,3 +31,14 @@ export const DUMMY_STORIES: EditorialStory[] = [
+   base(5, "Text-only link story", "Politics", 1500),
+   base(6, "A partner story from our sponsor", "Brand Book", 400, { sponsor_name: "Acme Bank" }),
+ ];
++
++/** A longer list for previewing full-width sections. */
++export const DUMMY_MANY: EditorialStory[] = Array.from({ length: 16 }, (_, i) =>
++  base(
++    100 + i,
++    `Placeholder headline number ${i + 1} that is long enough to wrap onto a second line`,
++    ["Politics", "Nairobi", "Health", "Education"][i % 4],
++    30 + i * 45,
++    { has_audio: i % 3 === 0 },
++  ),
++);
+diff --git a/src/components/site/editorial/rail.tsx b/src/components/site/editorial/rail.tsx
+index 1ad96dd..dbf6a20 100644
+--- a/src/components/site/editorial/rail.tsx
++++ b/src/components/site/editorial/rail.tsx
+@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
+ import { Link } from "@tanstack/react-router";
+ import { Play } from "lucide-react";
+ import { relativeTimeLong } from "@/lib/format";
+-import { CardStack, SponsoredCard, TextLinkCard } from "./cards";
++import { CardStack, CompactThumbCard, SponsoredCard } from "./cards";
+ import type { EditorialStory } from "./types";
+ 
+ /** Small uppercase heading used by every rail block. */
+@@ -21,6 +21,9 @@ function RailHeading({ id, children }: { id: string; children: ReactNode }) {
+ export function RailVideo({ story }: { story: EditorialStory }) {
+   return (
+     <article className="relative flex flex-col gap-2">
++      <p className="font-sans text-[11px] font-bold uppercase leading-none tracking-wider text-[var(--ed-accent)]">
++        Video
++      </p>
+       <div className="relative aspect-video overflow-hidden bg-[var(--ed-surface)]">
+         {story.featured_image && (
+           <img
+@@ -63,13 +66,13 @@ export function LiveUpdatesBox({
+   if (stories.length === 0) return null;
+   return (
+     <section aria-labelledby="ed-live" className={className}>
+-      <RailHeading id="ed-live">
+-        <span className="inline-flex items-center gap-2">
+-          <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[var(--ed-accent)]" />
+-          Live news updates
+-        </span>
+-      </RailHeading>
+-      <ol className="flex flex-col gap-3 border-l border-[var(--ed-line)] pl-4">
++      <h2
++        id="ed-live"
++        className="mb-3 inline-block bg-[var(--ed-accent)] px-2 py-1 font-sans text-[11px] font-bold uppercase tracking-wider text-white"
++      >
++        Live news updates
++      </h2>
++      <ol className="flex flex-col gap-3 border border-[var(--ed-line)] p-4">
+         {stories.map((s) => (
+           <li key={s.id} className="relative">
+             {s.published_at && (
+@@ -108,7 +111,7 @@ export function LatestList({
+       <RailHeading id="ed-latest">Latest</RailHeading>
+       <CardStack>
+         {stories.map((s) => (
+-          <TextLinkCard key={s.id} story={s} headingLevel={3} />
++          <CompactThumbCard key={s.id} story={s} headingLevel={3} />
+         ))}
+       </CardStack>
+     </section>
+diff --git a/src/components/site/editorial/types.ts b/src/components/site/editorial/types.ts
+index 70840b4..c873e00 100644
+--- a/src/components/site/editorial/types.ts
++++ b/src/components/site/editorial/types.ts
+@@ -14,4 +14,4 @@ export type EditorialStory = Pick<
+   sponsor_name?: string | null;
+ };
+ 
+-export type HeadingLevel = 2 | 3 | 4;
++export type HeadingLevel = 1 | 2 | 3 | 4;
