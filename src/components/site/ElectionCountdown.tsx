@@ -126,7 +126,7 @@ function Unit({
   return (
     <div
       aria-hidden="true"
-      className="cd-persp relative flex items-baseline gap-1 overflow-hidden rounded px-1.5 pb-1.5 pt-1 ring-1 ring-white/10 sm:px-2"
+      className="cd-persp relative flex flex-col items-center overflow-hidden rounded px-2 pb-2 pt-1.5 ring-1 ring-white/10 sm:px-3"
       style={{ background: "var(--cd-tile)", color: "var(--cd-tile-text)" }}
     >
       <span
@@ -137,7 +137,14 @@ function Unit({
       >
         {text}
       </span>
-      <span className="text-[0.55rem] font-bold uppercase tracking-wider opacity-70">{label}</span>
+      {/* label sits BELOW the number so first-time visitors can read the units */}
+      <span
+        className={`mt-1 font-bold uppercase leading-none tracking-[0.14em] opacity-80 ${
+          size === "sm" ? "text-[0.55rem]" : "text-[0.65rem]"
+        }`}
+      >
+        {label}
+      </span>
       {/* accent underline — pulses on the seconds unit */}
       <span
         className={`absolute inset-x-0 bottom-0 h-[2px] ${live ? "cd-glow" : ""}`}
@@ -183,7 +190,7 @@ export function ElectionCountdownView({
       role="group"
       aria-label={s.title}
       title={`${s.title} — ${formatEat(s.target_at)} (EAT)`}
-      className="relative inline-flex items-center gap-1.5 overflow-hidden rounded-md px-1.5 pb-1.5 pt-2 shadow-sm ring-1 ring-black/10 sm:gap-2 sm:px-2"
+      className="relative inline-flex items-center gap-1.5 overflow-hidden rounded-md px-2 pb-2 pt-2.5 shadow-sm ring-1 ring-black/10 sm:gap-2.5 sm:px-3"
       style={style}
     >
       {/* tri-colour strip along the top edge */}
@@ -209,12 +216,12 @@ export function ElectionCountdownView({
               ? `${r.days} days, ${r.hours} hours and ${r.minutes} minutes until ${s.title}`
               : `Countdown to ${s.title}`}
           </p>
-          <Unit value={r ? r.days : null} label="d" animation={s.animation} size={size} />
-          <Unit value={r ? r.hours : null} label="h" animation={s.animation} size={size} />
-          <Unit value={r ? r.minutes : null} label="m" animation={s.animation} size={size} />
+          <Unit value={r ? r.days : null} label="Days" animation={s.animation} size={size} />
+          <Unit value={r ? r.hours : null} label="Hours" animation={s.animation} size={size} />
+          <Unit value={r ? r.minutes : null} label="Mins" animation={s.animation} size={size} />
           <Unit
             value={r ? r.seconds : null}
-            label="s"
+            label="Secs"
             animation={s.animation}
             size={size}
             live={animated}
