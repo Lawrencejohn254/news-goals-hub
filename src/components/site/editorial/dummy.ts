@@ -31,3 +31,14 @@ export const DUMMY_STORIES: EditorialStory[] = [
   base(5, "Text-only link story", "Politics", 1500),
   base(6, "A partner story from our sponsor", "Brand Book", 400, { sponsor_name: "Acme Bank" }),
 ];
+
+/** A longer list for previewing full-width sections. */
+export const DUMMY_MANY: EditorialStory[] = Array.from({ length: 16 }, (_, i) =>
+  base(
+    100 + i,
+    `Placeholder headline number ${i + 1} that is long enough to wrap onto a second line`,
+    ["Politics", "Nairobi", "Health", "Education"][i % 4],
+    30 + i * 45,
+    { has_audio: i % 3 === 0 },
+  ),
+);

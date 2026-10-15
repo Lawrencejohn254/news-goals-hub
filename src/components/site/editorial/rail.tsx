@@ -2,7 +2,7 @@ import type { ReactNode } from "react";
 import { Link } from "@tanstack/react-router";
 import { Play } from "lucide-react";
 import { relativeTimeLong } from "@/lib/format";
-import { CardStack, SponsoredCard, TextLinkCard } from "./cards";
+import { CardStack, CompactThumbCard, SponsoredCard } from "./cards";
 import type { EditorialStory } from "./types";
 
 /** Small uppercase heading used by every rail block. */
@@ -21,6 +21,9 @@ function RailHeading({ id, children }: { id: string; children: ReactNode }) {
 export function RailVideo({ story }: { story: EditorialStory }) {
   return (
     <article className="relative flex flex-col gap-2">
+      <p className="font-sans text-[11px] font-bold uppercase leading-none tracking-wider text-[var(--ed-accent)]">
+        Video
+      </p>
       <div className="relative aspect-video overflow-hidden bg-[var(--ed-surface)]">
         {story.featured_image && (
           <img
@@ -63,13 +66,13 @@ export function LiveUpdatesBox({
   if (stories.length === 0) return null;
   return (
     <section aria-labelledby="ed-live" className={className}>
-      <RailHeading id="ed-live">
-        <span className="inline-flex items-center gap-2">
-          <span aria-hidden="true" className="h-2 w-2 rounded-full bg-[var(--ed-accent)]" />
-          Live news updates
-        </span>
-      </RailHeading>
-      <ol className="flex flex-col gap-3 border-l border-[var(--ed-line)] pl-4">
+      <h2
+        id="ed-live"
+        className="mb-3 inline-block bg-[var(--ed-accent)] px-2 py-1 font-sans text-[11px] font-bold uppercase tracking-wider text-white"
+      >
+        Live news updates
+      </h2>
+      <ol className="flex flex-col gap-3 border border-[var(--ed-line)] p-4">
         {stories.map((s) => (
           <li key={s.id} className="relative">
             {s.published_at && (
@@ -108,7 +111,7 @@ export function LatestList({
       <RailHeading id="ed-latest">Latest</RailHeading>
       <CardStack>
         {stories.map((s) => (
-          <TextLinkCard key={s.id} story={s} headingLevel={3} />
+          <CompactThumbCard key={s.id} story={s} headingLevel={3} />
         ))}
       </CardStack>
     </section>

@@ -14,4 +14,4 @@ export type EditorialStory = Pick<
   sponsor_name?: string | null;
 };
 
-export type HeadingLevel = 2 | 3 | 4;
+export type HeadingLevel = 1 | 2 | 3 | 4;

@@ -1,73 +1,78 @@
-import {
-  CardStack,
-  CompactThumbCard,
-  HeadlineSummaryCard,
-  LeadCard,
-  MediaRowCard,
-  SponsoredCard,
-  TextLinkCard,
-} from "./cards";
-import { DUMMY_STORIES as s } from "./dummy";
 import { CategorySection } from "./CategorySection";
+import { DUMMY_MANY as m, DUMMY_STORIES as s } from "./dummy";
 import { TopSection } from "./TopSection";
 
 /**
- * Temporary showcase of every card variant with dummy data, for visual review
- * during the build. Not mounted anywhere yet; removed once the real homepage
- * is wired up.
+ * Temporary showcase of the editorial layouts with dummy data, for visual
+ * review during the build. Not mounted anywhere yet; removed once the real
+ * homepage is wired up.
  */
 export function EditorialPreview() {
+  const rule = <hr className="my-10 border-[var(--ed-line)]" />;
   return (
     <div className="editorial">
       <div className="container-page py-8">
         <TopSection
-          lead={s[0]}
-          headlineSummary={[s[1]]}
-          mediaRows={[s[2]]}
-          compactThumbs={[s[3]]}
-          textLinks={[s[4]]}
+          hero={s[0]}
+          heroThumbs={[m[0], m[1], m[2]]}
+          blocks={[
+            { type: "lead", story: m[3] },
+            { type: "pair", stories: [m[4], m[5]], variant: "headline" },
+            { type: "pair", stories: [m[6], m[7]], variant: "thumb" },
+            { type: "text", story: m[8] },
+            { type: "lead", story: m[9] },
+            { type: "media", story: m[10] },
+          ]}
           video={s[2]}
-          live={[s[0], s[1], s[3]]}
-          latest={[s[1], s[3], s[4]]}
-          brandBook={[s[5]]}
+          live={[m[11], m[12], m[13]]}
+          latest={[m[14], m[15], m[0], m[1]]}
+          brandBook={[s[5], { ...s[5], id: "dummy-6b", sponsor_name: "Example Fund" }]}
         />
 
-        <hr className="my-10 border-[var(--ed-line)]" />
-
+        {rule}
         <CategorySection
           category={{ name: "Africa", slug: "africa" }}
-          stories={[s[2], s[1], s[3], s[4]]}
+          stories={m.slice(0, 5)}
           layout="africa"
         />
 
-        <hr className="my-10 border-[var(--ed-line)]" />
-
+        {rule}
         <CategorySection
           category={{ name: "Politics", slug: "politics" }}
-          stories={[s[0], s[3], s[2], s[1], s[4], s[5]]}
+          stories={m.slice(0, 9)}
           layout="politics"
         />
 
-        <hr className="my-10 border-[var(--ed-line)]" />
-
+        {rule}
         <CategorySection
-          category={{ name: "Sport", slug: "sport" }}
-          stories={[s[3], s[2], s[1]]}
-          layout="standard"
+          category={{ name: "Counties", slug: "counties" }}
+          stories={m}
+          layout="counties"
+          subLinks={[
+            { label: "Nairobi Metro", slug: "nairobi" },
+            { label: "Coast", slug: "coast" },
+            { label: "Mountain", slug: "mountain" },
+            { label: "Rift Valley", slug: "rift-valley" },
+          ]}
         />
 
-        <hr className="my-10 border-[var(--ed-line)]" />
+        {rule}
+        <CategorySection
+          category={{ name: "Opinion", slug: "opinion" }}
+          stories={m.slice(0, 5)}
+          layout="opinion"
+          subLinks={[
+            { label: "Editorials", slug: "editorials" },
+            { label: "Columnists", slug: "columnists" },
+          ]}
+        />
 
-        <div className="max-w-xl">
-          <CardStack>
-            <LeadCard story={s[0]} />
-            <HeadlineSummaryCard story={s[1]} />
-            <MediaRowCard story={s[2]} />
-            <CompactThumbCard story={s[3]} />
-            <TextLinkCard story={s[4]} />
-            <SponsoredCard story={s[5]} />
-          </CardStack>
-        </div>
+        {rule}
+        <CategorySection
+          category={{ name: "Sport", slug: "sport" }}
+          stories={m.slice(0, 4)}
+          layout="standard"
+        />
       </div>
     </div>
   );

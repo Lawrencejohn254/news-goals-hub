@@ -15,12 +15,13 @@ function EdImage({
   eager = false,
 }: {
   story: EditorialStory;
-  ratio: "16/9" | "1/1";
+  ratio: "16/9" | "4/3" | "1/1";
   className?: string;
   eager?: boolean;
 }) {
   const [failed, setFailed] = useState(false);
-  const aspect = ratio === "16/9" ? "aspect-video" : "aspect-square";
+  const aspect =
+    ratio === "16/9" ? "aspect-video" : ratio === "4/3" ? "aspect-[4/3]" : "aspect-square";
   return (
     <div className={`${aspect} overflow-hidden bg-[var(--ed-surface)] ${className}`}>
       {story.featured_image && !failed && (
@@ -135,7 +136,7 @@ export function LeadCard({
   const beside = imagePosition === "right";
   return (
     <article
-      className={`relative ${beside ? "grid gap-4 md:grid-cols-2 md:gap-6" : "flex flex-col gap-3"} ${className}`}
+      className={`relative ${beside ? "grid gap-4 md:grid-cols-[minmax(0,1fr)_minmax(0,1.8fr)] md:gap-6" : "flex flex-col gap-3"} ${className}`}
     >
       {!beside && <EdImage story={story} ratio="16/9" eager />}
       <div className="flex min-w-0 flex-col gap-2">
@@ -190,10 +191,23 @@ export function MediaRowCard({ story, headingLevel = 3, onListen, className = ""
   );
 }
 
-/** Small headline with a small square thumbnail. */
-export function CompactThumbCard({ story, headingLevel = 3, onListen, className = "" }: CardProps) {
+/**
+ * Small headline with a small thumbnail. Square by default; `ratio="4/3"` gives
+ * the wider thumb used in the hero column and county lists. `imageSide="left"`
+ * moves the image visually (DOM order stays text-first for screen readers).
+ */
+export function CompactThumbCard({
+  story,
+  headingLevel = 3,
+  onListen,
+  className = "",
+  imageSide = "right",
+  ratio = "1/1",
+}: CardProps & { imageSide?: "left" | "right"; ratio?: "1/1" | "4/3" }) {
   return (
-    <article className={`relative flex items-start gap-3 ${className}`}>
+    <article
+      className={`relative flex items-start gap-3 ${imageSide === "left" ? "flex-row-reverse" : ""} ${className}`}
+    >
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
         <Headline
           story={story}
@@ -202,7 +216,11 @@ export function CompactThumbCard({ story, headingLevel = 3, onListen, className 
         />
         <Meta story={story} onListen={onListen} />
       </div>
-      <EdImage story={story} ratio="1/1" className="w-20 shrink-0" />
+      <EdImage
+        story={story}
+        ratio={ratio}
+        className={`shrink-0 ${ratio === "4/3" ? "w-24 sm:w-28" : "w-20"}`}
+      />
     </article>
   );
 }
@@ -226,14 +244,14 @@ export function SponsoredCard({ story, headingLevel = 3, className = "" }: CardP
   return (
     <article className={`relative flex items-start gap-3 ${className}`}>
       <div className="flex min-w-0 flex-1 flex-col gap-1.5">
-        <p className="font-sans text-[11px] font-bold uppercase leading-none tracking-wider text-[var(--ed-muted)]">
-          {story.sponsor_name ? `Sponsored by ${story.sponsor_name}` : "Sponsored"}
-        </p>
         <Headline
           story={story}
           as={`h${headingLevel}` as ElementType}
           className="text-base font-semibold leading-snug"
         />
+        <p className="font-sans text-[11px] leading-none text-[var(--ed-muted)]">
+          {story.sponsor_name ? `Sponsored by ${story.sponsor_name}` : "Sponsored"}
+        </p>
       </div>
       <EdImage story={story} ratio="1/1" className="w-20 shrink-0" />
     </article>
