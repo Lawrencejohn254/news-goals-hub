@@ -190,7 +190,7 @@ export function ElectionCountdownView({
       role="group"
       aria-label={s.title}
       title={`${s.title} — ${formatEat(s.target_at)} (EAT)`}
-      className="relative inline-flex items-center gap-1.5 overflow-hidden rounded-md px-2 pb-2 pt-2.5 shadow-sm ring-1 ring-black/10 sm:gap-2.5 sm:px-3"
+      className="relative inline-flex flex-col items-center gap-1.5 overflow-hidden rounded-md px-2 pb-2 pt-3 shadow-sm ring-1 ring-black/10 sm:px-3"
       style={style}
     >
       {/* tri-colour strip along the top edge */}
@@ -200,34 +200,46 @@ export function ElectionCountdownView({
         ))}
       </div>
 
-      <Flag s={s} size={size === "sm" ? "w-7" : "w-9"} animated={animated} />
+      {/* Visible title. w-0 + min-w-full keeps a long title from stretching
+          the box: it wraps to the width of the number row instead. */}
+      <p
+        className={`w-0 min-w-full text-center font-black uppercase leading-tight tracking-[0.12em] ${
+          size === "sm" ? "text-[0.65rem]" : "text-xs"
+        }`}
+      >
+        {s.title}
+      </p>
 
-      {r?.over ? (
-        <p
-          className="px-2 text-sm font-black uppercase leading-tight tracking-tight sm:text-base"
-          style={{ color: "var(--cd-accent)" }}
-        >
-          {s.ended_message}
-        </p>
-      ) : (
-        <>
-          <p className="sr-only">
-            {r
-              ? `${r.days} days, ${r.hours} hours and ${r.minutes} minutes until ${s.title}`
-              : `Countdown to ${s.title}`}
+      <div className="flex items-center gap-1.5 sm:gap-2.5">
+        <Flag s={s} size={size === "sm" ? "w-7" : "w-9"} animated={animated} />
+
+        {r?.over ? (
+          <p
+            className="px-2 text-sm font-black uppercase leading-tight tracking-tight sm:text-base"
+            style={{ color: "var(--cd-accent)" }}
+          >
+            {s.ended_message}
           </p>
-          <Unit value={r ? r.days : null} label="Days" animation={s.animation} size={size} />
-          <Unit value={r ? r.hours : null} label="Hours" animation={s.animation} size={size} />
-          <Unit value={r ? r.minutes : null} label="Mins" animation={s.animation} size={size} />
-          <Unit
-            value={r ? r.seconds : null}
-            label="Secs"
-            animation={s.animation}
-            size={size}
-            live={animated}
-          />
-        </>
-      )}
+        ) : (
+          <>
+            <p className="sr-only">
+              {r
+                ? `${r.days} days, ${r.hours} hours and ${r.minutes} minutes until ${s.title}`
+                : `Countdown to ${s.title}`}
+            </p>
+            <Unit value={r ? r.days : null} label="Days" animation={s.animation} size={size} />
+            <Unit value={r ? r.hours : null} label="Hours" animation={s.animation} size={size} />
+            <Unit value={r ? r.minutes : null} label="Mins" animation={s.animation} size={size} />
+            <Unit
+              value={r ? r.seconds : null}
+              label="Secs"
+              animation={s.animation}
+              size={size}
+              live={animated}
+            />
+          </>
+        )}
+      </div>
     </div>
   );
 }

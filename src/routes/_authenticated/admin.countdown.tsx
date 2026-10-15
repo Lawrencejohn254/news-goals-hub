@@ -232,7 +232,7 @@ function CountdownAdmin() {
       <section className="mb-6 grid gap-4 border border-border bg-background p-5 md:grid-cols-2">
         <h2 className="font-serif text-lg font-bold md:col-span-2">Content</h2>
         <div>
-          <Label htmlFor="cd-title">Name (hover text &amp; screen readers only)</Label>
+          <Label htmlFor="cd-title">Title (shown above the countdown)</Label>
           <Input
             id="cd-title"
             value={draft.title}
