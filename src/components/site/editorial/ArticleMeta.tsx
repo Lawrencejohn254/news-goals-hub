@@ -28,7 +28,7 @@ export function ArticleMeta({
     >
       {category && <span className="font-bold text-[var(--ed-text)]">{category}</span>}
       {time && publishedAt && (
-        <time dateTime={publishedAt} className="text-[var(--ed-muted)]">
+        <time dateTime={publishedAt} suppressHydrationWarning className="text-[var(--ed-muted)]">
           {time}
         </time>
       )}

@@ -78,6 +78,7 @@ export function LiveUpdatesBox({
             {s.published_at && (
               <time
                 dateTime={s.published_at}
+                suppressHydrationWarning
                 className="block font-sans text-[11px] text-[var(--ed-muted)]"
               >
                 {relativeTimeLong(s.published_at)}
