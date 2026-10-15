@@ -1,0 +1,114 @@
+diff --git a/src/components/site/editorial/CategorySection.tsx b/src/components/site/editorial/CategorySection.tsx
+index 21495c5..57d0b21 100644
+--- a/src/components/site/editorial/CategorySection.tsx
++++ b/src/components/site/editorial/CategorySection.tsx
+@@ -1,9 +1,24 @@
+ import type { ReactNode } from "react";
+ import { Link } from "@tanstack/react-router";
+-import { CardStack, LeadCard, TextLinkCard } from "./cards";
++import { CardStack, CompactThumbCard, LeadCard, TextLinkCard } from "./cards";
+ import type { EditorialStory } from "./types";
+ 
+-export type CategoryLayout = "africa";
++export type CategoryLayout = "africa" | "politics" | "standard";
++
++/** Column wrapper: adds the divider line (horizontal when stacked, vertical when side by side). */
++function Col({ children, divided = false }: { children: ReactNode; divided?: boolean }) {
++  return (
++    <div
++      className={
++        divided
++          ? "min-w-0 border-t border-[var(--ed-line)] pt-6 min-[900px]:border-l min-[900px]:border-t-0 min-[900px]:pl-6 min-[900px]:pt-0"
++          : "min-w-0 min-[900px]:pr-6"
++      }
++    >
++      {children}
++    </div>
++  );
++}
+ 
+ type SectionCategory = { name: string; slug: string };
+ 
+@@ -30,6 +45,55 @@ const LAYOUTS: Record<CategoryLayout, (stories: EditorialStory[]) => ReactNode>
+       )}
+     </div>
+   ),
++
++  /** Lead (image on top) | compact thumbs | text-only links. */
++  politics: ([lead, ...rest]) => {
++    const thumbs = rest.slice(0, 3);
++    const links = rest.slice(3);
++    const cols =
++      links.length > 0
++        ? "min-[900px]:grid-cols-[1.4fr_1fr_1fr]"
++        : "min-[900px]:grid-cols-[1.4fr_1fr]";
++    return (
++      <div className={`grid grid-cols-1 gap-8 min-[900px]:gap-0 ${cols}`}>
++        <Col>{lead && <LeadCard story={lead} headingLevel={3} imagePosition="top" />}</Col>
++        {thumbs.length > 0 && (
++          <Col divided>
++            <CardStack>
++              {thumbs.map((s) => (
++                <CompactThumbCard key={s.id} story={s} headingLevel={4} />
++              ))}
++            </CardStack>
++          </Col>
++        )}
++        {links.length > 0 && (
++          <Col divided>
++            <CardStack>
++              {links.map((s) => (
++                <TextLinkCard key={s.id} story={s} headingLevel={4} />
++              ))}
++            </CardStack>
++          </Col>
++        )}
++      </div>
++    );
++  },
++
++  /** Generic fallback for any other category: lead (image on top) beside compact thumbs. */
++  standard: ([lead, ...rest]) => (
++    <div className="grid grid-cols-1 gap-8 min-[900px]:grid-cols-[1.4fr_1fr] min-[900px]:gap-0">
++      <Col>{lead && <LeadCard story={lead} headingLevel={3} imagePosition="top" />}</Col>
++      {rest.length > 0 && (
++        <Col divided>
++          <CardStack>
++            {rest.map((s) => (
++              <CompactThumbCard key={s.id} story={s} headingLevel={4} />
++            ))}
++          </CardStack>
++        </Col>
++      )}
++    </div>
++  ),
+ };
+ 
+ /**
+diff --git a/src/components/site/editorial/EditorialPreview.tsx b/src/components/site/editorial/EditorialPreview.tsx
+index 0b482b1..c60f780 100644
+--- a/src/components/site/editorial/EditorialPreview.tsx
++++ b/src/components/site/editorial/EditorialPreview.tsx
+@@ -42,6 +42,22 @@ export function EditorialPreview() {
+ 
+         <hr className="my-10 border-[var(--ed-line)]" />
+ 
++        <CategorySection
++          category={{ name: "Politics", slug: "politics" }}
++          stories={[s[0], s[3], s[2], s[1], s[4], s[5]]}
++          layout="politics"
++        />
++
++        <hr className="my-10 border-[var(--ed-line)]" />
++
++        <CategorySection
++          category={{ name: "Sport", slug: "sport" }}
++          stories={[s[3], s[2], s[1]]}
++          layout="standard"
++        />
++
++        <hr className="my-10 border-[var(--ed-line)]" />
++
+         <div className="max-w-xl">
+           <CardStack>
+             <LeadCard story={s[0]} />
