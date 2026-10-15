@@ -162,11 +162,15 @@ function Unit({
  */
 export function ElectionCountdownView({
   settings: s,
-  size = "md",
+  size: sizeProp = "md",
+  compact = false,
 }: {
   settings: ElectionCountdownSettings;
   size?: Size;
+  /** Smaller numbers and no title line — used once the page is scrolled. */
+  compact?: boolean;
 }) {
+  const size: Size = compact ? "sm" : sizeProp;
   const now = useNow();
   const target = new Date(s.target_at).getTime();
   const r = now === null || Number.isNaN(target) ? null : splitRemaining(target - now);
@@ -202,13 +206,15 @@ export function ElectionCountdownView({
 
       {/* Visible title. w-0 + min-w-full keeps a long title from stretching
           the box: it wraps to the width of the number row instead. */}
-      <p
-        className={`w-0 min-w-full text-center font-black uppercase leading-tight tracking-[0.12em] ${
-          size === "sm" ? "text-[0.65rem]" : "text-xs"
-        }`}
-      >
-        {s.title}
-      </p>
+      {!compact && (
+        <p
+          className={`w-0 min-w-full text-center font-black uppercase leading-tight tracking-[0.12em] ${
+            size === "sm" ? "text-[0.65rem]" : "text-xs"
+          }`}
+        >
+          {s.title}
+        </p>
+      )}
 
       <div className="flex items-center gap-1.5 sm:gap-2.5">
         <Flag s={s} size={size === "sm" ? "w-7" : "w-9"} animated={animated} />
@@ -255,9 +261,11 @@ export function ElectionCountdownView({
  */
 export function ElectionCountdown({
   size = "md",
+  compact = false,
   wrapperClassName,
 }: {
   size?: Size;
+  compact?: boolean;
   wrapperClassName?: string;
 }) {
   const pathname = useRouterState({ select: (st) => st.location.pathname });
@@ -272,7 +280,7 @@ export function ElectionCountdown({
   if (!s.show_on_all_pages && pathname !== "/") return null;
   return (
     <div className={wrapperClassName}>
-      <ElectionCountdownView settings={s} size={size} />
+      <ElectionCountdownView settings={s} size={size} compact={compact} />
     </div>
   );
 }
