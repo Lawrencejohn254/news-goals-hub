@@ -1,0 +1,464 @@
+diff --git a/src/components/site/editorial/ArticleMeta.tsx b/src/components/site/editorial/ArticleMeta.tsx
+new file mode 100644
+index 0000000..cb38eb5
+--- /dev/null
++++ b/src/components/site/editorial/ArticleMeta.tsx
+@@ -0,0 +1,52 @@
++import { Headphones } from "lucide-react";
++import { relativeTimeLong } from "@/lib/format";
++
++/**
++ * Shared meta row: category tag, relative time, optional "Listen" button.
++ * Render it OUTSIDE the card's headline link (interactive content must not be
++ * nested inside <a>); cards lift it above the stretched link with relative z-10.
++ */
++export function ArticleMeta({
++  category,
++  publishedAt,
++  hasAudio = false,
++  onListen,
++  className = "",
++}: {
++  category?: string | null;
++  publishedAt?: string | null;
++  hasAudio?: boolean | null;
++  onListen?: () => void;
++  className?: string;
++}) {
++  const time = relativeTimeLong(publishedAt);
++  if (!category && !time && !hasAudio) return null;
++
++  return (
++    <div
++      className={`relative z-10 flex flex-wrap items-center gap-x-3 gap-y-1 font-sans text-[11px] leading-none ${className}`}
++    >
++      {category && (
++        <span className="font-bold uppercase tracking-wider text-[var(--ed-accent)]">
++          {category}
++        </span>
++      )}
++      {time && publishedAt && (
++        <time dateTime={publishedAt} className="text-[var(--ed-muted)]">
++          {time}
++        </time>
++      )}
++      {hasAudio && (
++        <button
++          type="button"
++          onClick={onListen}
++          aria-label={`Listen to this story${category ? ` (${category})` : ""}`}
++          className="inline-flex items-center gap-1 rounded-sm border border-[var(--ed-line)] px-1.5 py-1 font-semibold text-[var(--ed-text)] hover:border-[var(--ed-accent)] hover:text-[var(--ed-accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ed-accent)]"
++        >
++          <Headphones className="h-3 w-3" aria-hidden="true" />
++          Listen
++        </button>
++      )}
++    </div>
++  );
++}
+diff --git a/src/components/site/editorial/EditorialPreview.tsx b/src/components/site/editorial/EditorialPreview.tsx
+new file mode 100644
+index 0000000..ba83c78
+--- /dev/null
++++ b/src/components/site/editorial/EditorialPreview.tsx
+@@ -0,0 +1,34 @@
++import {
++  CardStack,
++  CompactThumbCard,
++  HeadlineSummaryCard,
++  LeadCard,
++  MediaRowCard,
++  SponsoredCard,
++  TextLinkCard,
++} from "./cards";
++import { DUMMY_STORIES as s } from "./dummy";
++
++/**
++ * Temporary showcase of every card variant with dummy data, for visual review
++ * during the build. Not mounted anywhere yet; removed once the real homepage
++ * is wired up.
++ */
++export function EditorialPreview() {
++  return (
++    <div className="editorial">
++      <div className="container-page py-8">
++        <div className="max-w-xl">
++          <CardStack>
++            <LeadCard story={s[0]} />
++            <HeadlineSummaryCard story={s[1]} />
++            <MediaRowCard story={s[2]} />
++            <CompactThumbCard story={s[3]} />
++            <TextLinkCard story={s[4]} />
++            <SponsoredCard story={s[5]} />
++          </CardStack>
++        </div>
++      </div>
++    </div>
++  );
++}
+diff --git a/src/components/site/editorial/cards.tsx b/src/components/site/editorial/cards.tsx
+new file mode 100644
+index 0000000..4bdb4a3
+--- /dev/null
++++ b/src/components/site/editorial/cards.tsx
+@@ -0,0 +1,241 @@
++import { useState, type ElementType, type ReactNode } from "react";
++import { Link } from "@tanstack/react-router";
++import { ArticleMeta } from "./ArticleMeta";
++import type { EditorialStory, HeadingLevel } from "./types";
++
++/* ------------------------------------------------------------------ */
++/* Shared pieces                                                       */
++/* ------------------------------------------------------------------ */
++
++/** Fixed-ratio, lazy image that falls back to a neutral block if missing/broken. */
++function EdImage({
++  story,
++  ratio,
++  className = "",
++  eager = false,
++}: {
++  story: EditorialStory;
++  ratio: "16/9" | "1/1";
++  className?: string;
++  eager?: boolean;
++}) {
++  const [failed, setFailed] = useState(false);
++  const aspect = ratio === "16/9" ? "aspect-video" : "aspect-square";
++  return (
++    <div className={`${aspect} overflow-hidden bg-[var(--ed-surface)] ${className}`}>
++      {story.featured_image && !failed && (
++        <img
++          src={story.featured_image}
++          alt={story.title}
++          loading={eager ? "eager" : "lazy"}
++          decoding="async"
++          onError={() => setFailed(true)}
++          className="h-full w-full object-cover"
++        />
++      )}
++    </div>
++  );
++}
++
++/**
++ * Headline whose link stretches over the whole card (::after), so the card is
++ * one big click target while the meta row's Listen button stays a separate,
++ * valid, keyboard-focusable control.
++ */
++function Headline({
++  story,
++  as: Tag = "h3",
++  className,
++}: {
++  story: EditorialStory;
++  as?: ElementType;
++  className: string;
++}) {
++  return (
++    <Tag className={`ed-serif ${className}`}>
++      <Link
++        to="/article/$slug"
++        params={{ slug: story.slug }}
++        className="after:absolute after:inset-0 hover:text-[var(--ed-accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ed-accent)]"
++      >
++        {story.title}
++      </Link>
++    </Tag>
++  );
++}
++
++function Meta({ story, onListen }: { story: EditorialStory; onListen?: () => void }) {
++  return (
++    <ArticleMeta
++      category={story.categories?.name}
++      publishedAt={story.published_at}
++      hasAudio={story.has_audio}
++      onListen={onListen}
++    />
++  );
++}
++
++function Summary({
++  text,
++  lines = 2,
++  className = "",
++}: {
++  text?: string | null;
++  lines?: 1 | 2 | 3;
++  className?: string;
++}) {
++  if (!text) return null;
++  const clamp = lines === 1 ? "line-clamp-1" : lines === 2 ? "line-clamp-2" : "line-clamp-3";
++  return (
++    <p className={`font-sans text-sm leading-snug text-[var(--ed-muted)] ${clamp} ${className}`}>
++      {text}
++    </p>
++  );
++}
++
++/**
++ * Vertical stack with thin divider lines between cards (no boxes).
++ * Wrap any list of cards in this.
++ */
++export function CardStack({
++  children,
++  className = "",
++}: {
++  children: ReactNode;
++  className?: string;
++}) {
++  return (
++    <div
++      className={`flex flex-col divide-y divide-[var(--ed-line)] [&>*]:py-4 [&>*:first-child]:pt-0 [&>*:last-child]:pb-0 ${className}`}
++    >
++      {children}
++    </div>
++  );
++}
++
++type CardProps = {
++  story: EditorialStory;
++  headingLevel?: HeadingLevel;
++  onListen?: () => void;
++  className?: string;
++};
++
++/* ------------------------------------------------------------------ */
++/* Variants                                                            */
++/* ------------------------------------------------------------------ */
++
++/** Large headline, summary, large 16:9 image (top, or beside), meta row. */
++export function LeadCard({
++  story,
++  headingLevel = 2,
++  onListen,
++  className = "",
++  imagePosition = "top",
++}: CardProps & { imagePosition?: "top" | "right" }) {
++  const beside = imagePosition === "right";
++  return (
++    <article
++      className={`relative ${beside ? "grid gap-4 md:grid-cols-2 md:gap-6" : "flex flex-col gap-3"} ${className}`}
++    >
++      {!beside && <EdImage story={story} ratio="16/9" eager />}
++      <div className="flex min-w-0 flex-col gap-2">
++        <Headline
++          story={story}
++          as={`h${headingLevel}` as ElementType}
++          className="text-2xl font-bold leading-tight md:text-3xl"
++        />
++        <Summary text={story.excerpt} lines={3} className="text-base" />
++        <Meta story={story} onListen={onListen} />
++      </div>
++      {beside && <EdImage story={story} ratio="16/9" className="md:order-last" />}
++    </article>
++  );
++}
++
++/** Medium headline, one-line summary, no image. */
++export function HeadlineSummaryCard({
++  story,
++  headingLevel = 3,
++  onListen,
++  className = "",
++}: CardProps) {
++  return (
++    <article className={`relative flex flex-col gap-1.5 ${className}`}>
++      <Headline
++        story={story}
++        as={`h${headingLevel}` as ElementType}
++        className="text-xl font-bold leading-snug"
++      />
++      <Summary text={story.excerpt} lines={1} />
++      <Meta story={story} onListen={onListen} />
++    </article>
++  );
++}
++
++/** Headline + summary on one side, image on the other. */
++export function MediaRowCard({ story, headingLevel = 3, onListen, className = "" }: CardProps) {
++  return (
++    <article className={`relative flex items-start gap-4 ${className}`}>
++      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
++        <Headline
++          story={story}
++          as={`h${headingLevel}` as ElementType}
++          className="text-lg font-bold leading-snug"
++        />
++        <Summary text={story.excerpt} lines={2} />
++        <Meta story={story} onListen={onListen} />
++      </div>
++      <EdImage story={story} ratio="16/9" className="w-36 shrink-0 sm:w-48" />
++    </article>
++  );
++}
++
++/** Small headline with a small square thumbnail. */
++export function CompactThumbCard({ story, headingLevel = 3, onListen, className = "" }: CardProps) {
++  return (
++    <article className={`relative flex items-start gap-3 ${className}`}>
++      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
++        <Headline
++          story={story}
++          as={`h${headingLevel}` as ElementType}
++          className="text-base font-semibold leading-snug"
++        />
++        <Meta story={story} onListen={onListen} />
++      </div>
++      <EdImage story={story} ratio="1/1" className="w-20 shrink-0" />
++    </article>
++  );
++}
++
++/** Headline and meta only. */
++export function TextLinkCard({ story, headingLevel = 3, onListen, className = "" }: CardProps) {
++  return (
++    <article className={`relative flex flex-col gap-1.5 ${className}`}>
++      <Headline
++        story={story}
++        as={`h${headingLevel}` as ElementType}
++        className="text-base font-semibold leading-snug"
++      />
++      <Meta story={story} onListen={onListen} />
++    </article>
++  );
++}
++
++/** Compact thumb carrying a "Sponsored by [name]" label instead of a category. */
++export function SponsoredCard({ story, headingLevel = 3, className = "" }: CardProps) {
++  return (
++    <article className={`relative flex items-start gap-3 ${className}`}>
++      <div className="flex min-w-0 flex-1 flex-col gap-1.5">
++        <p className="font-sans text-[11px] font-bold uppercase leading-none tracking-wider text-[var(--ed-muted)]">
++          {story.sponsor_name ? `Sponsored by ${story.sponsor_name}` : "Sponsored"}
++        </p>
++        <Headline
++          story={story}
++          as={`h${headingLevel}` as ElementType}
++          className="text-base font-semibold leading-snug"
++        />
++      </div>
++      <EdImage story={story} ratio="1/1" className="w-20 shrink-0" />
++    </article>
++  );
++}
+diff --git a/src/components/site/editorial/dummy.ts b/src/components/site/editorial/dummy.ts
+new file mode 100644
+index 0000000..911b932
+--- /dev/null
++++ b/src/components/site/editorial/dummy.ts
+@@ -0,0 +1,33 @@
++import type { EditorialStory } from "./types";
++
++/** Placeholder stories for previewing the card variants. Replaced by real data in a later step. */
++const minutesAgo = (m: number) => new Date(Date.now() - m * 60_000).toISOString();
++
++const base = (
++  n: number,
++  title: string,
++  category: string,
++  mins: number,
++  extra: Partial<EditorialStory> = {},
++): EditorialStory => ({
++  id: `dummy-${n}`,
++  slug: `dummy-story-${n}`,
++  title,
++  excerpt:
++    "A short summary line that explains the story in a sentence or two so readers know what to expect.",
++  featured_image: null,
++  published_at: minutesAgo(mins),
++  categories: { name: category, slug: category.toLowerCase() },
++  ...extra,
++});
++
++export const DUMMY_STORIES: EditorialStory[] = [
++  base(1, "Lead story headline runs long enough to wrap onto two lines", "Politics", 37, {
++    has_audio: true,
++  }),
++  base(2, "Headline with a one-line summary and no image", "Business", 55),
++  base(3, "Media row story with the picture on the right-hand side", "Africa", 130),
++  base(4, "Compact thumbnail story with a short headline", "Sport", 200),
++  base(5, "Text-only link story", "Politics", 1500),
++  base(6, "A partner story from our sponsor", "Brand Book", 400, { sponsor_name: "Acme Bank" }),
++];
+diff --git a/src/components/site/editorial/types.ts b/src/components/site/editorial/types.ts
+new file mode 100644
+index 0000000..70840b4
+--- /dev/null
++++ b/src/components/site/editorial/types.ts
+@@ -0,0 +1,17 @@
++import type { ArticleWithMeta } from "@/lib/queries";
++
++/**
++ * The shape the editorial cards render. Real articles (ArticleWithMeta) already
++ * satisfy it; the optional fields are the ones the database does not have yet
++ * (see the proposed migration), so cards degrade gracefully without them.
++ */
++export type EditorialStory = Pick<
++  ArticleWithMeta,
++  "id" | "slug" | "title" | "excerpt" | "featured_image" | "published_at"
++> & {
++  categories: Pick<NonNullable<ArticleWithMeta["categories"]>, "name" | "slug"> | null;
++  has_audio?: boolean | null;
++  sponsor_name?: string | null;
++};
++
++export type HeadingLevel = 2 | 3 | 4;
+diff --git a/src/lib/format.ts b/src/lib/format.ts
+index 91e14ec..e3d6739 100644
+--- a/src/lib/format.ts
++++ b/src/lib/format.ts
+@@ -53,3 +53,22 @@ export function relativeDate(input: string | Date | null | undefined): string {
+   if (days < 7) return `${days}d ago`;
+   return formatDate(d);
+ }
++
++/**
++ * Editorial-style relative time: "Just now", "37 min ago", "2 hours ago",
++ * "3 days ago", then a plain date after a week. Kept separate from
++ * relativeDate() so existing callers (e.g. Comments) are unaffected.
++ */
++export function relativeTimeLong(input: string | Date | null | undefined): string {
++  if (!input) return "";
++  const d = typeof input === "string" ? new Date(input) : input;
++  if (Number.isNaN(d.getTime())) return "";
++  const m = Math.floor((Date.now() - d.getTime()) / 60000);
++  if (m < 1) return "Just now";
++  if (m < 60) return `${m} min ago`;
++  const h = Math.floor(m / 60);
++  if (h < 24) return `${h} ${h === 1 ? "hour" : "hours"} ago`;
++  const days = Math.floor(h / 24);
++  if (days < 7) return `${days} ${days === 1 ? "day" : "days"} ago`;
++  return formatDate(d);
++}
+diff --git a/src/styles.css b/src/styles.css
+index df9c3bc..3010d0e 100644
+--- a/src/styles.css
++++ b/src/styles.css
+@@ -273,4 +273,22 @@
+ 
+ @media (prefers-reduced-motion: reduce) {
+   .cd-num-flip, .cd-num-slide, .cd-flag-wave, .cd-glow { animation: none; }
+-}
+\ No newline at end of file
++}
++
++/* Editorial homepage layout. Colors are variables so a dark (or any other)
++   theme can be added later by overriding them on a modifier class, e.g.
++   .editorial.editorial-dark { --ed-bg: ...; }. Light values for now. */
++.editorial {
++  --ed-bg: var(--background);
++  --ed-text: var(--foreground);
++  --ed-muted: var(--muted-foreground);
++  --ed-line: var(--border);
++  --ed-accent: var(--brand);
++  --ed-surface: var(--muted);
++  /* Swap in your serif of choice; Georgia is only the fallback. */
++  --ed-font-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
++
++  background-color: var(--ed-bg);
++  color: var(--ed-text);
++}
++.editorial .ed-serif { font-family: var(--ed-font-serif); }
+\ No newline at end of file

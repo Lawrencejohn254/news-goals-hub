@@ -274,3 +274,21 @@
 @media (prefers-reduced-motion: reduce) {
   .cd-num-flip, .cd-num-slide, .cd-flag-wave, .cd-glow { animation: none; }
 }
+
+/* Editorial homepage layout. Colors are variables so a dark (or any other)
+   theme can be added later by overriding them on a modifier class, e.g.
+   .editorial.editorial-dark { --ed-bg: ...; }. Light values for now. */
+.editorial {
+  --ed-bg: var(--background);
+  --ed-text: var(--foreground);
+  --ed-muted: var(--muted-foreground);
+  --ed-line: var(--border);
+  --ed-accent: var(--brand);
+  --ed-surface: var(--muted);
+  /* Swap in your serif of choice; Georgia is only the fallback. */
+  --ed-font-serif: "Source Serif 4", Georgia, "Times New Roman", serif;
+
+  background-color: var(--ed-bg);
+  color: var(--ed-text);
+}
+.editorial .ed-serif { font-family: var(--ed-font-serif); }

@@ -53,3 +53,22 @@ export function relativeDate(input: string | Date | null | undefined): string {
   if (days < 7) return `${days}d ago`;
   return formatDate(d);
 }
+
+/**
+ * Editorial-style relative time: "Just now", "37 min ago", "2 hours ago",
+ * "3 days ago", then a plain date after a week. Kept separate from
+ * relativeDate() so existing callers (e.g. Comments) are unaffected.
+ */
+export function relativeTimeLong(input: string | Date | null | undefined): string {
+  if (!input) return "";
+  const d = typeof input === "string" ? new Date(input) : input;
+  if (Number.isNaN(d.getTime())) return "";
+  const m = Math.floor((Date.now() - d.getTime()) / 60000);
+  if (m < 1) return "Just now";
+  if (m < 60) return `${m} min ago`;
+  const h = Math.floor(m / 60);
+  if (h < 24) return `${h} ${h === 1 ? "hour" : "hours"} ago`;
+  const days = Math.floor(h / 24);
+  if (days < 7) return `${days} ${days === 1 ? "day" : "days"} ago`;
+  return formatDate(d);
+}
