@@ -1,0 +1,60 @@
+From f976c4d41e47b62b31fd7426afb83871a828f66d Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 17 Oct 2026 22:03:22 +0300
+Subject: [PATCH] Slim homepage and section queries: stop sending full article
+ bodies
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01BxTSLXxJbWHJGJdqytoiyx
+---
+ src/lib/queries.ts | 13 ++++++++++---
+ 1 file changed, 10 insertions(+), 3 deletions(-)
+
+diff --git a/src/lib/queries.ts b/src/lib/queries.ts
+index c291216..ce1795c 100644
+--- a/src/lib/queries.ts
++++ b/src/lib/queries.ts
+@@ -12,6 +12,13 @@ export type ArticleWithMeta = Article & {
+ const ARTICLE_SELECT =
+   "*, categories(id,name,slug,color), profiles!articles_author_profile_fkey(display_name,avatar_url,bio)";
+ 
++// Lean column list for story cards (homepage, section pages). It leaves out the
++// full article body and SEO fields, which are by far the heaviest columns and
++// are sent to every visitor inside the page HTML. Article pages still use
++// ARTICLE_SELECT so they get everything.
++const CARD_SELECT: string =
++  "id,slug,title,excerpt,featured_image,published_at,category_id,is_breaking,has_audio,sponsor_name,article_type,categories(id,name,slug,color)";
++
+ export async function fetchCategories() {
+   const { data, error } = await supabase
+     .from("categories")
+@@ -32,7 +39,7 @@ export async function fetchPublishedArticles(limit = 20, offset = 0) {
+   // category page — nothing is deleted, just no longer on the homepage).
+   const { data, error } = await supabase
+     .from("articles")
+-    .select(ARTICLE_SELECT)
++    .select(CARD_SELECT)
+     .eq("status", "published")
+     .lte("published_at", new Date().toISOString())
+     .order("published_at", { ascending: false })
+@@ -57,7 +64,7 @@ export async function fetchFeaturedArticles(limit = 5) {
+ export async function fetchBreaking(limit = 8) {
+   const { data, error } = await supabase
+     .from("articles")
+-    .select(ARTICLE_SELECT)
++    .select(CARD_SELECT)
+     .eq("status", "published")
+     .eq("is_breaking", true)
+     .lte("published_at", new Date().toISOString())
+@@ -153,7 +160,7 @@ export async function fetchArticlesByCategory(categorySlug: string, limit = 100)
+   if (!cat) return { category: null, articles: [] as ArticleWithMeta[] };
+   const { data, error } = await supabase
+     .from("articles")
+-    .select(ARTICLE_SELECT)
++    .select(CARD_SELECT)
+     .eq("status", "published")
+     .eq("category_id", cat.id)
+     .lte("published_at", new Date().toISOString())
+-- 
+2.43.0
+
