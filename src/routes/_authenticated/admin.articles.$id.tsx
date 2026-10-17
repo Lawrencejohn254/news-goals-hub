@@ -25,6 +25,7 @@ function EditArticle() {
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const [featuredImage, setFeaturedImage] = useState("");
+  const [imageCredit, setImageCredit] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [status, setStatus] = useState<"draft" | "published" | "scheduled" | "archived">("draft");
   const [originalStatus, setOriginalStatus] = useState<typeof status | null>(null);
@@ -46,6 +47,7 @@ function EditArticle() {
           setExcerpt(data.excerpt ?? "");
           setContent(data.content ?? "");
           setFeaturedImage(data.featured_image ?? "");
+          setImageCredit(data.image_credit ?? "");
           setCategoryId(data.category_id ?? "");
           setStatus(data.status);
           setOriginalStatus(data.status);
@@ -67,6 +69,7 @@ function EditArticle() {
         excerpt: excerpt || null,
         content,
         featured_image: featuredImage || null,
+        image_credit: imageCredit.trim() || null,
         category_id: categoryId || null,
         status: s,
         is_featured: isFeatured,
@@ -121,6 +124,8 @@ function EditArticle() {
           setContent,
           featuredImage,
           setFeaturedImage,
+          imageCredit,
+          setImageCredit,
           categoryId,
           setCategoryId,
           categories: cats.data ?? [],

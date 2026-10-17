@@ -1,0 +1,177 @@
+From 6b268cea45b3892ec726f72e9c42d3a72c4d3c57 Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 17 Oct 2026 23:32:59 +0300
+Subject: [PATCH] Add image credit field and caption under article images
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01BxTSLXxJbWHJGJdqytoiyx
+---
+ src/integrations/supabase/types.ts             |  3 +++
+ .../_authenticated/admin.articles.$id.tsx      |  5 +++++
+ .../_authenticated/admin.articles.new.tsx      | 18 ++++++++++++++++++
+ src/routes/article.$slug.tsx                   | 17 ++++++++++++-----
+ .../migrations/20261017200000_image_credit.sql |  2 ++
+ 5 files changed, 40 insertions(+), 5 deletions(-)
+ create mode 100644 supabase/migrations/20261017200000_image_credit.sql
+
+diff --git a/src/integrations/supabase/types.ts b/src/integrations/supabase/types.ts
+index b86add4..078558c 100644
+--- a/src/integrations/supabase/types.ts
++++ b/src/integrations/supabase/types.ts
+@@ -106,6 +106,7 @@ export type Database = {
+           id: string
+           is_featured: boolean
+           is_breaking: boolean
++          image_credit: string | null
+           is_pinned: boolean
+           published_at: string | null
+           reading_time: number
+@@ -128,6 +129,7 @@ export type Database = {
+           id?: string
+           is_featured?: boolean
+           is_breaking?: boolean
++          image_credit?: string | null
+           is_pinned?: boolean
+           published_at?: string | null
+           reading_time?: number
+@@ -150,6 +152,7 @@ export type Database = {
+           id?: string
+           is_featured?: boolean
+           is_breaking?: boolean
++          image_credit?: string | null
+           is_pinned?: boolean
+           published_at?: string | null
+           reading_time?: number
+diff --git a/src/routes/_authenticated/admin.articles.$id.tsx b/src/routes/_authenticated/admin.articles.$id.tsx
+index bb8ae99..69ecde1 100644
+--- a/src/routes/_authenticated/admin.articles.$id.tsx
++++ b/src/routes/_authenticated/admin.articles.$id.tsx
+@@ -25,6 +25,7 @@ function EditArticle() {
+   const [excerpt, setExcerpt] = useState("");
+   const [content, setContent] = useState("");
+   const [featuredImage, setFeaturedImage] = useState("");
++  const [imageCredit, setImageCredit] = useState("");
+   const [categoryId, setCategoryId] = useState("");
+   const [status, setStatus] = useState<"draft" | "published" | "scheduled" | "archived">("draft");
+   const [originalStatus, setOriginalStatus] = useState<typeof status | null>(null);
+@@ -46,6 +47,7 @@ function EditArticle() {
+           setExcerpt(data.excerpt ?? "");
+           setContent(data.content ?? "");
+           setFeaturedImage(data.featured_image ?? "");
++          setImageCredit(data.image_credit ?? "");
+           setCategoryId(data.category_id ?? "");
+           setStatus(data.status);
+           setOriginalStatus(data.status);
+@@ -67,6 +69,7 @@ function EditArticle() {
+         excerpt: excerpt || null,
+         content,
+         featured_image: featuredImage || null,
++        image_credit: imageCredit.trim() || null,
+         category_id: categoryId || null,
+         status: s,
+         is_featured: isFeatured,
+@@ -121,6 +124,8 @@ function EditArticle() {
+           setContent,
+           featuredImage,
+           setFeaturedImage,
++          imageCredit,
++          setImageCredit,
+           categoryId,
+           setCategoryId,
+           categories: cats.data ?? [],
+diff --git a/src/routes/_authenticated/admin.articles.new.tsx b/src/routes/_authenticated/admin.articles.new.tsx
+index 78ddd8e..5992417 100644
+--- a/src/routes/_authenticated/admin.articles.new.tsx
++++ b/src/routes/_authenticated/admin.articles.new.tsx
+@@ -24,6 +24,7 @@ function NewArticle() {
+   const [excerpt, setExcerpt] = useState("");
+   const [content, setContent] = useState("");
+   const [featuredImage, setFeaturedImage] = useState("");
++  const [imageCredit, setImageCredit] = useState("");
+   const [categoryId, setCategoryId] = useState("");
+   const [saving, setSaving] = useState(false);
+ 
+@@ -41,6 +42,7 @@ function NewArticle() {
+         excerpt: excerpt.trim() || null,
+         content,
+         featured_image: featuredImage.trim() || null,
++        image_credit: imageCredit.trim() || null,
+         category_id: categoryId || null,
+         author_id: userData.user.id,
+         status,
+@@ -70,6 +72,8 @@ function NewArticle() {
+           setContent,
+           featuredImage,
+           setFeaturedImage,
++          imageCredit,
++          setImageCredit,
+           categoryId,
+           setCategoryId,
+           categories: cats.data ?? [],
+@@ -102,6 +106,8 @@ export function ArticleForm(props: {
+   setContent: (v: string) => void;
+   featuredImage: string;
+   setFeaturedImage: (v: string) => void;
++  imageCredit: string;
++  setImageCredit: (v: string) => void;
+   categoryId: string;
+   setCategoryId: (v: string) => void;
+   categories: { id: string; name: string }[];
+@@ -175,6 +181,18 @@ export function ArticleForm(props: {
+           />
+         )}
+       </div>
++      <div>
++        <Label htmlFor="credit">Image credit</Label>
++        <Input
++          id="credit"
++          value={props.imageCredit}
++          onChange={(e) => props.setImageCredit(e.target.value)}
++          placeholder="e.g. Photo: KNA, or Image: Courtesy of State House"
++        />
++        <p className="mt-1 text-xs text-muted-foreground">
++          Shown under the main image. Credit the owner of the photo, or write "The Africa Daily Dispatch" if it is yours.
++        </p>
++      </div>
+       <div>
+         <Label>Content</Label>
+         <RichTextEditor value={props.content} onChange={props.setContent} />
+diff --git a/src/routes/article.$slug.tsx b/src/routes/article.$slug.tsx
+index 9fc4cd0..8a727ea 100644
+--- a/src/routes/article.$slug.tsx
++++ b/src/routes/article.$slug.tsx
+@@ -246,11 +246,18 @@ function ArticlePage() {
+           </div>
+ 
+           {a.featured_image && (
+-            <img
+-              src={a.featured_image}
+-              alt={a.title}
+-              className="mt-6 aspect-[16/9] w-full object-cover"
+-            />
++            <figure className="mt-6">
++              <img
++                src={a.featured_image}
++                alt={a.title}
++                className="aspect-[16/9] w-full object-cover"
++              />
++              {a.image_credit?.trim() && (
++                <figcaption className="mt-2 font-sans text-xs text-[var(--ed-muted)]">
++                  {a.image_credit.trim()}
++                </figcaption>
++              )}
++            </figure>
+           )}
+ 
+           <TrackedAdSlot placement="article-inline" section={cat?.slug} className="my-8" />
+diff --git a/supabase/migrations/20261017200000_image_credit.sql b/supabase/migrations/20261017200000_image_credit.sql
+new file mode 100644
+index 0000000..cd25273
+--- /dev/null
++++ b/supabase/migrations/20261017200000_image_credit.sql
+@@ -0,0 +1,2 @@
++-- Photo credit shown under the article's main image (e.g. "Photo: KNA").
++ALTER TABLE public.articles ADD COLUMN IF NOT EXISTS image_credit TEXT;
+-- 
+2.43.0
+
