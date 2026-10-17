@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
 import { fetchArticlesByCategory } from "@/lib/queries";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
-import { ArticleCard } from "@/components/site/ArticleCard";
+import { EditorialCategory } from "@/components/site/editorial/EditorialCategory";
 import { absoluteUrl } from "@/lib/site-url";
 
 export const Route = createFileRoute("/category/$slug")({
@@ -64,31 +64,15 @@ function CategoryPage() {
           </div>
         ) : (
           <>
-            <header className="mb-10 border-b-2 border-[var(--ink)] pb-4">
-              <span
-                className="inline-block h-2 w-16"
-                style={{ backgroundColor: q.data.category.color }}
-              />
-              <h1 className="mt-3 font-serif text-5xl font-black text-[var(--ink)]">
-                {q.data.category.name}
-              </h1>
-              {q.data.category.description && (
-                <p className="mt-2 max-w-2xl text-muted-foreground">
-                  {q.data.category.description}
-                </p>
-              )}
-            </header>
-
             {q.data.articles.length === 0 ? (
-              <p className="text-muted-foreground">
-                No stories in this section yet.
-              </p>
+              <>
+                <h1 className="font-serif text-3xl font-black text-[var(--ink)]">
+                  {q.data.category.name}
+                </h1>
+                <p className="mt-4 text-muted-foreground">No stories in this section yet.</p>
+              </>
             ) : (
-              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-                {q.data.articles.map((a) => (
-                  <ArticleCard key={a.id} article={a} />
-                ))}
-              </div>
+              <EditorialCategory category={q.data.category} articles={q.data.articles} />
             )}
           </>
         )}

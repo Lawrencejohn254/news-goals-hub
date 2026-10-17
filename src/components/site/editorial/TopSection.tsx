@@ -23,6 +23,8 @@ export type TopBlock =
 export type TopSectionProps = {
   /** Full-width band: lead (text left, big image) beside a column of thumbs. */
   hero?: EditorialStory;
+  /** h1 on the home page; pages that already have their own h1 pass 2. */
+  heroHeadingLevel?: 1 | 2;
   heroThumbs?: EditorialStory[];
   /** Left column under the band. */
   blocks?: TopBlock[];
@@ -85,6 +87,7 @@ function renderBlock(b: TopBlock): ReactNode {
  */
 export function TopSection({
   hero,
+  heroHeadingLevel = 1,
   heroThumbs = [],
   blocks = [],
   video,
@@ -99,7 +102,7 @@ export function TopSection({
       {hero && (
         <div className="grid grid-cols-1 gap-8 border-b border-[var(--ed-line)] pb-8 min-[900px]:grid-cols-[2fr_1fr] min-[900px]:gap-0">
           <div className="min-w-0 min-[900px]:pr-6">
-            <LeadCard story={hero} headingLevel={1} imagePosition="right" />
+            <LeadCard story={hero} headingLevel={heroHeadingLevel} imagePosition="right" />
           </div>
           {heroThumbs.length > 0 && (
             <div className="min-w-0 border-t border-[var(--ed-line)] pt-6 min-[900px]:border-l min-[900px]:border-t-0 min-[900px]:pl-6 min-[900px]:pt-0">

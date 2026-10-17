@@ -1,0 +1,264 @@
+diff --git a/src/components/site/editorial/EditorialCategory.tsx b/src/components/site/editorial/EditorialCategory.tsx
+new file mode 100644
+index 0000000..f530df2
+--- /dev/null
++++ b/src/components/site/editorial/EditorialCategory.tsx
+@@ -0,0 +1,91 @@
++import { useMemo, useState } from "react";
++import type { ArticleWithMeta } from "@/lib/queries";
++import { CardStack, MediaRowCard } from "./cards";
++import { createPicker } from "./picker";
++import { TopSection, type TopBlock } from "./TopSection";
++
++const MORE_PAGE_SIZE = 12;
++
++/**
++ * Body of a category page in the editorial style: title row, hero band, block
++ * column + "Latest" rail, then the rest of the section as a "load more" list.
++ * `articles` must be newest-first. Every story is used in exactly one slot.
++ */
++export function EditorialCategory({
++  category,
++  articles,
++}: {
++  category: { name: string; description?: string | null };
++  articles: ArticleWithMeta[];
++}) {
++  const [shown, setShown] = useState(MORE_PAGE_SIZE);
++
++  const layout = useMemo(() => {
++    const take = createPicker();
++    const [hero] = take(articles, 1, true);
++    const heroThumbs = take(articles, 3, true);
++
++    const blocks: TopBlock[] = [];
++    const lead = take(articles, 1, true)[0];
++    if (lead) blocks.push({ type: "lead", story: lead });
++    const pairA = take(articles, 2);
++    if (pairA.length) blocks.push({ type: "pair", stories: pairA, variant: "headline" });
++    const pairB = take(articles, 2, true);
++    if (pairB.length) blocks.push({ type: "pair", stories: pairB, variant: "thumb" });
++    const text = take(articles, 1)[0];
++    if (text) blocks.push({ type: "text", story: text });
++
++    const latestRail = take(articles, 5, true);
++    // Everything left over, still newest-first.
++    const more = take(articles, articles.length);
++    return { hero, heroThumbs, blocks, latestRail, more };
++  }, [articles]);
++
++  return (
++    <div className="editorial flex flex-col gap-10">
++      <header className="border-b border-[var(--ed-line)] pb-4">
++        <h1 className="font-sans text-2xl font-extrabold uppercase tracking-wider text-[var(--ed-accent)]">
++          {category.name}
++        </h1>
++        {category.description && (
++          <p className="mt-2 max-w-2xl font-sans text-sm text-[var(--ed-muted)]">
++            {category.description}
++          </p>
++        )}
++      </header>
++
++      <TopSection
++        hero={layout.hero}
++        heroHeadingLevel={2}
++        heroThumbs={layout.heroThumbs}
++        blocks={layout.blocks}
++        latest={layout.latestRail}
++      />
++
++      {layout.more.length > 0 && (
++        <section aria-labelledby="ed-more">
++          <h2
++            id="ed-more"
++            className="mb-4 border-b border-[var(--ed-line)] pb-2 font-sans text-sm font-extrabold uppercase tracking-wider text-[var(--ed-accent)]"
++          >
++            More in {category.name}
++          </h2>
++          <CardStack>
++            {layout.more.slice(0, shown).map((s) => (
++              <MediaRowCard key={s.id} story={s} headingLevel={3} />
++            ))}
++          </CardStack>
++          {shown < layout.more.length && (
++            <button
++              type="button"
++              onClick={() => setShown((n) => n + MORE_PAGE_SIZE)}
++              className="mt-6 border border-[var(--ed-line)] px-4 py-2 font-sans text-sm font-semibold hover:border-[var(--ed-accent)] hover:text-[var(--ed-accent)] focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-[var(--ed-accent)]"
++            >
++              Load more
++            </button>
++          )}
++        </section>
++      )}
++    </div>
++  );
++}
+diff --git a/src/components/site/editorial/EditorialHome.tsx b/src/components/site/editorial/EditorialHome.tsx
+index 0fe6aab..28e0cf4 100644
+--- a/src/components/site/editorial/EditorialHome.tsx
++++ b/src/components/site/editorial/EditorialHome.tsx
+@@ -2,6 +2,7 @@ import { useMemo } from "react";
+ import type { ArticleWithMeta, Category } from "@/lib/queries";
+ import { CategorySection, type CategoryLayout } from "./CategorySection";
+ import { TopSection, type TopBlock } from "./TopSection";
++import { createPicker } from "./picker";
+ 
+ /**
+  * Which layout (and how many stories) each category section gets, keyed by
+@@ -17,30 +18,6 @@ const SECTION_BY_SLUG: Record<string, { layout: CategoryLayout; count: number }>
+ };
+ const DEFAULT_SECTION: { layout: CategoryLayout; count: number } = { layout: "standard", count: 4 };
+ 
+-/**
+- * Hands out stories without ever handing out the same one twice: every slot on
+- * the page takes from this one picker, so a story used in one slot can't show
+- * up in another. Slots are filled in priority order (top of the page first).
+- */
+-function createPicker() {
+-  const used = new Set<string>();
+-  /** Take up to `n` unused stories from `pool`; with `preferImage`, ones that have a picture come first. */
+-  return function take(pool: ArticleWithMeta[], n: number, preferImage = false): ArticleWithMeta[] {
+-    const out: ArticleWithMeta[] = [];
+-    const grab = (accept: (a: ArticleWithMeta) => boolean) => {
+-      for (const a of pool) {
+-        if (out.length >= n) return;
+-        if (used.has(a.id) || !accept(a)) continue;
+-        used.add(a.id);
+-        out.push(a);
+-      }
+-    };
+-    if (preferImage) grab((a) => !!a.featured_image);
+-    grab(() => true);
+-    return out;
+-  };
+-}
+-
+ /**
+  * Editorial homepage body: hero band, block column + rail, then one section per
+  * category. `latest` must be newest-first. Returns null when there is nothing
+diff --git a/src/components/site/editorial/TopSection.tsx b/src/components/site/editorial/TopSection.tsx
+index 787c87c..fc33a95 100644
+--- a/src/components/site/editorial/TopSection.tsx
++++ b/src/components/site/editorial/TopSection.tsx
+@@ -23,6 +23,8 @@ export type TopBlock =
+ export type TopSectionProps = {
+   /** Full-width band: lead (text left, big image) beside a column of thumbs. */
+   hero?: EditorialStory;
++  /** h1 on the home page; pages that already have their own h1 pass 2. */
++  heroHeadingLevel?: 1 | 2;
+   heroThumbs?: EditorialStory[];
+   /** Left column under the band. */
+   blocks?: TopBlock[];
+@@ -85,6 +87,7 @@ function renderBlock(b: TopBlock): ReactNode {
+  */
+ export function TopSection({
+   hero,
++  heroHeadingLevel = 1,
+   heroThumbs = [],
+   blocks = [],
+   video,
+@@ -99,7 +102,7 @@ export function TopSection({
+       {hero && (
+         <div className="grid grid-cols-1 gap-8 border-b border-[var(--ed-line)] pb-8 min-[900px]:grid-cols-[2fr_1fr] min-[900px]:gap-0">
+           <div className="min-w-0 min-[900px]:pr-6">
+-            <LeadCard story={hero} headingLevel={1} imagePosition="right" />
++            <LeadCard story={hero} headingLevel={heroHeadingLevel} imagePosition="right" />
+           </div>
+           {heroThumbs.length > 0 && (
+             <div className="min-w-0 border-t border-[var(--ed-line)] pt-6 min-[900px]:border-l min-[900px]:border-t-0 min-[900px]:pl-6 min-[900px]:pt-0">
+diff --git a/src/components/site/editorial/picker.ts b/src/components/site/editorial/picker.ts
+new file mode 100644
+index 0000000..00a617c
+--- /dev/null
++++ b/src/components/site/editorial/picker.ts
+@@ -0,0 +1,29 @@
++/**
++ * Hands out stories without ever handing out the same one twice: every slot on
++ * a page takes from one picker, so a story used in one slot can't show up in
++ * another. Fill slots in priority order (top of the page first).
++ *
++ * `take` returns up to `n` unused stories from `pool`; with `preferImage`, ones
++ * that have a picture come first.
++ */
++export function createPicker() {
++  const used = new Set<string>();
++  return function take<T extends { id: string; featured_image: string | null }>(
++    pool: T[],
++    n: number,
++    preferImage = false,
++  ): T[] {
++    const out: T[] = [];
++    const grab = (accept: (a: T) => boolean) => {
++      for (const a of pool) {
++        if (out.length >= n) return;
++        if (used.has(a.id) || !accept(a)) continue;
++        used.add(a.id);
++        out.push(a);
++      }
++    };
++    if (preferImage) grab((a) => !!a.featured_image);
++    grab(() => true);
++    return out;
++  };
++}
+diff --git a/src/routes/category.$slug.tsx b/src/routes/category.$slug.tsx
+index 91280d5..cb56195 100644
+--- a/src/routes/category.$slug.tsx
++++ b/src/routes/category.$slug.tsx
+@@ -3,7 +3,7 @@ import { useQuery } from "@tanstack/react-query";
+ import { fetchArticlesByCategory } from "@/lib/queries";
+ import { Header } from "@/components/site/Header";
+ import { Footer } from "@/components/site/Footer";
+-import { ArticleCard } from "@/components/site/ArticleCard";
++import { EditorialCategory } from "@/components/site/editorial/EditorialCategory";
+ import { absoluteUrl } from "@/lib/site-url";
+ 
+ export const Route = createFileRoute("/category/$slug")({
+@@ -64,31 +64,15 @@ function CategoryPage() {
+           </div>
+         ) : (
+           <>
+-            <header className="mb-10 border-b-2 border-[var(--ink)] pb-4">
+-              <span
+-                className="inline-block h-2 w-16"
+-                style={{ backgroundColor: q.data.category.color }}
+-              />
+-              <h1 className="mt-3 font-serif text-5xl font-black text-[var(--ink)]">
+-                {q.data.category.name}
+-              </h1>
+-              {q.data.category.description && (
+-                <p className="mt-2 max-w-2xl text-muted-foreground">
+-                  {q.data.category.description}
+-                </p>
+-              )}
+-            </header>
+-
+             {q.data.articles.length === 0 ? (
+-              <p className="text-muted-foreground">
+-                No stories in this section yet.
+-              </p>
++              <>
++                <h1 className="font-serif text-3xl font-black text-[var(--ink)]">
++                  {q.data.category.name}
++                </h1>
++                <p className="mt-4 text-muted-foreground">No stories in this section yet.</p>
++              </>
+             ) : (
+-              <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
+-                {q.data.articles.map((a) => (
+-                  <ArticleCard key={a.id} article={a} />
+-                ))}
+-              </div>
++              <EditorialCategory category={q.data.category} articles={q.data.articles} />
+             )}
+           </>
+         )}
+@@ -96,4 +80,4 @@ function CategoryPage() {
+       <Footer />
+     </div>
+   );
+-}
+\ No newline at end of file
++}

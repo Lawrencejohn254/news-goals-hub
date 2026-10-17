@@ -2,6 +2,7 @@ import { useMemo } from "react";
 import type { ArticleWithMeta, Category } from "@/lib/queries";
 import { CategorySection, type CategoryLayout } from "./CategorySection";
 import { TopSection, type TopBlock } from "./TopSection";
+import { createPicker } from "./picker";
 
 /**
  * Which layout (and how many stories) each category section gets, keyed by
@@ -16,30 +17,6 @@ const SECTION_BY_SLUG: Record<string, { layout: CategoryLayout; count: number }>
   counties: { layout: "counties", count: 12 },
 };
 const DEFAULT_SECTION: { layout: CategoryLayout; count: number } = { layout: "standard", count: 4 };
-
-/**
- * Hands out stories without ever handing out the same one twice: every slot on
- * the page takes from this one picker, so a story used in one slot can't show
- * up in another. Slots are filled in priority order (top of the page first).
- */
-function createPicker() {
-  const used = new Set<string>();
-  /** Take up to `n` unused stories from `pool`; with `preferImage`, ones that have a picture come first. */
-  return function take(pool: ArticleWithMeta[], n: number, preferImage = false): ArticleWithMeta[] {
-    const out: ArticleWithMeta[] = [];
-    const grab = (accept: (a: ArticleWithMeta) => boolean) => {
-      for (const a of pool) {
-        if (out.length >= n) return;
-        if (used.has(a.id) || !accept(a)) continue;
-        used.add(a.id);
-        out.push(a);
-      }
-    };
-    if (preferImage) grab((a) => !!a.featured_image);
-    grab(() => true);
-    return out;
-  };
-}
 
 /**
  * Editorial homepage body: hero band, block column + rail, then one section per
