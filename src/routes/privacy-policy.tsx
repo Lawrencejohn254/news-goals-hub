@@ -30,7 +30,7 @@ function PrivacyPage() {
           <h1 className="font-serif text-4xl font-black text-[var(--ink)] md:text-5xl">
             Privacy Policy
           </h1>
-          <p className="mt-2 text-sm text-muted-foreground">Last updated: 2026</p>
+          <p className="mt-2 text-sm text-muted-foreground">Last updated: 17 October 2026</p>
 
           <div className="article-prose mt-8">
             <p>
@@ -73,13 +73,13 @@ function PrivacyPage() {
             <h2>Cookies</h2>
             <p>
               We use the minimum browser storage needed for the site to function — for
-              example, keeping you signed in. Beyond that, our advertising partner also sets
+              example, keeping you signed in. Beyond that, Google AdSense also sets
               cookies on this site — see "Advertising" below for what that involves.
             </p>
 
             <h2>Advertising</h2>
             <p>
-              If advertising is enabled on The Africa Daily Dispatch, Google and its advertising partners may use cookies, device identifiers, and similar technologies to serve ads
+              The Africa Daily Dispatch uses Google AdSense to show advertising. Google, as a third-party vendor, and its advertising partners use cookies, device identifiers, and similar technologies to serve ads
               on this site, measure how they perform, and — where permitted — personalize
               which ads you see based on your visits here and to other sites. We don't control
               what data these cookies collect or how long they're retained; that's governed by
@@ -94,7 +94,7 @@ function PrivacyPage() {
                 className="text-[var(--brand)] underline"
               >
                 How Google uses information from sites that use our services
-              </a>
+              </a>.
                A full list of third-party ad technology providers that may serve ads on this
               site is published by Google at{" "}
               <a
@@ -106,6 +106,12 @@ function PrivacyPage() {
                 Google's ad technology providers
               </a>
               .
+            </p>
+            <p>
+              When you first visit, a banner lets you accept or reject cookies used for
+              advertising. Until you choose, advertising and analytics storage stays switched
+              off, and any ads shown are limited to non-personalized ones. You can change your
+              mind by clearing this site's data in your browser, which brings the banner back.
             </p>
             <p>
               <strong>Your choices:</strong> you can opt out of personalized advertising from
@@ -142,7 +148,11 @@ function PrivacyPage() {
 
             <h2>Questions</h2>
             <p>
-              For any privacy question, see our{" "}
+              For any privacy question, email{" "}
+              <a href="mailto:contact@africadailydispatch.com" className="text-[var(--brand)] underline">
+                contact@africadailydispatch.com
+              </a>{" "}
+              or see our{" "}
               <Link to="/contact" className="text-[var(--brand)] underline">
                 Contact
               </Link>{" "}

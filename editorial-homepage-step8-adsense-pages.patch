@@ -1,0 +1,118 @@
+diff --git a/src/routes/about.tsx b/src/routes/about.tsx
+index 862fec2..361e4fa 100644
+--- a/src/routes/about.tsx
++++ b/src/routes/about.tsx
+@@ -57,15 +57,30 @@ function AboutPage() {
+               .
+             </p>
+ 
+-            <h2>Who operates The Africa Daily Dispatch</h2>
++            <h2>Who runs The Africa Daily Dispatch</h2>
+             <p>
+-              The Africa Daily Dispatch is an independently operated publication. For questions about
+-              ownership, editorial decisions or corrections, see our{" "}
++              The Africa Daily Dispatch is founded and edited by Lawrence John, who is based in
++              Kenya and is responsible for what we publish. Articles carry the byline of the
++              person who wrote them, and every story shows its publication date.
++            </p>
++
++            <h2>Sources and corrections</h2>
++            <p>
++              We attribute and link to the sources behind our reporting wherever we can. When we
++              get something wrong we correct it openly and mark the update with a date. If you
++              spot an error, choose the Corrections option on our{" "}
+               <Link to="/contact" className="text-[var(--brand)] underline">
+                 Contact
+               </Link>{" "}
+               page.
+             </p>
++
++            <h2>Copyright and image credits</h2>
++            <p>
++              If you own a photograph or other material that appears on our site and would like
++              it credited or removed, contact us with the page address and we will review it
++              promptly.
++            </p>
+           </div>
+         </article>
+       </main>
+diff --git a/src/routes/contact.tsx b/src/routes/contact.tsx
+index a7446f7..7ddd0b6 100644
+--- a/src/routes/contact.tsx
++++ b/src/routes/contact.tsx
+@@ -43,6 +43,11 @@ const CATEGORIES = [
+     subject: "Correction request",
+     description: "Spotted an error in one of our articles? Include the article URL and what's wrong.",
+   },
++  {
++    label: "Copyright & image credits",
++    subject: "Copyright or image credit",
++    description: "Own a photo or text that appears on our site? Send the page URL and tell us whether you want it credited or removed.",
++  },
+   {
+     label: "Advertising & business",
+     subject: "Advertising enquiry",
+diff --git a/src/routes/privacy-policy.tsx b/src/routes/privacy-policy.tsx
+index c1f0a04..70046a3 100644
+--- a/src/routes/privacy-policy.tsx
++++ b/src/routes/privacy-policy.tsx
+@@ -30,7 +30,7 @@ function PrivacyPage() {
+           <h1 className="font-serif text-4xl font-black text-[var(--ink)] md:text-5xl">
+             Privacy Policy
+           </h1>
+-          <p className="mt-2 text-sm text-muted-foreground">Last updated: 2026</p>
++          <p className="mt-2 text-sm text-muted-foreground">Last updated: 17 October 2026</p>
+ 
+           <div className="article-prose mt-8">
+             <p>
+@@ -73,13 +73,13 @@ function PrivacyPage() {
+             <h2>Cookies</h2>
+             <p>
+               We use the minimum browser storage needed for the site to function — for
+-              example, keeping you signed in. Beyond that, our advertising partner also sets
++              example, keeping you signed in. Beyond that, Google AdSense also sets
+               cookies on this site — see "Advertising" below for what that involves.
+             </p>
+ 
+             <h2>Advertising</h2>
+             <p>
+-              If advertising is enabled on The Africa Daily Dispatch, Google and its advertising partners may use cookies, device identifiers, and similar technologies to serve ads
++              The Africa Daily Dispatch uses Google AdSense to show advertising. Google, as a third-party vendor, and its advertising partners use cookies, device identifiers, and similar technologies to serve ads
+               on this site, measure how they perform, and — where permitted — personalize
+               which ads you see based on your visits here and to other sites. We don't control
+               what data these cookies collect or how long they're retained; that's governed by
+@@ -94,7 +94,7 @@ function PrivacyPage() {
+                 className="text-[var(--brand)] underline"
+               >
+                 How Google uses information from sites that use our services
+-              </a>
++              </a>.
+                A full list of third-party ad technology providers that may serve ads on this
+               site is published by Google at{" "}
+               <a
+@@ -107,6 +107,12 @@ function PrivacyPage() {
+               </a>
+               .
+             </p>
++            <p>
++              When you first visit, a banner lets you accept or reject cookies used for
++              advertising. Until you choose, advertising and analytics storage stays switched
++              off, and any ads shown are limited to non-personalized ones. You can change your
++              mind by clearing this site's data in your browser, which brings the banner back.
++            </p>
+             <p>
+               <strong>Your choices:</strong> you can opt out of personalized advertising from
+               Google at{" "}
+@@ -142,7 +148,11 @@ function PrivacyPage() {
+ 
+             <h2>Questions</h2>
+             <p>
+-              For any privacy question, see our{" "}
++              For any privacy question, email{" "}
++              <a href="mailto:contact@africadailydispatch.com" className="text-[var(--brand)] underline">
++                contact@africadailydispatch.com
++              </a>{" "}
++              or see our{" "}
+               <Link to="/contact" className="text-[var(--brand)] underline">
+                 Contact
+               </Link>{" "}

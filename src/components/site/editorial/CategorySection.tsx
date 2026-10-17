@@ -159,12 +159,15 @@ export function CategorySection({
   stories,
   layout,
   subLinks,
+  showAllLink = true,
   className = "",
 }: {
   category: SectionCategory;
   stories: EditorialStory[];
   layout: CategoryLayout;
   subLinks?: SubLink[];
+  /** Set false for blocks like "More stories" that have no section page to link to. */
+  showAllLink?: boolean;
   className?: string;
 }) {
   if (stories.length === 0) return null;
@@ -192,11 +195,11 @@ export function CategorySection({
               </Link>
             ))}
           </nav>
-        ) : (
+        ) : showAllLink ? (
           <Link to="/category/$slug" params={{ slug: category.slug }} className={linkClass}>
             All {category.name} <span aria-hidden="true">→</span>
           </Link>
-        )}
+        ) : null}
       </div>
       {LAYOUTS[layout](stories)}
     </section>

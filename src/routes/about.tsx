@@ -57,14 +57,29 @@ function AboutPage() {
               .
             </p>
 
-            <h2>Who operates The Africa Daily Dispatch</h2>
+            <h2>Who runs The Africa Daily Dispatch</h2>
             <p>
-              The Africa Daily Dispatch is an independently operated publication. For questions about
-              ownership, editorial decisions or corrections, see our{" "}
+              The Africa Daily Dispatch is founded and edited by Lawrence John, who is based in
+              Kenya and is responsible for what we publish. Articles carry the byline of the
+              person who wrote them, and every story shows its publication date.
+            </p>
+
+            <h2>Sources and corrections</h2>
+            <p>
+              We attribute and link to the sources behind our reporting wherever we can. When we
+              get something wrong we correct it openly and mark the update with a date. If you
+              spot an error, choose the Corrections option on our{" "}
               <Link to="/contact" className="text-[var(--brand)] underline">
                 Contact
               </Link>{" "}
               page.
+            </p>
+
+            <h2>Copyright and image credits</h2>
+            <p>
+              If you own a photograph or other material that appears on our site and would like
+              it credited or removed, contact us with the page address and we will review it
+              promptly.
             </p>
           </div>
         </article>

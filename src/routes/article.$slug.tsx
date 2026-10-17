@@ -5,7 +5,7 @@ import { fetchArticleBySlug, fetchRelatedArticles } from "@/lib/queries";
 import { supabase } from "@/integrations/supabase/client";
 import { Header } from "@/components/site/Header";
 import { Footer } from "@/components/site/Footer";
-import { ArticleCard } from "@/components/site/ArticleCard";
+import { CategorySection } from "@/components/site/editorial/CategorySection";
 import { formatDateTime } from "@/lib/format";
 import { Comments } from "@/components/site/Comments";
 import { PreferredSource } from "@/components/site/PreferredSource";
@@ -196,23 +196,22 @@ function ArticlePage() {
         dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
       />
       <Header />
-      <main className="container-page py-10">
+      <main className="editorial container-page py-10">
         <article className="mx-auto max-w-3xl">
           {cat && (
             <Link
               to="/category/$slug"
               params={{ slug: cat.slug }}
-              className="inline-block px-2 py-1 text-xs font-bold uppercase tracking-widest text-white"
-              style={{ backgroundColor: cat.color }}
+              className="inline-block font-sans text-xs font-extrabold uppercase tracking-wider text-[var(--ed-accent)] hover:underline"
             >
               {cat.name}
             </Link>
           )}
-          <h1 className="mt-4 font-serif text-4xl font-black leading-tight text-[var(--ink)] md:text-5xl">
+          <h1 className="ed-serif mt-3 text-4xl font-bold leading-tight text-[var(--ed-text)] md:text-5xl">
             {a.title}
           </h1>
           {a.excerpt && (
-            <p className="mt-4 text-lg text-muted-foreground md:text-xl">
+            <p className="mt-4 font-sans text-lg text-[var(--ed-muted)] md:text-xl">
               {a.excerpt}
             </p>
           )}
@@ -220,7 +219,7 @@ function ArticlePage() {
           {/* Byline — now shows the author's photo, not just their name.
               Published date and view count are hidden unless turned on in
               Admin -> Settings (both default off). */}
-          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-y border-border py-4 text-sm text-muted-foreground">
+          <div className="mt-6 flex flex-wrap items-center justify-between gap-3 border-y border-[var(--ed-line)] py-4 font-sans text-sm text-[var(--ed-muted)]">
             <div className="flex flex-wrap items-center gap-3">
               <Link
                 to="/authors/$id"
@@ -259,7 +258,7 @@ function ArticlePage() {
           <ArticleBody html={a.content} />
 
           {/* Written by — full author card with photo + bio */}
-          <div className="mt-10 flex gap-4 border border-border bg-[var(--paper)] p-5">
+          <div className="mt-10 flex gap-4 border-y border-[var(--ed-line)] py-5">
             <Link to="/authors/$id" params={{ id: a.author_id }} className="shrink-0">
               <AuthorAvatar name={authorName} avatarUrl={a.profiles?.avatar_url} size={56} />
             </Link>
@@ -304,20 +303,14 @@ function ArticlePage() {
 
 
         {/* Related */}
-        {related.data && related.data.length > 0 && (
-          <section className="mx-auto mt-16 max-w-5xl">
-            <h2 className="mb-6 border-b-2 border-[var(--ink)] pb-2 font-serif text-2xl font-bold uppercase tracking-wider">
-              More stories
-            </h2>
-            <div className="grid gap-8 md:grid-cols-3">
-              {related.data
-                .filter((r) => r.id !== a.id)
-                .slice(0, 6)
-                .map((r) => (
-                  <ArticleCard key={r.id} article={r} />
-                ))}
-            </div>
-          </section>
+        {(related.data ?? []).filter((r) => r.id !== a.id).length > 0 && (
+          <CategorySection
+            className="mx-auto mt-16 max-w-5xl"
+            category={{ name: "More stories", slug: "more-stories" }}
+            stories={(related.data ?? []).filter((r) => r.id !== a.id).slice(0, 6)}
+            layout="politics"
+            showAllLink={false}
+          />
         )}
       </main>
       <Footer />

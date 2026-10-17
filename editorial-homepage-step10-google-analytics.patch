@@ -1,0 +1,139 @@
+diff --git a/src/components/site/Analytics.tsx b/src/components/site/Analytics.tsx
+new file mode 100644
+index 0000000..9e63338
+--- /dev/null
++++ b/src/components/site/Analytics.tsx
+@@ -0,0 +1,29 @@
++import { useEffect } from "react";
++import { useLocation } from "@tanstack/react-router";
++import { GA_ENABLED, isTrackedPath } from "@/lib/analytics";
++
++/**
++ * Sends a Google Analytics page_view whenever the visitor lands on a page or
++ * navigates to another one. The site is a single-page app, so GA's automatic
++ * page_view (which only fires on full page loads) is switched off in
++ * __root.tsx and this component does it instead.
++ *
++ * gtag is defined by the consent script in __root.tsx, which starts every
++ * visitor as "denied"; GA only sets cookies after they accept the banner.
++ * Production only, like the AdSense script.
++ */
++export function Analytics() {
++  const { pathname, searchStr } = useLocation();
++
++  useEffect(() => {
++    if (!import.meta.env.PROD || !GA_ENABLED || !isTrackedPath(pathname)) return;
++    const w = window as unknown as { gtag?: (...args: unknown[]) => void };
++    w.gtag?.("event", "page_view", {
++      page_path: pathname + searchStr,
++      page_location: window.location.href,
++      page_title: document.title,
++    });
++  }, [pathname, searchStr]);
++
++  return null;
++}
+diff --git a/src/lib/analytics.ts b/src/lib/analytics.ts
+new file mode 100644
+index 0000000..ff0e14d
+--- /dev/null
++++ b/src/lib/analytics.ts
+@@ -0,0 +1,17 @@
++/**
++ * Google Analytics 4 settings.
++ *
++ * Paste your GA4 Measurement ID (it looks like G-XXXXXXXXXX) between the quotes
++ * below, or set VITE_GA_MEASUREMENT_ID in your hosting environment instead.
++ * While this is empty, no analytics code loads at all. The ID is public (it is
++ * visible in any page's source), so it is safe to keep in the repo.
++ */
++export const GA_MEASUREMENT_ID: string = import.meta.env.VITE_GA_MEASUREMENT_ID || "";
++
++/** Only well-formed GA4 IDs are used; anything else disables analytics. */
++export const GA_ENABLED = /^G-[A-Z0-9]{6,}$/.test(GA_MEASUREMENT_ID);
++
++/** Staff areas are never counted, so your own editing doesn't skew traffic. */
++export function isTrackedPath(pathname: string): boolean {
++  return !/^\/(admin|auth)(\/|$)/.test(pathname);
++}
+diff --git a/src/routes/__root.tsx b/src/routes/__root.tsx
+index 772bb82..bab1990 100644
+--- a/src/routes/__root.tsx
++++ b/src/routes/__root.tsx
+@@ -14,6 +14,8 @@ import { reportError } from "../lib/error-reporting";
+ import { supabase } from "@/integrations/supabase/client";
+ import { Toaster } from "@/components/ui/sonner";
+ import { ConsentBanner } from "@/components/site/ConsentBanner";
++import { Analytics } from "@/components/site/Analytics";
++import { GA_ENABLED, GA_MEASUREMENT_ID } from "@/lib/analytics";
+ 
+ const NOT_FOUND_CATEGORIES = [
+   { label: "Politics", slug: "politics" },
+@@ -178,6 +180,25 @@ function RootShell({ children }: { children: ReactNode }) {
+             crossOrigin="anonymous"
+           />
+         )}
++        {/* Google Analytics 4. Loads after the consent script above (which
++            defines gtag with storage "denied"), so it only sets cookies once
++            the visitor accepts. send_page_view is off because <Analytics />
++            reports each page, including client-side navigations. Production
++            only, and only when a valid Measurement ID is set in
++            src/lib/analytics.ts. */}
++        {import.meta.env.PROD && GA_ENABLED && (
++          <>
++            <script
++              async
++              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
++            />
++            <script
++              dangerouslySetInnerHTML={{
++                __html: `gtag('js',new Date());gtag('config','${GA_MEASUREMENT_ID}',{send_page_view:false});`,
++              }}
++            />
++          </>
++        )}
+       </head>
+       <body>
+         {children}
+@@ -205,6 +226,7 @@ function RootComponent() {
+       <Outlet />
+       <Toaster />
+       <ConsentBanner />
++      <Analytics />
+     </QueryClientProvider>
+   );
+ }
+\ No newline at end of file
+diff --git a/src/routes/privacy-policy.tsx b/src/routes/privacy-policy.tsx
+index 70046a3..f22aefd 100644
+--- a/src/routes/privacy-policy.tsx
++++ b/src/routes/privacy-policy.tsx
+@@ -65,9 +65,25 @@ function PrivacyPage() {
+             <p>
+               We log basic page-view data (the page visited, referring page, and timestamp)
+               in our own database to understand which stories are being read — this is not
+-              shared with advertisers or data brokers. We do not currently run third-party
+-              analytics (such as Google Analytics) on the site. If that changes in the future,
+-              this policy will be updated to reflect it before any such tool goes live.
++              shared with advertisers or data brokers. This log is separate from the analytics service described next.
++            </p>
++            <p>
++              We also use Google Analytics 4, a web analytics service from Google, to
++              understand how visitors use the site, such as which pages are viewed and which
++              sites or countries visitors come from. Google Analytics only sets cookies if you
++              accept cookies in our banner. Until you choose, or if you reject them, analytics
++              storage stays switched off and Google receives only limited, cookie-free
++              measurements. We do not use it to identify you personally. You can opt out at any
++              time by rejecting cookies in the banner or by installing Google's{" "}
++              <a
++                href="https://tools.google.com/dlpage/gaoptout"
++                target="_blank"
++                rel="noopener noreferrer"
++                className="text-[var(--brand)] underline"
++              >
++                Analytics opt-out browser add-on
++              </a>
++              .
+             </p>
+ 
+             <h2>Cookies</h2>

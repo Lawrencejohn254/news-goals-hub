@@ -44,6 +44,11 @@ const CATEGORIES = [
     description: "Spotted an error in one of our articles? Include the article URL and what's wrong.",
   },
   {
+    label: "Copyright & image credits",
+    subject: "Copyright or image credit",
+    description: "Own a photo or text that appears on our site? Send the page URL and tell us whether you want it credited or removed.",
+  },
+  {
     label: "Advertising & business",
     subject: "Advertising enquiry",
     description: "Interested in advertising on The Africa Daily Dispatch or a business partnership.",
