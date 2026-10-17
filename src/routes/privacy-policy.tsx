@@ -65,9 +65,25 @@ function PrivacyPage() {
             <p>
               We log basic page-view data (the page visited, referring page, and timestamp)
               in our own database to understand which stories are being read — this is not
-              shared with advertisers or data brokers. We do not currently run third-party
-              analytics (such as Google Analytics) on the site. If that changes in the future,
-              this policy will be updated to reflect it before any such tool goes live.
+              shared with advertisers or data brokers. This log is separate from the analytics service described next.
+            </p>
+            <p>
+              We also use Google Analytics 4, a web analytics service from Google, to
+              understand how visitors use the site, such as which pages are viewed and which
+              sites or countries visitors come from. Google Analytics only sets cookies if you
+              accept cookies in our banner. Until you choose, or if you reject them, analytics
+              storage stays switched off and Google receives only limited, cookie-free
+              measurements. We do not use it to identify you personally. You can opt out at any
+              time by rejecting cookies in the banner or by installing Google's{" "}
+              <a
+                href="https://tools.google.com/dlpage/gaoptout"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="text-[var(--brand)] underline"
+              >
+                Analytics opt-out browser add-on
+              </a>
+              .
             </p>
 
             <h2>Cookies</h2>
