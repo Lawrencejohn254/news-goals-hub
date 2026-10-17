@@ -24,6 +24,7 @@ function NewArticle() {
   const [excerpt, setExcerpt] = useState("");
   const [content, setContent] = useState("");
   const [featuredImage, setFeaturedImage] = useState("");
+  const [imageCredit, setImageCredit] = useState("");
   const [categoryId, setCategoryId] = useState("");
   const [saving, setSaving] = useState(false);
 
@@ -41,6 +42,7 @@ function NewArticle() {
         excerpt: excerpt.trim() || null,
         content,
         featured_image: featuredImage.trim() || null,
+        image_credit: imageCredit.trim() || null,
         category_id: categoryId || null,
         author_id: userData.user.id,
         status,
@@ -70,6 +72,8 @@ function NewArticle() {
           setContent,
           featuredImage,
           setFeaturedImage,
+          imageCredit,
+          setImageCredit,
           categoryId,
           setCategoryId,
           categories: cats.data ?? [],
@@ -102,6 +106,8 @@ export function ArticleForm(props: {
   setContent: (v: string) => void;
   featuredImage: string;
   setFeaturedImage: (v: string) => void;
+  imageCredit: string;
+  setImageCredit: (v: string) => void;
   categoryId: string;
   setCategoryId: (v: string) => void;
   categories: { id: string; name: string }[];
@@ -174,6 +180,18 @@ export function ArticleForm(props: {
             className="mt-2 max-h-40 rounded border border-border object-cover"
           />
         )}
+      </div>
+      <div>
+        <Label htmlFor="credit">Image credit</Label>
+        <Input
+          id="credit"
+          value={props.imageCredit}
+          onChange={(e) => props.setImageCredit(e.target.value)}
+          placeholder="e.g. Photo: KNA, or Image: Courtesy of State House"
+        />
+        <p className="mt-1 text-xs text-muted-foreground">
+          Shown under the main image. Credit the owner of the photo, or write "The Africa Daily Dispatch" if it is yours.
+        </p>
       </div>
       <div>
         <Label>Content</Label>

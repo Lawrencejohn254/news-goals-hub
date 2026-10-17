@@ -106,6 +106,7 @@ export type Database = {
           id: string
           is_featured: boolean
           is_breaking: boolean
+          image_credit: string | null
           is_pinned: boolean
           published_at: string | null
           reading_time: number
@@ -128,6 +129,7 @@ export type Database = {
           id?: string
           is_featured?: boolean
           is_breaking?: boolean
+          image_credit?: string | null
           is_pinned?: boolean
           published_at?: string | null
           reading_time?: number
@@ -150,6 +152,7 @@ export type Database = {
           id?: string
           is_featured?: boolean
           is_breaking?: boolean
+          image_credit?: string | null
           is_pinned?: boolean
           published_at?: string | null
           reading_time?: number

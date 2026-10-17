@@ -247,11 +247,18 @@ function ArticlePage() {
           </div>
 
           {a.featured_image && (
-            <img
-              src={a.featured_image}
-              alt={a.title}
-              className="mt-6 aspect-[16/9] w-full object-cover"
-            />
+            <figure className="mt-6">
+              <img
+                src={a.featured_image}
+                alt={a.title}
+                className="aspect-[16/9] w-full object-cover"
+              />
+              {a.image_credit?.trim() && (
+                <figcaption className="mt-2 font-sans text-xs text-[var(--ed-muted)]">
+                  {a.image_credit.trim()}
+                </figcaption>
+              )}
+            </figure>
           )}
 
           <TrackedAdSlot placement="article-inline" section={cat?.slug} className="my-8" />
