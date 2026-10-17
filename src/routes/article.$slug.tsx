@@ -40,7 +40,13 @@ export const Route = createFileRoute("/article/$slug")({
     const title = a.seo_title?.trim() || `${a.title} — The Africa Daily Dispatch`;
     const description =
       a.seo_description?.trim() || a.excerpt?.trim() || "Read the full story on The Africa Daily Dispatch.";
-    const image = a.featured_image ?? undefined;
+    // Uploaded images are stored as "/media/..." paths; social cards and search
+    // need a full address.
+    const image = a.featured_image
+      ? a.featured_image.startsWith("/")
+        ? absoluteUrl(a.featured_image)
+        : a.featured_image
+      : undefined;
     const path = `/article/${a.slug}`;
     const url = absoluteUrl(path);
 
@@ -168,7 +174,9 @@ function ArticlePage() {
     "@type": "NewsArticle",
     headline: a.title,
     description: a.excerpt ?? a.seo_description ?? undefined,
-    image: a.featured_image ? [a.featured_image] : undefined,
+    image: a.featured_image
+      ? [a.featured_image.startsWith("/") ? absoluteUrl(a.featured_image) : a.featured_image]
+      : undefined,
     datePublished: a.published_at ?? a.created_at,
     dateModified: a.updated_at,
     author: {
