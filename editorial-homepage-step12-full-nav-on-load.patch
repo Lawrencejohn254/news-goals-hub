@@ -1,0 +1,95 @@
+From 3a271501acf8a83eb0b0bd7b58a360e3f6e220fb Mon Sep 17 00:00:00 2001
+From: Claude <noreply@anthropic.com>
+Date: Sat, 17 Oct 2026 21:54:48 +0300
+Subject: [PATCH] Load menu categories on the server so the full nav shows at
+ once
+
+Co-Authored-By: Claude Sonnet 5.5 <noreply@anthropic.com>
+Claude-Session: https://claude.ai/code/session_01BxTSLXxJbWHJGJdqytoiyx
+---
+ src/components/site/Header.tsx | 18 +++++++++++++++---
+ src/routes/__root.tsx          | 11 +++++++++++
+ 2 files changed, 26 insertions(+), 3 deletions(-)
+
+diff --git a/src/components/site/Header.tsx b/src/components/site/Header.tsx
+index e18d1bd..a060e65 100644
+--- a/src/components/site/Header.tsx
++++ b/src/components/site/Header.tsx
+@@ -1,4 +1,4 @@
+-import { Link } from "@tanstack/react-router";
++import { Link, getRouteApi } from "@tanstack/react-router";
+ import { useEffect, useState } from "react";
+ import { useQuery } from "@tanstack/react-query";
+ import { Search, Menu, X } from "lucide-react";
+@@ -6,6 +6,9 @@ import { fetchCategories } from "@/lib/queries";
+ import { fetchSettings } from "@/lib/site";
+ import { ElectionCountdown } from "@/components/site/ElectionCountdown";
+ 
++// Menu data loaded by the root route on the server (see __root.tsx).
++const rootRoute = getRouteApi("__root__");
++
+ // Scroll distances (px) at which the pinned header shrinks and grows back.
+ // Two different values stop it flickering when the height change itself
+ // nudges the scroll position.
+@@ -21,6 +24,7 @@ export function Header() {
+   const [open, setOpen] = useState(false);
+   const [now, setNow] = useState(new Date());
+   const [compact, setCompact] = useState(false);
++  const rootData = rootRoute.useLoaderData();
+ 
+   useEffect(() => {
+     const onScroll = () => {
+@@ -35,11 +39,19 @@ export function Header() {
+   // Nav mirrors the real categories table (respects is_enabled and
+   // sort_order) instead of a hardcoded list — add/disable a category in
+   // the admin panel and this updates automatically, no code change needed.
+-  const categories = useQuery({ queryKey: ["nav-categories"], queryFn: fetchCategories });
++  const categories = useQuery({
++    queryKey: ["nav-categories"],
++    queryFn: fetchCategories,
++    initialData: rootData.navCategories,
++  });
+   const navCategories = categories.data ?? [];
+   // Predictions nav link respects the toggle in Admin -> Settings — default
+   // true (matches the DB default) so it doesn't flicker away while loading.
+-  const settings = useQuery({ queryKey: ["site-settings"], queryFn: fetchSettings });
++  const settings = useQuery({
++    queryKey: ["site-settings"],
++    queryFn: fetchSettings,
++    initialData: rootData.settings ?? undefined,
++  });
+   const showPredictions = settings.data?.predictions_enabled ?? true;
+ 
+   useEffect(() => {
+diff --git a/src/routes/__root.tsx b/src/routes/__root.tsx
+index bab1990..d88145b 100644
+--- a/src/routes/__root.tsx
++++ b/src/routes/__root.tsx
+@@ -16,6 +16,8 @@ import { Toaster } from "@/components/ui/sonner";
+ import { ConsentBanner } from "@/components/site/ConsentBanner";
+ import { Analytics } from "@/components/site/Analytics";
+ import { GA_ENABLED, GA_MEASUREMENT_ID } from "@/lib/analytics";
++import { fetchCategories } from "@/lib/queries";
++import { fetchSettings } from "@/lib/site";
+ 
+ const NOT_FOUND_CATEGORIES = [
+   { label: "Politics", slug: "politics" },
+@@ -114,6 +116,15 @@ function ErrorComponent({ error: rawError, reset }: { error: unknown; reset: ()
+ }
+ 
+ export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
++  // Fetch the menu data on the server so the header is complete in the first
++  // HTML. Failures fall back to empty so a database hiccup never breaks the page.
++  loader: async () => {
++    const [categories, settings] = await Promise.allSettled([fetchCategories(), fetchSettings()]);
++    return {
++      navCategories: categories.status === "fulfilled" ? categories.value : [],
++      settings: settings.status === "fulfilled" ? settings.value : null,
++    };
++  },
+   head: () => ({
+     meta: [
+       { charSet: "utf-8" },
+-- 
+2.43.0
+

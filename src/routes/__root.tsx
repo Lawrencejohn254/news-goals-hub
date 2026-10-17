@@ -16,6 +16,8 @@ import { Toaster } from "@/components/ui/sonner";
 import { ConsentBanner } from "@/components/site/ConsentBanner";
 import { Analytics } from "@/components/site/Analytics";
 import { GA_ENABLED, GA_MEASUREMENT_ID } from "@/lib/analytics";
+import { fetchCategories } from "@/lib/queries";
+import { fetchSettings } from "@/lib/site";
 
 const NOT_FOUND_CATEGORIES = [
   { label: "Politics", slug: "politics" },
@@ -114,6 +116,15 @@ function ErrorComponent({ error: rawError, reset }: { error: unknown; reset: () 
 }
 
 export const Route = createRootRouteWithContext<{ queryClient: QueryClient }>()({
+  // Fetch the menu data on the server so the header is complete in the first
+  // HTML. Failures fall back to empty so a database hiccup never breaks the page.
+  loader: async () => {
+    const [categories, settings] = await Promise.allSettled([fetchCategories(), fetchSettings()]);
+    return {
+      navCategories: categories.status === "fulfilled" ? categories.value : [],
+      settings: settings.status === "fulfilled" ? settings.value : null,
+    };
+  },
   head: () => ({
     meta: [
       { charSet: "utf-8" },

@@ -1,10 +1,13 @@
-import { Link } from "@tanstack/react-router";
+import { Link, getRouteApi } from "@tanstack/react-router";
 import { useEffect, useState } from "react";
 import { useQuery } from "@tanstack/react-query";
 import { Search, Menu, X } from "lucide-react";
 import { fetchCategories } from "@/lib/queries";
 import { fetchSettings } from "@/lib/site";
 import { ElectionCountdown } from "@/components/site/ElectionCountdown";
+
+// Menu data loaded by the root route on the server (see __root.tsx).
+const rootRoute = getRouteApi("__root__");
 
 // Scroll distances (px) at which the pinned header shrinks and grows back.
 // Two different values stop it flickering when the height change itself
@@ -21,6 +24,7 @@ export function Header() {
   const [open, setOpen] = useState(false);
   const [now, setNow] = useState(new Date());
   const [compact, setCompact] = useState(false);
+  const rootData = rootRoute.useLoaderData();
 
   useEffect(() => {
     const onScroll = () => {
@@ -35,11 +39,19 @@ export function Header() {
   // Nav mirrors the real categories table (respects is_enabled and
   // sort_order) instead of a hardcoded list — add/disable a category in
   // the admin panel and this updates automatically, no code change needed.
-  const categories = useQuery({ queryKey: ["nav-categories"], queryFn: fetchCategories });
+  const categories = useQuery({
+    queryKey: ["nav-categories"],
+    queryFn: fetchCategories,
+    initialData: rootData.navCategories,
+  });
   const navCategories = categories.data ?? [];
   // Predictions nav link respects the toggle in Admin -> Settings — default
   // true (matches the DB default) so it doesn't flicker away while loading.
-  const settings = useQuery({ queryKey: ["site-settings"], queryFn: fetchSettings });
+  const settings = useQuery({
+    queryKey: ["site-settings"],
+    queryFn: fetchSettings,
+    initialData: rootData.settings ?? undefined,
+  });
   const showPredictions = settings.data?.predictions_enabled ?? true;
 
   useEffect(() => {
