@@ -14,6 +14,8 @@ import { reportError } from "../lib/error-reporting";
 import { supabase } from "@/integrations/supabase/client";
 import { Toaster } from "@/components/ui/sonner";
 import { ConsentBanner } from "@/components/site/ConsentBanner";
+import { Analytics } from "@/components/site/Analytics";
+import { GA_ENABLED, GA_MEASUREMENT_ID } from "@/lib/analytics";
 
 const NOT_FOUND_CATEGORIES = [
   { label: "Politics", slug: "politics" },
@@ -178,6 +180,25 @@ function RootShell({ children }: { children: ReactNode }) {
             crossOrigin="anonymous"
           />
         )}
+        {/* Google Analytics 4. Loads after the consent script above (which
+            defines gtag with storage "denied"), so it only sets cookies once
+            the visitor accepts. send_page_view is off because <Analytics />
+            reports each page, including client-side navigations. Production
+            only, and only when a valid Measurement ID is set in
+            src/lib/analytics.ts. */}
+        {import.meta.env.PROD && GA_ENABLED && (
+          <>
+            <script
+              async
+              src={`https://www.googletagmanager.com/gtag/js?id=${GA_MEASUREMENT_ID}`}
+            />
+            <script
+              dangerouslySetInnerHTML={{
+                __html: `gtag('js',new Date());gtag('config','${GA_MEASUREMENT_ID}',{send_page_view:false});`,
+              }}
+            />
+          </>
+        )}
       </head>
       <body>
         {children}
@@ -205,6 +226,7 @@ function RootComponent() {
       <Outlet />
       <Toaster />
       <ConsentBanner />
+      <Analytics />
     </QueryClientProvider>
   );
 }
