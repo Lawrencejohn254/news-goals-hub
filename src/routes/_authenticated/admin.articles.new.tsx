@@ -1,10 +1,11 @@
 import { createFileRoute, useNavigate } from "@tanstack/react-router";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { toast } from "sonner";
 import { slugify, readingTime } from "@/lib/format";
 import { RichTextEditor } from "@/components/site/RichTextEditor";
 import { resolveImageUrl } from "@/lib/image-url";
+import { uploadMedia, mediaUrl } from "@/lib/site";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
@@ -112,6 +113,25 @@ export function ArticleForm(props: {
   setCategoryId: (v: string) => void;
   categories: { id: string; name: string }[];
 }) {
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  const uploadFeatured = async (file: File) => {
+    if (!file.type.startsWith("image/")) return toast.error("Please choose an image file");
+    if (file.size > 8 * 1024 * 1024) return toast.error("Image is over 8 MB — please use a smaller one");
+    setUploading(true);
+    try {
+      const item = await uploadMedia(file);
+      props.setFeaturedImage(mediaUrl(item.path));
+      toast.success("Image uploaded");
+    } catch (e) {
+      toast.error(e instanceof Error ? e.message : "Upload failed");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  };
+
   return (
     <div className="space-y-4 border border-border bg-background p-6">
       <div>
@@ -166,13 +186,34 @@ export function ArticleForm(props: {
       </div>
       <div>
         <Label htmlFor="img">Featured image URL</Label>
-        <Input
-          id="img"
-          value={props.featuredImage}
-          onChange={(e) => props.setFeaturedImage(e.target.value)}
-          onBlur={(e) => props.setFeaturedImage(resolveImageUrl(e.target.value))}
-          placeholder="https://… (also accepts Google Drive share links)"
-        />
+        <div className="flex gap-2">
+          <Input
+            id="img"
+            value={props.featuredImage}
+            onChange={(e) => props.setFeaturedImage(e.target.value)}
+            onBlur={(e) => props.setFeaturedImage(resolveImageUrl(e.target.value))}
+            placeholder="https://… or upload a file →"
+          />
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/jpeg,image/png,image/webp"
+            className="hidden"
+            onChange={(e) => {
+              const f = e.target.files?.[0];
+              if (f) void uploadFeatured(f);
+            }}
+          />
+          <Button
+            type="button"
+            variant="outline"
+            disabled={uploading}
+            onClick={() => fileRef.current?.click()}
+            className="shrink-0"
+          >
+            {uploading ? "Uploading…" : "Upload image"}
+          </Button>
+        </div>
         {props.featuredImage && (
           <img
             src={props.featuredImage}
