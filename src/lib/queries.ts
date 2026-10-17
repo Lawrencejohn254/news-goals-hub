@@ -12,6 +12,13 @@ export type ArticleWithMeta = Article & {
 const ARTICLE_SELECT =
   "*, categories(id,name,slug,color), profiles!articles_author_profile_fkey(display_name,avatar_url,bio)";
 
+// Lean column list for story cards (homepage, section pages). It leaves out the
+// full article body and SEO fields, which are by far the heaviest columns and
+// are sent to every visitor inside the page HTML. Article pages still use
+// ARTICLE_SELECT so they get everything.
+const CARD_SELECT: string =
+  "id,slug,title,excerpt,featured_image,published_at,category_id,is_breaking,has_audio,sponsor_name,article_type,categories(id,name,slug,color)";
+
 export async function fetchCategories() {
   const { data, error } = await supabase
     .from("categories")
@@ -32,7 +39,7 @@ export async function fetchPublishedArticles(limit = 20, offset = 0) {
   // category page — nothing is deleted, just no longer on the homepage).
   const { data, error } = await supabase
     .from("articles")
-    .select(ARTICLE_SELECT)
+    .select(CARD_SELECT)
     .eq("status", "published")
     .lte("published_at", new Date().toISOString())
     .order("published_at", { ascending: false })
@@ -57,7 +64,7 @@ export async function fetchFeaturedArticles(limit = 5) {
 export async function fetchBreaking(limit = 8) {
   const { data, error } = await supabase
     .from("articles")
-    .select(ARTICLE_SELECT)
+    .select(CARD_SELECT)
     .eq("status", "published")
     .eq("is_breaking", true)
     .lte("published_at", new Date().toISOString())
@@ -153,7 +160,7 @@ export async function fetchArticlesByCategory(categorySlug: string, limit = 100)
   if (!cat) return { category: null, articles: [] as ArticleWithMeta[] };
   const { data, error } = await supabase
     .from("articles")
-    .select(ARTICLE_SELECT)
+    .select(CARD_SELECT)
     .eq("status", "published")
     .eq("category_id", cat.id)
     .lte("published_at", new Date().toISOString())
